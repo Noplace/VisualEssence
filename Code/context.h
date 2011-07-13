@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_CONTEXT_H
 #define GRAPHICS_CONTEXT_H
 
-
 #include <WinCore/windows/windows.h>
 #include <xnamath.h>
 #include "component.h"
