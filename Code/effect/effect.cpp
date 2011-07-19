@@ -1,5 +1,8 @@
-#include "effect.h"
 #include <D3DX11.h>
+#include "effect.h"
+
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "dxguid.lib")
 
 inline DXGI_FORMAT GetFormatFromShader(const D3D11_SIGNATURE_PARAMETER_DESC& input) {
   DXGI_FORMAT result = DXGI_FORMAT_UNKNOWN;

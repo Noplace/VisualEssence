@@ -2,8 +2,8 @@
 #define GRAPHICS_CAMERA_H
 
 #include <xnamath.h>
-#include "component.h"
-#include "context.h"
+#include "../component.h"
+#include "../context/context.h"
 
 namespace graphics {
 

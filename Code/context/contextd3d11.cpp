@@ -1,5 +1,14 @@
 #include "contextd3d11.h"
 
+#pragma comment(lib, "d3d11.lib")
+#ifdef _DEBUG 
+#pragma comment(lib, "d3dx11d.lib")
+#else
+#pragma comment(lib, "d3dx11.lib")
+#endif
+
+//#pragma comment(lib, "dxgi.lib")
+
 namespace graphics {
   /*
 const D3DVERTEXELEMENT9 ContextD3D11::ve_xyzc[3] = {

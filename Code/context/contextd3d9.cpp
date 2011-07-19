@@ -1,5 +1,10 @@
 #include "contextd3d9.h"
 
+#pragma comment(lib, "d3d9.lib")
+#pragma comment(lib, "d3dx9.lib")
+#pragma comment(lib, "dxguid.lib")
+
+
 namespace graphics {
 
 const D3DVERTEXELEMENT9 ContextD3D9::ve_xyzc[3] = {

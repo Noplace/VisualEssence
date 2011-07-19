@@ -9,8 +9,6 @@
 #include <dwrite.h>
 #include <wincodec.h>
 #include "context.h"
-#include "shader.h"
-
 
 namespace graphics {
 

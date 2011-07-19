@@ -51,7 +51,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>dxguid.lib;dxgi.lib;d3d11.lib;d3dcompiler.lib;d3dx11d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -75,27 +75,27 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Code\buffer.h" />
-    <ClInclude Include="Code\camera.h" />
-    <ClInclude Include="Code\camera2d.h" />
+    <ClInclude Include="Code\buffer\buffer.h" />
+    <ClInclude Include="Code\camera\camera.h" />
+    <ClInclude Include="Code\camera\camera2d.h" />
     <ClInclude Include="Code\component.h" />
-    <ClInclude Include="Code\context.h" />
-    <ClInclude Include="Code\contextd3d11.h" />
-    <ClInclude Include="Code\contextd3d9.h" />
-    <ClInclude Include="Code\effect.h" />
+    <ClInclude Include="Code\context\context.h" />
+    <ClInclude Include="Code\context\contextd3d11.h" />
+    <ClInclude Include="Code\context\contextd3d9.h" />
+    <ClInclude Include="Code\effect\effect.h" />
     <ClInclude Include="Code\font\bmfont\acutil_unicode.h" />
     <ClInclude Include="Code\font\bmfont\font.h" />
     <ClInclude Include="Code\font\bmfont\font_loader.h" />
     <ClInclude Include="Code\font\writer.h" />
-    <ClInclude Include="Code\scene.h" />
-    <ClInclude Include="Code\shader.h" />
-    <ClInclude Include="Code\vertex.h" />
-    <ClInclude Include="Code\vertex_buffer.h" />
+    <ClInclude Include="Code\scene\scene.h" />
+    <ClInclude Include="Code\shader\shader.h" />
+    <ClInclude Include="Code\buffer\vertex.h" />
+    <ClInclude Include="Code\buffer\vertex_buffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\contextd3d11.cpp" />
-    <ClCompile Include="Code\contextd3d9.cpp" />
-    <ClCompile Include="Code\effect.cpp" />
+    <ClCompile Include="Code\context\contextd3d11.cpp" />
+    <ClCompile Include="Code\context\contextd3d9.cpp" />
+    <ClCompile Include="Code\effect\effect.cpp" />
     <ClCompile Include="Code\font\bmfont\acutil_unicode.cpp" />
     <ClCompile Include="Code\font\bmfont\font.cpp" />
     <ClCompile Include="Code\font\bmfont\font_loader.cpp" />

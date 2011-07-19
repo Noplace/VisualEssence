@@ -4,9 +4,9 @@
 #include <Windows.h>
 #include <xnamath.h>
 #include "../component.h"
-#include "../context.h"
-#include "../effect.h"
-#include "../camera.h"
+#include "../context/context.h"
+#include "../effect/effect.h"
+#include "../camera/camera.h"
 #include "bmfont/font.h"
 
 namespace graphics {

@@ -1,10 +1,9 @@
 #ifndef GRAPHICS_CONTEXTD3D9_H
 #define GRAPHICS_CONTEXTD3D9_H
 
-#include "context.h"
 #include <d3d9.h>
 #include <d3dx9.h>
-
+#include "context.h"
 
 namespace graphics {
 

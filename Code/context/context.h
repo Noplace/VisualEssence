@@ -3,9 +3,9 @@
 
 #include <WinCore/windows/windows.h>
 #include <xnamath.h>
-#include "component.h"
-#include "buffer.h"
-#include "shader.h"
+#include "../component.h"
+#include "../buffer/buffer.h"
+#include "../shader/shader.h"
 
 namespace graphics {
 

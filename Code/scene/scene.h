@@ -2,8 +2,8 @@
 #define GRAPHICS_SCENE_H
 
 #include "component.h"
-#include "camera.h"
-#include "shader.h"
+#include "../camera/camera.h"
+#include "../shader/shader.h"
 
 namespace graphics {
 

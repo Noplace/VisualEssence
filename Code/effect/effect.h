@@ -1,7 +1,7 @@
 #ifndef GRAPHICS_EFFECT_H
 #define GRAPHICS_EFFECT_H
 
-#include "contextd3d11.h"
+#include "../context/contextd3d11.h"
 
 namespace graphics {
 
