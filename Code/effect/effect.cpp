@@ -4,6 +4,8 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
+//a
+
 inline DXGI_FORMAT GetFormatFromShader(const D3D11_SIGNATURE_PARAMETER_DESC& input) {
   DXGI_FORMAT result = DXGI_FORMAT_UNKNOWN;
 
