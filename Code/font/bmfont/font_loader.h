@@ -37,7 +37,7 @@ namespace acGraphics {
 
 class FontLoader {
  public:
-	FontLoader(FILE *f, const char *fontFile);
+	FontLoader(const char *fontFile);
 	virtual int Load() = 0; // Must be implemented by derived class
   Font* GenerateFont() { font_ = new Font(); Load(); return font_; }
  protected:
@@ -56,7 +56,7 @@ class FontLoader {
 
 class FontLoaderBinaryFormat : public FontLoader {
 public:
-	FontLoaderBinaryFormat(FILE *f, const char *fontFile);
+	FontLoaderBinaryFormat(const char *fontFile);
 
 	int Load();
 

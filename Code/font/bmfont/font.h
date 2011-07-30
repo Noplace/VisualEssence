@@ -32,6 +32,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <d3d11.h>
 
 namespace graphics {
 namespace font {
@@ -87,7 +88,7 @@ public:
 
 	void PrepareEffect();
 	void PreparePixelPerfectOutput();
-
+  std::vector<ID3D11ShaderResourceView*> pages;
 protected:
 	friend class FontLoader;
   friend class graphics::font::Writer;
@@ -113,7 +114,7 @@ protected:
 
 
 	std::map<int, SCharDescr*> chars;
-	std::vector<int> pages;
+	
 	std::string fxFile;
 };
 

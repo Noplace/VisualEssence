@@ -57,6 +57,9 @@ class ContextD3D11 : public Context {
   int DestroyVertexShader(VertexShader& vs);
   int DestroyPixelShader(PixelShader& ps);
   int SetShader(const Shader& shader);
+  int Draw(uint32_t vertex_count, uint32_t vertex_start_index);
+  int SetPixelShaderResources(uint32_t start_slot,uint32_t count,void** resources_pointer);
+  int SetPrimitiveTopology(uint32_t topology);
   ID3D11Device* device() { return device_; }
   ID3D11DeviceContext* device_context() { return device_context_; }
 private:

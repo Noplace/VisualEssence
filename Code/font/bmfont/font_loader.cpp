@@ -4,8 +4,8 @@ using namespace std;
 
 namespace acGraphics {
 
-FontLoader::FontLoader(FILE *f, const char *fontFile) {
-	this->f = f;
+FontLoader::FontLoader(const char *fontFile) {
+	this->f = NULL;
 	this->fontFile = fontFile;
 
 	outlineThickness = 0;
@@ -104,11 +104,12 @@ void FontLoader::AddKerningPair(int first, int second, int amount) {
 
 
 
-FontLoaderBinaryFormat::FontLoaderBinaryFormat(FILE *f, const char *fontFile) : FontLoader(f, fontFile) {
+FontLoaderBinaryFormat::FontLoaderBinaryFormat(const char *fontFile) : FontLoader(fontFile) {
 }
 
 int FontLoaderBinaryFormat::Load() {
 
+ fopen_s(&f,fontFile, "rb");
  this->font_ = new Font();
 
 	// Read and validate the tag. It should be 66, 77, 70, 2, 

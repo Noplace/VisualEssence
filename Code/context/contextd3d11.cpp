@@ -417,6 +417,20 @@ int ContextD3D11::SetShader(const Shader& shader) {
   return S_OK;
 }
 
+int ContextD3D11::Draw(uint32_t vertex_count, uint32_t vertex_start_index) {
+  device_context_->Draw(vertex_count,vertex_start_index);
 
+  return S_OK;
+}
+
+int ContextD3D11::SetPixelShaderResources(uint32_t start_slot,uint32_t count,void** resources_pointer) {
+  device_context_->PSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
+  return S_OK;
+}
+
+int ContextD3D11::SetPrimitiveTopology(uint32_t topology) {
+  device_context_->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)topology);
+  return S_OK;
+}
 
 }

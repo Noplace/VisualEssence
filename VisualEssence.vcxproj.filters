@@ -33,9 +33,6 @@
     <ClInclude Include="Code\context\context.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\context\contextd3d9.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Code\context\contextd3d11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,9 +75,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Code\context\contextd3d11.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Code\context\contextd3d9.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Code\effect\effect.cpp">

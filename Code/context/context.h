@@ -49,6 +49,9 @@ class Context {
   virtual int DestroyPixelShader(PixelShader&) = 0;
   virtual int DestroyGeometryShader(GeometryShader&) = 0;
   virtual int SetShader(const Shader&) = 0;
+  virtual int Draw(uint32_t, uint32_t) = 0;
+  virtual int SetPixelShaderResources(uint32_t,uint32_t,void**) = 0;
+  virtual int SetPrimitiveTopology(uint32_t) = 0;
   core::windows::Window* window() { return window_; }
   uint32_t width() { return width_; }
   uint32_t height() { return height_; }

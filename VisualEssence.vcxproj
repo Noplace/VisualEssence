@@ -81,7 +81,6 @@
     <ClInclude Include="Code\component.h" />
     <ClInclude Include="Code\context\context.h" />
     <ClInclude Include="Code\context\contextd3d11.h" />
-    <ClInclude Include="Code\context\contextd3d9.h" />
     <ClInclude Include="Code\effect\effect.h" />
     <ClInclude Include="Code\font\bmfont\acutil_unicode.h" />
     <ClInclude Include="Code\font\bmfont\font.h" />
@@ -94,7 +93,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\context\contextd3d11.cpp" />
-    <ClCompile Include="Code\context\contextd3d9.cpp" />
     <ClCompile Include="Code\effect\effect.cpp" />
     <ClCompile Include="Code\font\bmfont\acutil_unicode.cpp" />
     <ClCompile Include="Code\font\bmfont\font.cpp" />

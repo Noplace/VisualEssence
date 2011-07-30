@@ -18,6 +18,7 @@ struct Vertex {
     XMFLOAT2 Tex;
     XMFLOAT4 Color;
     UINT     Channel;
+    UINT     Page;
 };
 
 class Writer : public graphics::Component {
@@ -28,6 +29,8 @@ class Writer : public graphics::Component {
   int Deinitialize();
   int PrepareWrite(int count);
   int Write(float x, float y, float z, const char *text, int count, unsigned int mode);
+  int WriteML(float x, float y, float z, const char *text, int count, unsigned int mode);
+  int WriteBox(float x, float y, float z, float width, const char *text, int count, unsigned int mode);
   int Draw(int count);
   acGraphics::Font* font() { return font_; }
   void set_font(acGraphics::Font* font) { font_ = font; }
@@ -39,6 +42,7 @@ class Writer : public graphics::Component {
   Vertex* vertex_array_;
   graphics::Effect* effect_;
   graphics::Camera camera_;
+  int vcount;
 };
 
 }
