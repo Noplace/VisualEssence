@@ -9,7 +9,7 @@ namespace graphics {
 
 class Camera : public Component {
  public:
-   struct ConstantBuffer {
+  struct ConstantBuffer {
     XMMATRIX mView;
     XMMATRIX mProjection;
   };
@@ -74,7 +74,7 @@ class Camera : public Component {
 
   void SetConstantBuffer(uint32_t slot) {
     //send to vertex shader only
-    context_->SetConstantBuffers(kShaderTypeVertex,0,1,&cam_buffer_);
+    context_->SetConstantBuffers(kShaderTypeVertex,slot,1,&cam_buffer_);
   }
 
   float ratio() { return ratio_; }

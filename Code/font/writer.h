@@ -23,6 +23,11 @@ struct Vertex {
 
 class Writer : public graphics::Component {
  public:
+  struct ShaderMiscBuffer {
+    XMMATRIX transform;
+    float global_alpha;
+    XMFLOAT4 Color;
+  };
   Writer();
   ~Writer();
   int Initialize(Context* context);
@@ -31,10 +36,12 @@ class Writer : public graphics::Component {
   int Write(float x, float y, float z, const char *text, int count, unsigned int mode);
   int WriteML(float x, float y, float z, const char *text, int count, unsigned int mode);
   int WriteBox(float x, float y, float z, float width, const char *text, int count, unsigned int mode);
+  int UpdateConstantBuffer();
   int Draw(int count);
   acGraphics::Font* font() { return font_; }
   void set_font(acGraphics::Font* font) { font_ = font; }
   void set_effect(graphics::Effect* effect) { effect_ = effect; }
+  void set_global_alpha(float global_alpha) { misc_buffer_shader_.global_alpha = global_alpha; }
  protected:
   int InternalWrite(float x, float y, float z, const char *text, int count, float spacing);
   acGraphics::Font* font_;
@@ -43,6 +50,9 @@ class Writer : public graphics::Component {
   graphics::Effect* effect_;
   graphics::Camera camera_;
   int vcount;
+  ShaderMiscBuffer misc_buffer_shader_;
+  graphics::Buffer misc_buffer_;
+
 };
 
 }

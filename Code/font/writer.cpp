@@ -19,10 +19,26 @@ int Writer::Initialize(Context* context) {
   camera_.Initialize(context);
   camera_.Ortho2D();
   camera_.UpdateConstantBuffer();
+  memset(&misc_buffer_shader_,0,sizeof(misc_buffer_shader_));
+  misc_buffer_shader_.global_alpha = 1;
+  misc_buffer_shader_.transform = XMMatrixTranspose(XMMatrixScaling(1,1,1));
+  misc_buffer_.description.usage = D3D11_USAGE_DEFAULT;
+  misc_buffer_.description.byte_width = sizeof(ShaderMiscBuffer);
+  misc_buffer_.description.bind_flags = D3D11_BIND_CONSTANT_BUFFER;
+  misc_buffer_.description.cpu_access_flags = 0;
+  HRESULT hr = context_->CreateBuffer(misc_buffer_,NULL);
+  if ( hr != S_OK )
+    return S_FALSE;
+
+  hr = UpdateConstantBuffer();
+  if ( hr != S_OK )
+    return S_FALSE;
+
   return S_OK;
 }
 
 int Writer::Deinitialize() {
+  context_->DestroyBuffer(misc_buffer_);
   context_->DestroyBuffer(vertex_buffer_);
   if (vertex_array_)
     delete [] vertex_array_;
@@ -287,6 +303,10 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
   return S_OK;
 }
 
+int Writer::UpdateConstantBuffer() {
+  return context_->UpdateBuffer(misc_buffer_,&misc_buffer_shader_,NULL,0,0);
+}
+
 int Writer::Draw(int count) {
 
   effect_->Begin();
@@ -298,6 +318,10 @@ int Writer::Draw(int count) {
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
   camera_.SetConstantBuffer(0);
 
+
+  //set ps contant buffer;
+  context_->SetConstantBuffers(kShaderTypeVertex,1,1,&misc_buffer_);
+  context_->SetConstantBuffers(kShaderTypePixel,1,1,&misc_buffer_);
   //((graphics::ContextD3D11*)context_)->device_context()->PSSetShaderResources(0,2,&font_->pages[0]);
   //((graphics::ContextD3D11*)context_)->device_context()->PSSetShaderResources(1,1,&font_->pages[1]);
   context_->SetPixelShaderResources(0,2,(void**)&font_->pages[0]);
