@@ -24,6 +24,7 @@
    Andreas Jonsson
    andreas@angelcode.com
 */
+#include <WinCore/windows/windows.h>
 #include "font.h"
 #include "acutil_unicode.h"
 
@@ -37,6 +38,7 @@ Font::Font() {
 	scale = 1.0f;
 	hasOutline = false;
 	encoding = NONE;
+  pages = NULL;
 }
 
 Font::~Font() {
@@ -47,6 +49,7 @@ Font::~Font() {
 		it++;
 	}
 
+  SafeRelease(&pages);
 	//for( UINT n = 0; n < pages.size(); n++ )
 		//if( pages[n] )
 		//	pages[n]->Release();

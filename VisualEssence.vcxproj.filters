@@ -60,6 +60,18 @@
     <ClInclude Include="Code\buffer\buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code\sprite\sprite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\drawable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\shape\shape.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\shape\arc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\font\bmfont\acutil_unicode.cpp">
@@ -78,6 +90,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Code\effect\effect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\sprite\sprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Code\shape\arc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

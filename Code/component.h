@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_COMPONENT_H
 #define GRAPHICS_COMPONENT_H
 
+#include <Windows.h>
+
 namespace graphics {
 
 class Context;

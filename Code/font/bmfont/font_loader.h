@@ -29,19 +29,22 @@
 #define FONT_LOADER_H
 
 #include <windows.h>
+#include "../../context/context.h"
+#include "../../context/contextd3d11.h"
+#include "../../component.h"
 #include "font.h"
 
 namespace acGraphics {
 
 // Implement private helper classes for loading the bitmap font files
 
-class FontLoader {
+class FontLoader : public graphics::Component {
  public:
 	FontLoader(const char *fontFile);
 	virtual int Load() = 0; // Must be implemented by derived class
   Font* GenerateFont() { font_ = new Font(); Load(); return font_; }
  protected:
-	void LoadPage(int id, const char *pageFile, const char *fontFile);
+	ID3D11Resource* LoadPage(int id, const char *pageFile, const char *fontFile);
 	void SetFontInfo(int outlineThickness);
 	void SetCommonInfo(int fontHeight, int base, int scaleW, int scaleH, int pages, bool isPacked);
 	void AddChar(int id, int x, int y, int w, int h, int xoffset, int yoffset, int xadvance, int page, int chnl);

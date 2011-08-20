@@ -1,8 +1,6 @@
 #ifndef GRAPHICS_FONT_WRITER_H
 #define GRAPHICS_FONT_WRITER_H
 
-#include <Windows.h>
-#include <xnamath.h>
 #include "../component.h"
 #include "../context/context.h"
 #include "../effect/effect.h"
@@ -14,11 +12,21 @@ namespace font {
 
 
 struct Vertex {
-    XMFLOAT2 Pos;
-    XMFLOAT2 Tex;
-    XMFLOAT4 Color;
-    UINT     Channel;
-    UINT     Page;
+    XMFLOAT2 pos;
+    XMFLOAT2 tex;
+    XMFLOAT4 col;
+    UINT     ch;
+    UINT     page;
+    public: 
+     Vertex() : pos(XMFLOAT2(0,0)),tex(XMFLOAT2(0,0)),col(XMFLOAT4(0,0,0,0)),ch(0),page(0) {
+     }
+     Vertex(XMFLOAT2 pos,XMFLOAT2 tex,XMFLOAT4 col,UINT ch,UINT page) {
+      this->pos = pos;
+      this->tex = tex;
+      this->col = col;
+      this->ch = ch;
+      this->page = page;
+    }
 };
 
 class Writer : public graphics::Component {

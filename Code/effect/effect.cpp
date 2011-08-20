@@ -110,7 +110,7 @@ int Effect::Deinitialize() {
 int Effect::CreateFromMemory(void* data,uint32_t size) {
 
   graphics::ShaderBlob vs_blob;
-  HRESULT hr = context_->CompileShaderFromMemory(data,size,"VS", "vs_4_0", vs_blob);
+  HRESULT hr = context_->CompileShaderFromMemory(data,size,"VS", "vs_5_0", vs_blob);
   if( FAILED( hr ) )
   {
       MessageBox( NULL,
@@ -127,7 +127,7 @@ int Effect::CreateFromMemory(void* data,uint32_t size) {
   // Compile the pixel shader
   graphics::ShaderBlob ps_blob;
   //hr = CompileShaderFromFile( L"Content\\Shaders\\main.fx", "PS", "ps_4_0", &pPSBlob );
-  hr = context_->CompileShaderFromMemory(data,size,"PS", "ps_4_0",ps_blob);
+  hr = context_->CompileShaderFromMemory(data,size,"PS", "ps_5_0",ps_blob);
   if( FAILED( hr ) ) {
       MessageBox( NULL,
                   "The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", "Error", MB_OK );

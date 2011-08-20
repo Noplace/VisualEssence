@@ -73,7 +73,9 @@ private:
   ID2D1Factory *d2d_factory_;
   IWICImagingFactory *wic_factory_;
   IDWriteFactory *dwrite_factory_;*/
-
+  struct {
+    uint32_t topology;
+  } settings;
 };
 
 }

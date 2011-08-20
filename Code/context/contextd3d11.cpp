@@ -34,6 +34,7 @@ ContextD3D11::~ContextD3D11() {
 }
 
 int ContextD3D11::Initialize() {
+  memset(&settings,0,sizeof(settings));
   int hr = S_OK;
   /*int hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &d2d_factory_);
   if (SUCCEEDED(hr))  {
@@ -429,7 +430,10 @@ int ContextD3D11::SetPixelShaderResources(uint32_t start_slot,uint32_t count,voi
 }
 
 int ContextD3D11::SetPrimitiveTopology(uint32_t topology) {
-  device_context_->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)topology);
+  if (settings.topology != topology) {
+    device_context_->IASetPrimitiveTopology((D3D11_PRIMITIVE_TOPOLOGY)topology);
+    settings.topology = topology;
+  }
   return S_OK;
 }
 

@@ -4,8 +4,10 @@
 #include <WinCore/windows/windows.h>
 #include <xnamath.h>
 #include "../component.h"
+#include "../drawable.h"
 #include "../buffer/buffer.h"
 #include "../shader/shader.h"
+#include "../shape/shape.h"
 
 namespace graphics {
 

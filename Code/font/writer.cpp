@@ -52,14 +52,14 @@ int Writer::PrepareWrite(int count) {
   context_->DestroyBuffer(vertex_buffer_);
   vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_.description.byte_width = sizeof( Vertex ) * count * 4;
+  vertex_buffer_.description.byte_width = sizeof( Vertex ) * count * 6;
   vertex_buffer_.description.cpu_access_flags = 0;
   context_->CreateBuffer(vertex_buffer_,NULL);
   if (vertex_array_ != NULL)
     delete [] vertex_array_;
   vertex_array_ = NULL;
-  vertex_array_ = new Vertex[count * 4];
-  ZeroMemory(vertex_array_,sizeof(Vertex)*count*4);
+  vertex_array_ = new Vertex[count * 6];
+  ZeroMemory(vertex_array_,sizeof(Vertex)*count*6);
   vcount = 0;
   return S_OK;
 }
@@ -236,6 +236,8 @@ int Writer::WriteBox(float x, float y, float z, float width, const char *text, i
   return S_OK;
 }
 
+inline void SetVertex() {
+}
 
 int Writer::InternalWrite(float x, float y, float z, const char *text, int count, float spacing) {
 	int page = -1;
@@ -269,27 +271,18 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 			//render->GetGraphics()->SetTexture(pages[page]);
 			//render->Begin(RENDER_QUAD_LIST);
 		}
-    vertex_array_[vcount].Page = ch->page;
-    vertex_array_[vcount].Color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
-    vertex_array_[vcount].Channel = ch->chnl;
-    vertex_array_[vcount].Tex = XMFLOAT2(u,v);
-    vertex_array_[vcount++].Pos = XMFLOAT2(x+ox, y+oy);
-    vertex_array_[vcount].Page = ch->page;
-    vertex_array_[vcount].Color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
-    vertex_array_[vcount].Channel = ch->chnl;
-    vertex_array_[vcount].Tex = XMFLOAT2(u2,v);
-    vertex_array_[vcount++].Pos = XMFLOAT2(x+w+ox, y+oy);
-    vertex_array_[vcount].Page = ch->page;
-    vertex_array_[vcount].Color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
-    vertex_array_[vcount].Channel = ch->chnl;
-    vertex_array_[vcount].Tex = XMFLOAT2(u,v2);
-    vertex_array_[vcount++].Pos = XMFLOAT2(x+ox, y+h+oy);
-    vertex_array_[vcount].Page = ch->page;
-    vertex_array_[vcount].Color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
-    vertex_array_[vcount].Channel = ch->chnl;
-    vertex_array_[vcount].Tex = XMFLOAT2(u2,v2);
-    vertex_array_[vcount++].Pos = XMFLOAT2(x+w+ox, y+h+oy);
 
+    XMFLOAT4 color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
+
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y+oy),XMFLOAT2(u,v),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y+oy),XMFLOAT2(u2,v),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y+h+oy),XMFLOAT2(u,v2),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y+h+oy),XMFLOAT2(u,v2),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y+oy),XMFLOAT2(u2,v),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y+h+oy),XMFLOAT2(u2,v2),color,ch->chnl,ch->page);
+
+
+ 
 		x += a;
 		if( charId == ' ' )
 			x += spacing;
@@ -315,7 +308,7 @@ int Writer::Draw(int count) {
   UINT offset = 0;
   context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
   context_->ClearIndexBuffer();
-  context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
+  context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
   camera_.SetConstantBuffer(0);
 
 
@@ -324,9 +317,9 @@ int Writer::Draw(int count) {
   context_->SetConstantBuffers(kShaderTypePixel,1,1,&misc_buffer_);
   //((graphics::ContextD3D11*)context_)->device_context()->PSSetShaderResources(0,2,&font_->pages[0]);
   //((graphics::ContextD3D11*)context_)->device_context()->PSSetShaderResources(1,1,&font_->pages[1]);
-  context_->SetPixelShaderResources(0,2,(void**)&font_->pages[0]);
+  context_->SetPixelShaderResources(0,1,(void**)&font_->pages);
 
-  context_->Draw(count*4,0);
+  context_->Draw(count*6,0);
   return S_OK;
 }
 

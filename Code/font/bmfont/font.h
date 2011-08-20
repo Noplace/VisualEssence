@@ -88,7 +88,8 @@ public:
 
 	void PrepareEffect();
 	void PreparePixelPerfectOutput();
-  std::vector<ID3D11ShaderResourceView*> pages;
+  //std::vector<ID3D11ShaderResourceView*> pages;
+  ID3D11ShaderResourceView* pages;
 protected:
 	friend class FontLoader;
   friend class graphics::font::Writer;

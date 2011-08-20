@@ -11,7 +11,7 @@ FontLoader::FontLoader(const char *fontFile) {
 	outlineThickness = 0;
 }
 
-void FontLoader::LoadPage(int id, const char *pageFile, const char *fontFile) {
+ID3D11Resource* FontLoader::LoadPage(int id, const char *pageFile, const char *fontFile) {
 	string str;
 
 	// Load the texture from the same directory as the font descriptor file
@@ -27,6 +27,15 @@ void FontLoader::LoadPage(int id, const char *pageFile, const char *fontFile) {
 
 	// Load the font textures
 	str += pageFile;
+
+  ID3D11Resource* texture;
+  ID3D11Device* d = ((graphics::ContextD3D11*)context())->device();
+  ID3D11DeviceContext* dc = ((graphics::ContextD3D11*)context())->device_context();
+  int hr = D3DX11CreateTextureFromFile(d,str.c_str(),NULL,NULL,&texture,NULL);
+  if (hr == S_OK)
+    return texture;
+
+  return NULL;
 	/*IDirect3DTexture9 *texture = 0;
 	UINT mipLevels = 0; // 0 = all
 	HRESULT hr = D3DXCreateTextureFromFileEx(font->render->GetDevice(), str.c_str(), 
@@ -37,7 +46,7 @@ void FontLoader::LoadPage(int id, const char *pageFile, const char *fontFile) {
 		LOG(("Failed to load font page '%s' (%X)", str.c_str(), hr));
 	}*/
 
-	font_->pages[id] = 0;
+	//font_->pages[id] = 0;
 }
 
 void FontLoader::SetFontInfo(int outlineThickness) {
@@ -49,9 +58,11 @@ void FontLoader::SetCommonInfo(int fontHeight, int base, int scaleW, int scaleH,
 	font_->base = base;
 	font_->scaleW = scaleW;
 	font_->scaleH = scaleH;
-	font_->pages.resize(pages);
+
+	/*font_->pages.resize(pages);
 	for( int n = 0; n < pages; n++ )
-		font_->pages[n] = 0;
+		font_->pages[n] = 0;*/
+  font_->pages = NULL;
 
 	if( isPacked && outlineThickness )
 		font_->hasOutline = true;
@@ -233,13 +244,47 @@ struct pagesBlock {
 	fread(buffer, size, 1, f);
 
 	pagesBlock *blk = (pagesBlock*)buffer;
+  int texture_count = 0;
+  {
+    char* ptr = buffer;
+    for (int i =0;i<size;++i) {
+      if (ptr[i] == '\0')
+        ++texture_count;
+    }
+  }
+  D3D11_TEXTURE2D_DESC sTexDesc;
+  sTexDesc.Width = 256;
+  sTexDesc.Height = 256;
+  sTexDesc.MipLevels = 1;
+  sTexDesc.ArraySize = texture_count;
+  sTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  sTexDesc.SampleDesc.Count = 1;
+  sTexDesc.SampleDesc.Quality = 0;
+  sTexDesc.Usage = D3D11_USAGE_DEFAULT;
+  sTexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+  sTexDesc.CPUAccessFlags = 0;
+  sTexDesc.MiscFlags = 0;
 
+  ID3D11Texture2D* temp_texture;
+  ID3D11Device* d = ((graphics::ContextD3D11*)context())->device();
+  ID3D11DeviceContext* dc = ((graphics::ContextD3D11*)context())->device_context();
+  d->CreateTexture2D(&sTexDesc,NULL,&temp_texture);
+
+  ID3D11Resource** page_textures = new ID3D11Resource*[size];
 	for( int id = 0, pos = 0; pos < size; id++ ) {
-		LoadPage(id, &blk->pageNames[pos], fontFile);
+		page_textures[id] = LoadPage(id, &blk->pageNames[pos], fontFile);
+    dc->CopySubresourceRegion(temp_texture,id,0,0,0,page_textures[id],0,NULL);
 		pos += 1 + (int)strlen(&blk->pageNames[pos]);
 	}
 
 	delete[] buffer;
+
+  d->CreateShaderResourceView(temp_texture,NULL,&font_->pages);
+
+  for (int i=0;i<texture_count;++i) {
+    SafeRelease(&page_textures[i]);
+  }
+  SafeRelease(&temp_texture);
 }
 
 void FontLoaderBinaryFormat::ReadCharsBlock(int size) {
