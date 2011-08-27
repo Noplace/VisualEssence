@@ -34,14 +34,14 @@ class ContextD3D11 : public Context {
   int End();
   int CreateBuffer(Buffer& buffer, void* initial_data);
   int DestroyBuffer(Buffer& buffer);
-  int UpdateBuffer(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size);
+  int UpdateSubresource(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size);
   int CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) {
     D3D11_BOX box;
     ZeroMemory(&box,sizeof(box));
     box.left = type_size*offset;
     box.right = type_size*(offset+count);
     box.bottom = box.back = 1;
-    return UpdateBuffer(buffer,data_pointer,&box,type_size,0);
+    return UpdateSubresource(buffer,data_pointer,&box,type_size,0);
   }
   int SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array);
   int SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array, const uint32_t * strides,const uint32_t *offsets);
@@ -53,12 +53,11 @@ class ContextD3D11 : public Context {
   int CreateVertexShader(void* data, uint32_t length, VertexShader& vs);
   int CreatePixelShader(void* data, uint32_t length, PixelShader& ps);
   int CreateGeometryShader(void* data, uint32_t length, GeometryShader& gs);
-  int DestroyGeometryShader(GeometryShader& gs);
-  int DestroyVertexShader(VertexShader& vs);
-  int DestroyPixelShader(PixelShader& ps);
+  int DestroyShader(Shader& shader);
   int SetShader(const Shader& shader);
+  int ClearShader(ShaderType shader_type);
   int Draw(uint32_t vertex_count, uint32_t vertex_start_index);
-  int SetPixelShaderResources(uint32_t start_slot,uint32_t count,void** resources_pointer);
+  int SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer);
   int SetPrimitiveTopology(uint32_t topology);
   ID3D11Device* device() { return device_; }
   ID3D11DeviceContext* device_context() { return device_context_; }

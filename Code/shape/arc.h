@@ -18,7 +18,6 @@ class Arc : public Shape {
   int Construct();
   int BuildTransform();
   int Draw();
-  XMMATRIX& world() { return world_; }
   XMVECTOR color() { return XMLoadColor(&color_); }
  private:
   Arc::Vertex* CreateVertices();

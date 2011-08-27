@@ -1,5 +1,7 @@
 #include "sprite.h"
 
+typedef graphics::shape::Vertex Vertex;
+
 namespace graphics {
 
 int Sprite::Initialize(Context* context) {
@@ -14,7 +16,7 @@ int Sprite::Initialize(Context* context) {
   world_ = XMMatrixIdentity();
   vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_.description.byte_width = sizeof( Sprite::Vertex ) * 4;
+  vertex_buffer_.description.byte_width = sizeof( Vertex ) * 4;
   vertex_buffer_.description.cpu_access_flags = 0;
   context->CreateBuffer(vertex_buffer_,NULL);
 
@@ -46,7 +48,7 @@ int Sprite::SetUV(float u0,float v0,float u1,float v1) {
 }
 
 int Sprite::Construct() {
-  Sprite::Vertex vertices[] =
+  Vertex vertices[] =
   {
     { XMFLOAT2( 0, 0 ), XMFLOAT2( u0, v0  ),XMFLOAT4(1,1,1,1) },  
     { XMFLOAT2( width_, 0 ), XMFLOAT2( u1, v0 ),XMFLOAT4(1,1,1,1) },
@@ -54,7 +56,7 @@ int Sprite::Construct() {
     { XMFLOAT2( width_, height_ ), XMFLOAT2( u1, v1 ),XMFLOAT4(1,1,1,1) },
 
   };
-  return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Sprite::Vertex),0,4);
+  return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Vertex),0,4);
 }
 
 int Sprite::BuildTransform() {
@@ -72,7 +74,7 @@ int Sprite::BuildTransform() {
 }
 
 int Sprite::Draw() {
-  UINT stride = sizeof( Sprite::Vertex );
+  UINT stride = sizeof( Vertex );
   UINT offset = 0;
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
   context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);

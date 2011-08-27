@@ -3,7 +3,6 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-
 //--------------------------------------------------------------------------------------
 // Helper for compiling shaders with D3DX11
 //--------------------------------------------------------------------------------------
@@ -88,7 +87,6 @@ inline UINT CalculateShaderElementSize(const D3D11_SIGNATURE_PARAMETER_DESC& inp
   return 0;
 }
 
-
 namespace graphics {
 
 Effect::Effect() : input_layout_(NULL) {
@@ -101,8 +99,8 @@ Effect::~Effect() {
 int Effect::Deinitialize() {
   SafeRelease(&input_layout_);
   if (context_) {
-    context_->DestroyPixelShader(pixel_shader_);
-    context_->DestroyVertexShader(vertex_shader_);
+    context_->DestroyShader(pixel_shader_);
+    context_->DestroyShader(vertex_shader_);
   }
   return S_OK;
 }
@@ -180,7 +178,8 @@ int Effect::CreateFromMemory(void* data,uint32_t size) {
 
   }
 
-  /*    // Define the input layout
+  /*
+  // Define the input layout
   D3D11_INPUT_ELEMENT_DESC layout[] =
   {
       { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -192,7 +191,7 @@ int Effect::CreateFromMemory(void* data,uint32_t size) {
 
   ContextD3D11* c11 = (ContextD3D11*)context_;
 
-  // Create the input layout
+  //Create the input layout
   hr = c11->device()->CreateInputLayout(input_layout_desc,element_count,vs_blob.data(),vs_blob.size(), &input_layout_);
   for (UINT i=0;i<element_count;++i) {
     delete []input_layout_desc[i].SemanticName;
@@ -210,7 +209,8 @@ int Effect::Begin() {
   c11->device_context()->IASetInputLayout( input_layout_ );
   context_->SetShader(vertex_shader_);
   context_->SetShader(pixel_shader_);
-  //c11->SetShader(geometry_shader_);
+  //if (geometry_shader_.internal_pointer() != NULL)
+  context_->SetShader(geometry_shader_);
   return S_OK;
 }
 

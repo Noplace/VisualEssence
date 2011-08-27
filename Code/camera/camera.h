@@ -69,7 +69,7 @@ class Camera : public Component {
     ConstantBuffer cbCamera;
     cbCamera.mView = view_transposed();
     cbCamera.mProjection = projection_transposed();
-    context_->UpdateBuffer(cam_buffer_,&cbCamera,NULL,0,0);
+    context_->UpdateSubresource(cam_buffer_,&cbCamera,NULL,0,0);
   }
 
   void SetConstantBuffer(uint32_t slot) {

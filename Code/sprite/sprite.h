@@ -1,7 +1,6 @@
 #ifndef GRAPHICS_SPRITE_H
 #define GRAPHICS_SPRITE_H
 
-#include "../component.h"
 #include "../context/context.h"
 
 namespace graphics {
@@ -18,7 +17,6 @@ class Sprite : public graphics::shape::Shape {
   int Construct();
   int BuildTransform();
   int Draw();
-  XMMATRIX& world() { return world_; }
   XMVECTOR color() { return XMLoadColor(&color_); }
  private:
   graphics::Buffer vertex_buffer_;

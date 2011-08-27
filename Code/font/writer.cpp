@@ -64,10 +64,11 @@ int Writer::PrepareWrite(int count) {
   return S_OK;
 }
 
-int Writer::Write(float x, float y, float z, const char *text, int count, unsigned int mode) {
+int Writer::Write(const char *text, int count, unsigned int mode) {
+  char_count = 0;
 	if( count <= 0 )
 		count = font_->GetTextLength(text);
-
+  float x = 0;
 	if( mode == acGraphics::FONT_ALIGN_CENTER ) 	{
 		float w = font_->GetTextWidth(text, count);
 		x -= w/2;
@@ -77,12 +78,15 @@ int Writer::Write(float x, float y, float z, const char *text, int count, unsign
 		x -= w;
 	}
   vcount = 0;
-	return InternalWrite(x, y, z, text, count,0);
+	return InternalWrite(x, 0, 0, text, count,0);
 
 }
 
 
-int Writer::WriteML(float x, float y, float z, const char *text, int count, unsigned int mode) {
+int Writer::WriteML(const char *text, int count, unsigned int mode) {
+  char_count = 0;
+  float x = 0;
+  float y = 0;
 	if( count <= 0 )
 		count = font_->GetTextLength(text);
   vcount = 0;
@@ -101,7 +105,7 @@ int Writer::WriteML(float x, float y, float z, const char *text, int count, unsi
 			cx -= w;
 		}
 
-		InternalWrite(cx, y, z, &text[pos], len,0);
+		InternalWrite(cx, y, 0, &text[pos], len,0);
 
 		y += font_->scale * float(font_->fontHeight);
 
@@ -120,7 +124,10 @@ int Writer::WriteML(float x, float y, float z, const char *text, int count, unsi
   return S_OK;
 }
 
-int Writer::WriteBox(float x, float y, float z, float width, const char *text, int count, unsigned int mode) {
+int Writer::WriteBox(const char *text, int count, unsigned int mode, float width) {
+  char_count = 0;
+  float x = 0;
+  float y = 0;
 	if( count <= 0 )
 		count = font_->GetTextLength(text);
   vcount = 0;
@@ -197,7 +204,7 @@ int Writer::WriteBox(float x, float y, float z, float width, const char *text, i
 					spacing = (width - currWidth);
 			}
 			
-            InternalWrite(x, y, z, &text[lineS], lineE - lineS, spacing);
+            InternalWrite(x, y, 0, &text[lineS], lineE - lineS, spacing);
 		}	else	{
 			float cx = x;
 			if( mode == acGraphics::FONT_ALIGN_RIGHT )
@@ -205,7 +212,7 @@ int Writer::WriteBox(float x, float y, float z, float width, const char *text, i
 			else if( mode == acGraphics::FONT_ALIGN_CENTER )
 				cx = x + 0.5f*(width - currWidth);
 
-			InternalWrite(cx, y, z, &text[lineS], lineE - lineS,0);
+			InternalWrite(cx, y, 0, &text[lineS], lineE - lineS,0);
 		}
 
 		if( softBreak )	{
@@ -240,12 +247,11 @@ inline void SetVertex() {
 }
 
 int Writer::InternalWrite(float x, float y, float z, const char *text, int count, float spacing) {
-	int page = -1;
-	//render->Begin(RENDER_QUAD_LIST);
   
 	//y += font_->scale * float(font_->base);
-  //y -= font_->scale * float(font_->fontHeight);
-  
+  y += font_->scale * float(font_->fontHeight);
+  XMFLOAT4 color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
+  char_count += count;
 	for( int n = 0; n < count; ) {
 		int charId = font_->GetTextChar(text, n, &n);
 		acGraphics::SCharDescr *ch = font_->GetChar(charId);
@@ -253,8 +259,11 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 
 		// Map the center of the texel to the corners
 		// in order to get pixel perfect mapping
-		float u = (float(ch->srcX)+0.5f) / font_->scaleW;
-		float v = (float(ch->srcY)+0.5f) / font_->scaleH;
+    //+0.5f
+    //NOT
+
+		float u = (float(ch->srcX)) / font_->scaleW;
+		float v = (float(ch->srcY)) / font_->scaleH;
 		float u2 = u + float(ch->srcW) / font_->scaleW;
 		float v2 = v + float(ch->srcH) / font_->scaleH;
 
@@ -264,25 +273,15 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 		float ox = font_->scale * float(ch->xOff);
 		float oy = font_->scale * float(ch->yOff);
 
-		if( ch->page != page )
-		{
-			//render->End();
-			page = ch->page;
-			//render->GetGraphics()->SetTexture(pages[page]);
-			//render->Begin(RENDER_QUAD_LIST);
-		}
+    float dy = -oy;
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y-h),XMFLOAT2(u,v),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y-h),XMFLOAT2(u2,v),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y),XMFLOAT2(u,v2),color,ch->chnl,ch->page);
 
-    XMFLOAT4 color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y),XMFLOAT2(u,v2),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y-h),XMFLOAT2(u2,v),color,ch->chnl,ch->page);
+    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y),XMFLOAT2(u2,v2),color,ch->chnl,ch->page);
 
-    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y+oy),XMFLOAT2(u,v),color,ch->chnl,ch->page);
-    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y+oy),XMFLOAT2(u2,v),color,ch->chnl,ch->page);
-    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y+h+oy),XMFLOAT2(u,v2),color,ch->chnl,ch->page);
-    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+ox, y+h+oy),XMFLOAT2(u,v2),color,ch->chnl,ch->page);
-    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y+oy),XMFLOAT2(u2,v),color,ch->chnl,ch->page);
-    vertex_array_[vcount++] = Vertex(XMFLOAT2(x+w+ox, y+h+oy),XMFLOAT2(u2,v2),color,ch->chnl,ch->page);
-
-
- 
 		x += a;
 		if( charId == ' ' )
 			x += spacing;
@@ -291,16 +290,32 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 			x += font_->AdjustForKerningPairs(charId, font_->GetTextChar(text,n));
 	}
   context_->CopyToVertexBuffer(vertex_buffer_,vertex_array_,sizeof(Vertex),0,vcount);
-	//render->End();
 
   return S_OK;
 }
 
 int Writer::UpdateConstantBuffer() {
-  return context_->UpdateBuffer(misc_buffer_,&misc_buffer_shader_,NULL,0,0);
+  return context_->UpdateSubresource(misc_buffer_,&misc_buffer_shader_,NULL,0,0);
 }
 
-int Writer::Draw(int count) {
+
+int Writer::Construct() {
+
+  return S_OK;
+}
+
+int Writer::BuildTransform() {
+  world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
+    0,
+    XMLoadFloat2(&XMFLOAT2(scale_,scale_)),
+    XMLoadFloat2(&XMFLOAT2(0,0)),
+    angle_,
+    XMLoadFloat2(&XMFLOAT2(x_,y_)));
+  misc_buffer_shader_.transform = XMMatrixTranspose(world_);
+  return S_OK;
+}
+
+int Writer::Draw() {
 
   effect_->Begin();
 
@@ -311,15 +326,12 @@ int Writer::Draw(int count) {
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
   camera_.SetConstantBuffer(0);
 
-
-  //set ps contant buffer;
+  //set contant buffer;
   context_->SetConstantBuffers(kShaderTypeVertex,1,1,&misc_buffer_);
   context_->SetConstantBuffers(kShaderTypePixel,1,1,&misc_buffer_);
-  //((graphics::ContextD3D11*)context_)->device_context()->PSSetShaderResources(0,2,&font_->pages[0]);
-  //((graphics::ContextD3D11*)context_)->device_context()->PSSetShaderResources(1,1,&font_->pages[1]);
-  context_->SetPixelShaderResources(0,1,(void**)&font_->pages);
+  context_->SetShaderResources(kShaderTypePixel,0,1,(void**)&font_->pages);
 
-  context_->Draw(count*6,0);
+  context_->Draw(char_count*6,0);
   return S_OK;
 }
 

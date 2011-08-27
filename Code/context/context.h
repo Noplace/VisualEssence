@@ -35,7 +35,7 @@ class Context {
   virtual int End() = 0;
   virtual int CreateBuffer(Buffer& , void* ) = 0;
   virtual int DestroyBuffer(Buffer& ) = 0;
-  virtual int UpdateBuffer(const Buffer&, void*, void*, uint32_t , uint32_t) = 0;
+  virtual int UpdateSubresource(const Buffer&, void*, void*, uint32_t , uint32_t) = 0;
   virtual int CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) { return S_FALSE; };
   virtual int SetConstantBuffers(ShaderType, uint32_t, uint32_t, Buffer*) = 0;
   virtual int SetVertexBuffers(uint32_t , uint32_t , Buffer* , const uint32_t * , const uint32_t *) = 0;
@@ -47,12 +47,11 @@ class Context {
   virtual int CreateVertexShader(void*, uint32_t, VertexShader&) = 0;
   virtual int CreatePixelShader(void*, uint32_t, PixelShader&) = 0;
   virtual int CreateGeometryShader(void*, uint32_t, GeometryShader&) = 0;
-  virtual int DestroyVertexShader(VertexShader&) = 0;
-  virtual int DestroyPixelShader(PixelShader&) = 0;
-  virtual int DestroyGeometryShader(GeometryShader&) = 0;
+  virtual int DestroyShader(Shader&) = 0;
   virtual int SetShader(const Shader&) = 0;
+  virtual int ClearShader(ShaderType) = 0;
   virtual int Draw(uint32_t, uint32_t) = 0;
-  virtual int SetPixelShaderResources(uint32_t,uint32_t,void**) = 0;
+  virtual int SetShaderResources(ShaderType, uint32_t, uint32_t, void**) = 0;
   virtual int SetPrimitiveTopology(uint32_t) = 0;
   core::windows::Window* window() { return window_; }
   uint32_t width() { return width_; }

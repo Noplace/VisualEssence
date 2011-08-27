@@ -281,7 +281,7 @@ int ContextD3D11::DestroyBuffer(Buffer& buffer) {
   return S_FALSE;
 }
 
-int ContextD3D11::UpdateBuffer(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size) {
+int ContextD3D11::UpdateSubresource(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size) {
   device_context_->UpdateSubresource( (ID3D11Resource*)buffer.internal_pointer, 0, (D3D11_BOX*)box, data_pointer, row_size, depth_size );
   return S_OK;
 }
@@ -291,14 +291,28 @@ int ContextD3D11::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot
   for (uint32_t i=0;i<buffer_count;++i)
     buffers_[i] = buffer_array[i].internal_pointer;
 
-  if (shader_type == kShaderTypeVertex) {
-    device_context_->VSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
-  } else if (shader_type == kShaderTypePixel) {
-    device_context_->PSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
-  } else {
-    return S_FALSE;
+  switch (shader_type) {
+    case kShaderTypeVertex:
+      device_context_->VSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      return S_OK;
+    case kShaderTypePixel:
+      device_context_->PSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      return S_OK;
+    case kShaderTypeGeometry:
+      device_context_->GSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      return S_OK;
+    case kShaderTypeHull:
+      device_context_->HSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      return S_OK;
+    case kShaderTypeDomain:
+      device_context_->DSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      return S_OK;
+    case kShaderTypeCompute:
+      device_context_->CSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      return S_OK;
+    default:
+      return S_FALSE;
   }
-  return S_OK;
 }
 
 int ContextD3D11::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array, const uint32_t * strides,const uint32_t *offsets) {
@@ -320,7 +334,6 @@ int ContextD3D11::ClearIndexBuffer() {
   return S_OK;
 }
 
-
 int ContextD3D11::LockBuffer(void* buffer,uint32_t index,uint32_t type,BufferSubresource& subresource) {
   D3D11_MAPPED_SUBRESOURCE sub;
   device_context_->Map((ID3D11Resource*)buffer,index,(D3D11_MAP)type,0,&sub);
@@ -334,7 +347,6 @@ int ContextD3D11::UnlockBuffer(void* buffer,uint32_t index) {
   device_context_->Unmap((ID3D11Resource*)buffer,index);
   return S_OK;
 }
-
 
 int ContextD3D11::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob)
 {
@@ -385,48 +397,95 @@ int ContextD3D11::CreateGeometryShader(void* data, uint32_t length, GeometryShad
   return hr;
 }
 
-int ContextD3D11::DestroyVertexShader(VertexShader& vs) {
-  if( vs.internal_pointer() ) ((ID3D11VertexShader*)vs.internal_pointer())->Release();
+int ContextD3D11::DestroyShader(Shader& shader) {
+  if( shader.internal_pointer() ) 
+    ((IUnknown*)shader.internal_pointer())->Release();
   return S_OK;
 }
-
-int ContextD3D11::DestroyPixelShader(PixelShader& ps) {
-  if( ps.internal_pointer() ) ((ID3D11PixelShader*)ps.internal_pointer())->Release();
-  return S_OK;
-}
-
-int ContextD3D11::DestroyGeometryShader(GeometryShader& gs) {
-  if( gs.internal_pointer() ) ((ID3D11GeometryShader*)gs.internal_pointer())->Release();
-  return S_OK;
-}
-
 
 int ContextD3D11::SetShader(const Shader& shader) {
-  if (shader.type == kShaderTypeVertex) {
-    device_context_->VSSetShader((ID3D11VertexShader*)(shader.internal_pointer()), NULL, 0);
-    return S_OK;
+
+  switch (shader.type) {
+    case kShaderTypeVertex:
+      //if (settings.vertex_shader != &shader) {
+        device_context_->VSSetShader((ID3D11VertexShader*)(shader.internal_pointer()), NULL, 0);
+        //settings.vertex_shader = shader.internal_pointer();
+      //}
+      return S_OK;
+    case kShaderTypePixel:
+      device_context_->PSSetShader((ID3D11PixelShader*)(shader.internal_pointer()), NULL, 0);
+      return S_OK;
+    case kShaderTypeGeometry:
+      device_context_->GSSetShader((ID3D11GeometryShader*)(shader.internal_pointer()), NULL, 0);
+      return S_OK;
+    case kShaderTypeHull:
+      device_context_->HSSetShader((ID3D11HullShader*)(shader.internal_pointer()), NULL, 0);
+      return S_OK;
+    case kShaderTypeDomain:
+      device_context_->DSSetShader((ID3D11DomainShader*)(shader.internal_pointer()), NULL, 0);
+      return S_OK;
+    case kShaderTypeCompute:
+      device_context_->CSSetShader((ID3D11ComputeShader*)(shader.internal_pointer()), NULL, 0);
+      return S_OK;
+    default:
+      return S_FALSE;
   }
-  if (shader.type == kShaderTypePixel) {
-    device_context_->PSSetShader((ID3D11PixelShader*)(shader.internal_pointer()), NULL, 0);
-    return S_OK;
+}
+
+
+int ContextD3D11::ClearShader(ShaderType shader_type) {
+  switch (shader_type) {
+    case kShaderTypeVertex:
+      device_context_->VSSetShader(NULL,NULL,0);
+      return S_OK;
+    case kShaderTypePixel:
+      device_context_->PSSetShader(NULL,NULL,0);
+      return S_OK;
+    case kShaderTypeGeometry:
+      device_context_->GSSetShader(NULL,NULL,0);
+      return S_OK;
+    case kShaderTypeHull:
+      device_context_->HSSetShader(NULL,NULL,0);
+      return S_OK;
+    case kShaderTypeDomain:
+      device_context_->DSSetShader(NULL,NULL,0);
+      return S_OK;
+    case kShaderTypeCompute:
+      device_context_->CSSetShader(NULL,NULL,0);
+      return S_OK;
+    default:
+      return S_FALSE;
   }
-  if (shader.type == kShaderTypeGeometry) {
-    device_context_->GSSetShader((ID3D11GeometryShader*)(shader.internal_pointer()), NULL, 0);
-    return S_OK;
-  }
-    
-  return S_OK;
 }
 
 int ContextD3D11::Draw(uint32_t vertex_count, uint32_t vertex_start_index) {
   device_context_->Draw(vertex_count,vertex_start_index);
-
   return S_OK;
 }
 
-int ContextD3D11::SetPixelShaderResources(uint32_t start_slot,uint32_t count,void** resources_pointer) {
-  device_context_->PSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
-  return S_OK;
+int ContextD3D11::SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer) {
+  switch (shader_type) {
+    case kShaderTypeVertex:
+      device_context_->VSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
+      return S_OK;
+    case kShaderTypePixel:
+      device_context_->PSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
+      return S_OK;
+    case kShaderTypeGeometry:
+      device_context_->GSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
+      return S_OK;
+    case kShaderTypeHull:
+      device_context_->HSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
+      return S_OK;
+    case kShaderTypeDomain:
+      device_context_->DSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
+      return S_OK;
+    case kShaderTypeCompute:
+      device_context_->CSSetShaderResources(start_slot,count,(ID3D11ShaderResourceView*const*)resources_pointer);
+      return S_OK;
+    default:
+      return S_FALSE;
+  }
 }
 
 int ContextD3D11::SetPrimitiveTopology(uint32_t topology) {

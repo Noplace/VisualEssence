@@ -252,23 +252,24 @@ struct pagesBlock {
         ++texture_count;
     }
   }
-  D3D11_TEXTURE2D_DESC sTexDesc;
-  sTexDesc.Width = 256;
-  sTexDesc.Height = 256;
-  sTexDesc.MipLevels = 1;
-  sTexDesc.ArraySize = texture_count;
-  sTexDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-  sTexDesc.SampleDesc.Count = 1;
-  sTexDesc.SampleDesc.Quality = 0;
-  sTexDesc.Usage = D3D11_USAGE_DEFAULT;
-  sTexDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-  sTexDesc.CPUAccessFlags = 0;
-  sTexDesc.MiscFlags = 0;
+  D3D11_TEXTURE2D_DESC tex_desc;
+  tex_desc,
+  tex_desc.Width = 256;
+  tex_desc.Height = 256;
+  tex_desc.MipLevels = 1;
+  tex_desc.ArraySize = texture_count;
+  tex_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  tex_desc.SampleDesc.Count = 1;
+  tex_desc.SampleDesc.Quality = 0;
+  tex_desc.Usage = D3D11_USAGE_DEFAULT;
+  tex_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+  tex_desc.CPUAccessFlags = 0;
+  tex_desc.MiscFlags = 0;
 
   ID3D11Texture2D* temp_texture;
   ID3D11Device* d = ((graphics::ContextD3D11*)context())->device();
   ID3D11DeviceContext* dc = ((graphics::ContextD3D11*)context())->device_context();
-  d->CreateTexture2D(&sTexDesc,NULL,&temp_texture);
+  d->CreateTexture2D(&tex_desc,NULL,&temp_texture);
 
   ID3D11Resource** page_textures = new ID3D11Resource*[size];
 	for( int id = 0, pos = 0; pos < size; id++ ) {
@@ -279,7 +280,14 @@ struct pagesBlock {
 
 	delete[] buffer;
 
-  d->CreateShaderResourceView(temp_texture,NULL,&font_->pages);
+  D3D11_SHADER_RESOURCE_VIEW_DESC view_desc;
+  view_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
+  view_desc.Texture2DArray.MostDetailedMip = 0;
+  view_desc.Texture2DArray.MipLevels = tex_desc.MipLevels;
+  view_desc.Texture2DArray.FirstArraySlice = 0;
+  view_desc.Texture2DArray.ArraySize = tex_desc.ArraySize;
+  d->CreateShaderResourceView(temp_texture,&view_desc,&font_->pages);
 
   for (int i=0;i<texture_count;++i) {
     SafeRelease(&page_textures[i]);

@@ -43,17 +43,17 @@ int Arc::SetParams(float radius,float start_angle,float end_angle,float thicknes
 }
 
 int Arc::Construct() {
-  Arc::Vertex* vertices = CreateVertices();
+  Vertex* vertices = CreateVertices();
   if (!vertices)
     return S_FALSE;
 
   vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_.description.byte_width = sizeof( Arc::Vertex ) * vertex_count_;
+  vertex_buffer_.description.byte_width = sizeof( Vertex ) * vertex_count_;
   vertex_buffer_.description.cpu_access_flags = 0;
   context_->DestroyBuffer(vertex_buffer_);
   context_->CreateBuffer(vertex_buffer_,NULL);
-  int hr = context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Arc::Vertex),0,vertex_count_);
+  int hr = context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Vertex),0,vertex_count_);
   delete [] vertices;
   return hr;
 }
@@ -73,19 +73,19 @@ int Arc::BuildTransform() {
 }
 
 int Arc::Draw() {
-  UINT stride = sizeof( Arc::Vertex );
+  UINT stride = sizeof( Vertex );
   UINT offset = 0;
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
   context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
   return context_->Draw(vertex_count_,0);
 }
 
-Arc::Vertex* Arc::CreateVertices() {
+Vertex* Arc::CreateVertices() {
   
   float step = M_PI/60;
   int count = (int)((end_angle_-start_angle_) / step) + 1;
   count *= 2;
-  Arc::Vertex* vertices = new Arc::Vertex[count];
+  Vertex* vertices = new Vertex[count];
   float theta = start_angle_;
   int index=0;
   while (theta < end_angle_) {
