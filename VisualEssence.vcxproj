@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Code\buffer\buffer.h" />
+    <ClInclude Include="Code\buffer\constant_buffer.h" />
     <ClInclude Include="Code\camera\camera.h" />
     <ClInclude Include="Code\camera\camera2d.h" />
     <ClInclude Include="Code\component.h" />
@@ -87,6 +88,7 @@
     <ClInclude Include="Code\font\bmfont\font.h" />
     <ClInclude Include="Code\font\bmfont\font_loader.h" />
     <ClInclude Include="Code\font\writer.h" />
+    <ClInclude Include="Code\input_layout.h" />
     <ClInclude Include="Code\scene\scene.h" />
     <ClInclude Include="Code\shader\shader.h" />
     <ClInclude Include="Code\buffer\vertex.h" />

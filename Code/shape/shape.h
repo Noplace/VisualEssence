@@ -7,14 +7,14 @@ namespace graphics {
 namespace shape {
 
 struct Vertex {
-  XMFLOAT2 Pos;
-  XMFLOAT2 Tex;
-  XMFLOAT4 Color;
+  XMFLOAT3 pos;
+  XMFLOAT2 tex_uv;
+  XMFLOAT4 color;
 };
 
 class Shape : public Drawable {
  public:
-  Shape() : x_(0), y_(0), scale_(1), angle_(0) {
+  Shape() : x_(0), y_(0),z_(0), scale_(1), angle_(0) {
   }
   virtual ~Shape() { }
   virtual int SetTopLeft(float x,float y) {
@@ -30,6 +30,10 @@ class Shape : public Drawable {
     angle_ = angle;
     return S_OK;
   }
+  virtual int SetOrder(float z) {
+    z_ = z;
+    return S_OK;
+  }
   graphics::Buffer& vertex_buffer() { return vertex_buffer_; }
   float* x_ptr() { return &x_; }
   float* y_ptr() { return &y_; }
@@ -43,7 +47,7 @@ class Shape : public Drawable {
   int vertex_count_;
   graphics::Buffer vertex_buffer_;
   XMMATRIX world_;
-  float x_,y_,scale_,angle_;
+  float x_,y_,z_,scale_,angle_;
 };
 
 }

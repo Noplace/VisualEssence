@@ -266,7 +266,7 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 		float v = (float(ch->srcY)) / font_->scaleH;
 		float u2 = u + float(ch->srcW) / font_->scaleW;
 		float v2 = v + float(ch->srcH) / font_->scaleH;
-
+    
 		float a = font_->scale * float(ch->xAdv);
 		float w = font_->scale * float(ch->srcW);
 		float h = font_->scale * float(ch->srcH);

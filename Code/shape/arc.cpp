@@ -65,7 +65,7 @@ int Arc::BuildTransform() {
     XMLoadFloat2(&XMFLOAT2(0,0)),
     angle_,
     XMLoadFloat2(&XMFLOAT2(x_,y_)));
-
+  world_._43 = z_;
   //world_ = XMMatrixRotationZ(angle_);
   //world_ *= XMMatrixTranslation(x_,y_,0);
   //world_ = world_ * XMMatrixScaling(scale_,scale_,1);
@@ -95,11 +95,11 @@ Vertex* Arc::CreateVertices() {
     float y2 = -(radius_-thickness_)*sin(theta);
     theta += step;
 
-    vertices[index].Pos = XMFLOAT2(x,y);
-    vertices[index].Color = XMFLOAT4(1,1,1,1);
+    vertices[index].pos = XMFLOAT3(x,y,0.0f);
+    vertices[index].color = XMFLOAT4(1,1,1,1);
     ++index;
-    vertices[index].Pos = XMFLOAT2(x2,y2);
-    vertices[index].Color = XMFLOAT4(1,1,1,1);
+    vertices[index].pos = XMFLOAT3(x2,y2,0.0f);
+    vertices[index].color = XMFLOAT4(1,1,1,1);
     ++index;
   }
   vertex_count_ = index;

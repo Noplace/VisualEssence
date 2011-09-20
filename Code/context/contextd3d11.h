@@ -32,6 +32,8 @@ class ContextD3D11 : public Context {
   int ClearTarget();
   int Begin();
   int End();
+  int DestoryInputLayout(InputLayout&);
+  int SetInputLayout(InputLayout&);
   int CreateBuffer(Buffer& buffer, void* initial_data);
   int DestroyBuffer(Buffer& buffer);
   int UpdateSubresource(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size);
@@ -59,6 +61,7 @@ class ContextD3D11 : public Context {
   int Draw(uint32_t vertex_count, uint32_t vertex_start_index);
   int SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer);
   int SetPrimitiveTopology(uint32_t topology);
+  int SetDepthState(void* ptr);
   ID3D11Device* device() { return device_; }
   ID3D11DeviceContext* device_context() { return device_context_; }
 private:
@@ -68,6 +71,8 @@ private:
   ID3D11RenderTargetView* render_target_view_;
   ID3D11Texture2D*        depth_stencil_;
   ID3D11DepthStencilView* depth_stencil_view_;
+  ID3D11DepthStencilState* default_depth_state;
+  ID3D11BlendState* default_blend_state;
   /*ID2D1RenderTarget *d2d_render_target_;
   ID2D1Factory *d2d_factory_;
   IWICImagingFactory *wic_factory_;

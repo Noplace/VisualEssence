@@ -7,7 +7,7 @@ namespace acGraphics {
 FontLoader::FontLoader(const char *fontFile) {
 	this->f = NULL;
 	this->fontFile = fontFile;
-
+  font_ = NULL;
 	outlineThickness = 0;
 }
 
@@ -120,8 +120,10 @@ FontLoaderBinaryFormat::FontLoaderBinaryFormat(const char *fontFile) : FontLoade
 
 int FontLoaderBinaryFormat::Load() {
 
- fopen_s(&f,fontFile, "rb");
- this->font_ = new Font();
+  if (font_ == NULL)
+    return S_FALSE;
+
+  fopen_s(&f,fontFile, "rb");
 
 	// Read and validate the tag. It should be 66, 77, 70, 2, 
 	// or 'BMF' and 2 where the number is the file version.

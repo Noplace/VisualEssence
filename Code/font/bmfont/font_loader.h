@@ -42,7 +42,7 @@ class FontLoader : public graphics::Component {
  public:
 	FontLoader(const char *fontFile);
 	virtual int Load() = 0; // Must be implemented by derived class
-  Font* GenerateFont() { font_ = new Font(); Load(); return font_; }
+  void LoadFont(Font* font) { font_ = font; Load();  }
  protected:
 	ID3D11Resource* LoadPage(int id, const char *pageFile, const char *fontFile);
 	void SetFontInfo(int outlineThickness);

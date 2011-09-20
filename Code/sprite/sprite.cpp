@@ -50,10 +50,10 @@ int Sprite::SetUV(float u0,float v0,float u1,float v1) {
 int Sprite::Construct() {
   Vertex vertices[] =
   {
-    { XMFLOAT2( 0, 0 ), XMFLOAT2( u0, v0  ),XMFLOAT4(1,1,1,1) },  
-    { XMFLOAT2( width_, 0 ), XMFLOAT2( u1, v0 ),XMFLOAT4(1,1,1,1) },
-    { XMFLOAT2( 0, height_ ), XMFLOAT2( u0, v1 ),XMFLOAT4(1,1,1,1) },
-    { XMFLOAT2( width_, height_ ), XMFLOAT2( u1, v1 ),XMFLOAT4(1,1,1,1) },
+    { XMFLOAT3( 0, 0 ,0.0f), XMFLOAT2( u0, v0  ),XMFLOAT4(1,1,1,1) },  
+    { XMFLOAT3( width_, 0,0.0f ), XMFLOAT2( u1, v0 ),XMFLOAT4(1,1,1,1) },
+    { XMFLOAT3( 0, height_,0.0f ), XMFLOAT2( u0, v1 ),XMFLOAT4(1,1,1,1) },
+    { XMFLOAT3( width_, height_,0.0f ), XMFLOAT2( u1, v1 ),XMFLOAT4(1,1,1,1) },
 
   };
   return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Vertex),0,4);
@@ -66,7 +66,7 @@ int Sprite::BuildTransform() {
     XMLoadFloat2(&XMFLOAT2(width_*0.5f,height_*0.5f)),
     angle_,
     XMLoadFloat2(&XMFLOAT2(x_,y_)));
-
+  world_._43 = z_;
   //world_ = XMMatrixRotationZ(angle_);
   //world_ *= XMMatrixTranslation(x_,y_,0);
   //world_ = world_ * XMMatrixScaling(scale_,scale_,1);

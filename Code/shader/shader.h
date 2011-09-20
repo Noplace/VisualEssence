@@ -43,6 +43,10 @@ protected:
 class VertexShader : public Shader {
  public:
   VertexShader()  : Shader() { type = kShaderTypeVertex; }
+  virtual ~VertexShader() {  }
+
+ protected:
+
 
 };
 

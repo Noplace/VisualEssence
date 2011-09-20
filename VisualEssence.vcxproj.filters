@@ -72,6 +72,12 @@
     <ClInclude Include="Code\shape\arc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Code\buffer\constant_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\input_layout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\font\bmfont\acutil_unicode.cpp">

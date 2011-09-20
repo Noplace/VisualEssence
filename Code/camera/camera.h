@@ -50,7 +50,7 @@ class Camera : public Component {
     //D3DXMatrixOrthoOffCenterLH(&Ortho2D, 0.0f,(FLOAT)rect.right,(FLOAT)rect.bottom,0.0f,0.0f,1.0f);
     ratio_ = (FLOAT)context()->width()/context()->height();
     //D3DXMatrixOrthoOffCenterLH(&projection_, 0.0f,ratio,1.0f,0.0f,0.0f,1.0f);
-    projection_ = XMMatrixOrthographicOffCenterLH(0.0f,(FLOAT)context()->width(),(FLOAT)context()->height(),0.0f,0.0f,1.0f);
+    projection_ = XMMatrixOrthographicOffCenterLH(0.0f,(FLOAT)context()->width(),(FLOAT)context()->height(),0.0f,-10000.0f,10000.0f);
 	  //D3DXMatrixIdentity(&view_);
     view_ = XMMatrixIdentity();
   }

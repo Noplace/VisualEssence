@@ -5,6 +5,7 @@
 #include <xnamath.h>
 #include "../component.h"
 #include "../drawable.h"
+#include "../input_layout.h"
 #include "../buffer/buffer.h"
 #include "../shader/shader.h"
 #include "../shape/shape.h"
@@ -33,6 +34,8 @@ class Context {
   virtual int ClearTarget() = 0;
   virtual int Begin() = 0;
   virtual int End() = 0;
+  virtual int DestoryInputLayout(InputLayout&) = 0;
+  virtual int SetInputLayout(InputLayout&) = 0;
   virtual int CreateBuffer(Buffer& , void* ) = 0;
   virtual int DestroyBuffer(Buffer& ) = 0;
   virtual int UpdateSubresource(const Buffer&, void*, void*, uint32_t , uint32_t) = 0;
