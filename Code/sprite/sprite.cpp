@@ -1,7 +1,5 @@
 #include "sprite.h"
 
-typedef graphics::shape::Vertex Vertex;
-
 namespace graphics {
 
 int Sprite::Initialize(Context* context) {
@@ -16,7 +14,7 @@ int Sprite::Initialize(Context* context) {
   world_ = XMMatrixIdentity();
   vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_.description.byte_width = sizeof( Vertex ) * 4;
+  vertex_buffer_.description.byte_width = sizeof( graphics::shape::Vertex ) * 4;
   vertex_buffer_.description.cpu_access_flags = 0;
   context->CreateBuffer(vertex_buffer_,NULL);
 
@@ -48,15 +46,14 @@ int Sprite::SetUV(float u0,float v0,float u1,float v1) {
 }
 
 int Sprite::Construct() {
-  Vertex vertices[] =
+  graphics::shape::Vertex vertices[] =
   {
-    { XMFLOAT3( 0, 0 ,0.0f), XMFLOAT2( u0, v0  ),XMFLOAT4(1,1,1,1) },  
-    { XMFLOAT3( width_, 0,0.0f ), XMFLOAT2( u1, v0 ),XMFLOAT4(1,1,1,1) },
-    { XMFLOAT3( 0, height_,0.0f ), XMFLOAT2( u0, v1 ),XMFLOAT4(1,1,1,1) },
-    { XMFLOAT3( width_, height_,0.0f ), XMFLOAT2( u1, v1 ),XMFLOAT4(1,1,1,1) },
-
+    graphics::shape::Vertex(XMFLOAT3( 0, 0 ,0.0f), XMFLOAT2( u0, v0  ),XMFLOAT4(1,1,1,1),0),  
+    graphics::shape::Vertex(XMFLOAT3( width_, 0,0.0f ), XMFLOAT2( u1, v0 ),XMFLOAT4(1,1,1,1),0),
+    graphics::shape::Vertex(XMFLOAT3( 0, height_,0.0f ), XMFLOAT2( u0, v1 ),XMFLOAT4(1,1,1,1),0),
+    graphics::shape::Vertex(XMFLOAT3( width_, height_,0.0f ), XMFLOAT2( u1, v1 ),XMFLOAT4(1,1,1,1),0)
   };
-  return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Vertex),0,4);
+  return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(graphics::shape::Vertex),0,4);
 }
 
 int Sprite::BuildTransform() {
@@ -74,7 +71,7 @@ int Sprite::BuildTransform() {
 }
 
 int Sprite::Draw() {
-  UINT stride = sizeof( Vertex );
+  UINT stride = sizeof( graphics::shape::Vertex );
   UINT offset = 0;
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
   context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);

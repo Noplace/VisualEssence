@@ -10,6 +10,15 @@ struct Vertex {
   XMFLOAT3 pos;
   XMFLOAT2 tex_uv;
   XMFLOAT4 color;
+  uint32_t tex_page;
+  Vertex() : pos(XMFLOAT3(0,0,0)),tex_uv(XMFLOAT2(0,0)),color(XMFLOAT4(0,0,0,0)),tex_page(0) {
+  }
+  Vertex(XMFLOAT3 pos,XMFLOAT2 tex_uv,XMFLOAT4 color,uint32_t tex_page) {
+    this->pos = pos;
+    this->tex_uv = tex_uv;
+    this->color = color;
+    this->tex_page = tex_page;
+  }
 };
 
 class Shape : public Drawable {
@@ -41,8 +50,16 @@ class Shape : public Drawable {
   float* angle_ptr() { return &angle_; }
   XMMATRIX& world() { return world_; }
   virtual int Construct() = 0; 
-  virtual int BuildTransform() = 0;
-
+  virtual int BuildTransform() {
+    world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
+    0,
+    XMLoadFloat2(&XMFLOAT2(scale_,scale_)),
+    XMLoadFloat2(&XMFLOAT2(0,0)),
+    angle_,
+    XMLoadFloat2(&XMFLOAT2(x_,y_)));
+    world_._43 = z_;
+    return S_OK;
+  }
  protected:
   int vertex_count_;
   graphics::Buffer vertex_buffer_;

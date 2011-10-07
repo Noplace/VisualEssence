@@ -87,12 +87,14 @@
     <ClInclude Include="Code\font\bmfont\acutil_unicode.h" />
     <ClInclude Include="Code\font\bmfont\font.h" />
     <ClInclude Include="Code\font\bmfont\font_loader.h" />
+    <ClInclude Include="Code\font\font_sprite.h" />
     <ClInclude Include="Code\font\writer.h" />
     <ClInclude Include="Code\input_layout.h" />
     <ClInclude Include="Code\scene\scene.h" />
     <ClInclude Include="Code\shader\shader.h" />
     <ClInclude Include="Code\buffer\vertex.h" />
     <ClInclude Include="Code\buffer\vertex_buffer.h" />
+    <ClInclude Include="Code\shader\shader2d_helper.h" />
     <ClInclude Include="Code\shape\arc.h" />
     <ClInclude Include="Code\shape\shape.h" />
     <ClInclude Include="Code\sprite\sprite.h" />
@@ -103,7 +105,9 @@
     <ClCompile Include="Code\font\bmfont\acutil_unicode.cpp" />
     <ClCompile Include="Code\font\bmfont\font.cpp" />
     <ClCompile Include="Code\font\bmfont\font_loader.cpp" />
+    <ClCompile Include="Code\font\font_sprite.cpp" />
     <ClCompile Include="Code\font\writer.cpp" />
+    <ClCompile Include="Code\shader\shader2d_helper.cpp" />
     <ClCompile Include="Code\shape\arc.cpp" />
     <ClCompile Include="Code\sprite\sprite.cpp" />
   </ItemGroup>
