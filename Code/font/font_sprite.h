@@ -8,6 +8,11 @@ namespace font {
 
 class FontSprite : public graphics::shape::Shape  {
  public:
+  int Initialize(Context* context);
+  int Deinitialize();
+  int Draw();
+ protected:
+  int char_count;
 };
 
 }

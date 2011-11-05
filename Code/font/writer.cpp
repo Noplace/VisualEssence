@@ -16,13 +16,13 @@ Writer::~Writer() {
 int Writer::Initialize(Context* context) {
   vertex_array_ = NULL;
   Component::Initialize(context);
-  camera_.Initialize(context);
-  camera_.Ortho2D();
-  camera_.UpdateConstantBuffer();
+  //camera_.Initialize(context);
+  //camera_.Ortho2D();
+  //camera_.UpdateConstantBuffer();
   memset(&misc_buffer_shader_,0,sizeof(misc_buffer_shader_));
   misc_buffer_shader_.ps_color = XMLoadColor(&XMCOLOR(0xffffffff));
   misc_buffer_shader_.world = XMMatrixTranspose(XMMatrixScaling(1,1,1));
-  misc_buffer_.description.usage = D3D11_USAGE_DEFAULT;
+  /*misc_buffer_.description.usage = D3D11_USAGE_DEFAULT;
   misc_buffer_.description.byte_width = sizeof(graphics::shader::ConstantBuffer2Type);
   misc_buffer_.description.bind_flags = D3D11_BIND_CONSTANT_BUFFER;
   misc_buffer_.description.cpu_access_flags = 0;
@@ -32,18 +32,18 @@ int Writer::Initialize(Context* context) {
 
   hr = UpdateConstantBuffer();
   if ( hr != S_OK )
-    return S_FALSE;
+    return S_FALSE;*/
 
   return S_OK;
 }
 
 int Writer::Deinitialize() {
-  context_->DestroyBuffer(misc_buffer_);
+  //context_->DestroyBuffer(misc_buffer_);
   context_->DestroyBuffer(vertex_buffer_);
   if (vertex_array_)
     delete [] vertex_array_;
-  camera_.Deinitialize();
-  effect_->Deinitialize();
+  //camera_.Deinitialize();
+  //effect_->Deinitialize();
   Component::Deinitialize();
   return S_OK;
 }
@@ -294,8 +294,15 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
   return S_OK;
 }
 
+int Writer::GetOutput(graphics::shape::Vertex* vertex_array,int* vertex_count,int* char_count) {
+  *vertex_count = vcount;
+  *char_count = this->char_count;
+  vertex_array = this->vertex_array_;
+  return S_OK;
+}
+
 int Writer::UpdateConstantBuffer() {
-  return context_->UpdateSubresource(misc_buffer_,&misc_buffer_shader_,NULL,0,0);
+  return S_FALSE;//context_->UpdateSubresource(misc_buffer_,&misc_buffer_shader_,NULL,0,0);
 }
 
 

@@ -54,13 +54,14 @@ class Writer : public graphics::shape::Shape {
   int Write(const char *text, int count, unsigned int mode);
   int WriteML(const char *text, int count, unsigned int mode);
   int WriteBox(const char *text, int count, unsigned int mode, float width);
+  int GetOutput(graphics::shape::Vertex* vertex_array,int* vertex_count,int* char_count);
   int UpdateConstantBuffer();
   int Construct(); 
   int BuildTransform();
   int Draw();
   acGraphics::Font* font() { return font_; }
   void set_font(acGraphics::Font* font) { font_ = font; }
-  void set_effect(graphics::Effect* effect) { effect_ = effect; }
+  //void set_effect(graphics::Effect* effect) { effect_ = effect; }
   void set_global_alpha(float global_alpha) { /*misc_buffer_shader_.global_alpha = global_alpha;*/ }
   graphics::shader::ConstantBuffer2Type misc_buffer_shader_;
  protected:
@@ -68,11 +69,11 @@ class Writer : public graphics::shape::Shape {
   acGraphics::Font* font_;
   graphics::Buffer vertex_buffer_;
   graphics::shape::Vertex* vertex_array_;
-  graphics::Effect* effect_;
-  graphics::Camera camera_;
+  //graphics::Effect* effect_;
+  //graphics::Camera camera_;
   int vcount;
   int char_count;
-  graphics::Buffer misc_buffer_;
+  //graphics::Buffer misc_buffer_;
 
 };
 
