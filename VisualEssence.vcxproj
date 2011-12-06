@@ -96,6 +96,7 @@
     <ClInclude Include="Code\buffer\vertex_buffer.h" />
     <ClInclude Include="Code\shader\shader2d_helper.h" />
     <ClInclude Include="Code\shape\arc.h" />
+    <ClInclude Include="Code\shape\rectangle.h" />
     <ClInclude Include="Code\shape\shape.h" />
     <ClInclude Include="Code\sprite\sprite.h" />
   </ItemGroup>
@@ -109,6 +110,7 @@
     <ClCompile Include="Code\font\writer.cpp" />
     <ClCompile Include="Code\shader\shader2d_helper.cpp" />
     <ClCompile Include="Code\shape\arc.cpp" />
+    <ClCompile Include="Code\shape\rectangle.cpp" />
     <ClCompile Include="Code\sprite\sprite.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

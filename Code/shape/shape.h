@@ -46,6 +46,8 @@ class Shape : public Drawable {
   graphics::Buffer& vertex_buffer() { return vertex_buffer_; }
   float* x_ptr() { return &x_; }
   float* y_ptr() { return &y_; }
+  float x() { return x_; }
+  float y() { return y_; }
   float* scale_ptr() { return &scale_; }
   float* angle_ptr() { return &angle_; }
   XMMATRIX& world() { return world_; }
