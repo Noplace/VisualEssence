@@ -1,7 +1,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "../context/context.h"
-#include "arc.h"
+#include "../ve.h"
 
 
 namespace graphics {

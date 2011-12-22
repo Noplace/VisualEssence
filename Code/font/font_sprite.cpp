@@ -1,5 +1,5 @@
-#include "../context/context.h"
-#include "font_sprite.h"
+#include "../ve.h"
+
 
 namespace graphics {
 namespace font {

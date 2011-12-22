@@ -1,15 +1,6 @@
 #ifndef GRAPHICS_CONTEXT_H
 #define GRAPHICS_CONTEXT_H
 
-#include <WinCore/windows/windows.h>
-#include <xnamath.h>
-#include "../component.h"
-#include "../drawable.h"
-#include "../input_layout.h"
-#include "../buffer/buffer.h"
-#include "../shader/shader.h"
-#include "../shape/shape.h"
-
 namespace graphics {
 
 class Component;
@@ -56,6 +47,10 @@ class Context {
   virtual int Draw(uint32_t, uint32_t) = 0;
   virtual int SetShaderResources(ShaderType, uint32_t, uint32_t, void**) = 0;
   virtual int SetPrimitiveTopology(uint32_t) = 0;
+  virtual int CreateTextureFromMemory(void*, uint32_t, Texture&) = 0;
+  virtual int DestroyTexture(Texture&) = 0;
+  virtual int CreateResourceView(Texture&,ResourceView&) = 0;
+  virtual int DestroyResourceView(ResourceView&) = 0;
   core::windows::Window* window() { return window_; }
   uint32_t width() { return width_; }
   uint32_t height() { return height_; }

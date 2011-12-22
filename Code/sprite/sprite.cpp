@@ -1,4 +1,4 @@
-#include "sprite.h"
+#include "../ve.h"
 
 namespace graphics {
 
@@ -17,7 +17,11 @@ int Sprite::Initialize(Context* context) {
   vertex_buffer_.description.byte_width = sizeof( graphics::shape::Vertex ) * 4;
   vertex_buffer_.description.cpu_access_flags = 0;
   context->CreateBuffer(vertex_buffer_,NULL);
-
+  u0 = 0;
+  v0 = 0;
+  u1 = 1;
+  v1 = 1;
+  color_ = XMCOLOR(0xffffffff);
   return hr;
 }
 

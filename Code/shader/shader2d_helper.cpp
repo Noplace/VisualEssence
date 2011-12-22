@@ -1,5 +1,4 @@
-#include "../context/context.h"
-#include "shader2d_helper.h"
+#include "../ve.h"
 
 namespace graphics {
 namespace shader { 

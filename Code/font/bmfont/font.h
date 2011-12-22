@@ -28,12 +28,6 @@
 #ifndef FONT_H
 #define FONT_H
 
-#include <windows.h>
-#include <vector>
-#include <string>
-#include <map>
-#include <d3d11.h>
-
 namespace graphics {
 namespace font {
 class Writer;

@@ -1,4 +1,4 @@
-#include "writer.h"
+#include "../ve.h"
 
 namespace graphics {
 namespace font {
@@ -313,6 +313,7 @@ int Writer::Construct() {
 
 int Writer::BuildTransform() {
   graphics::shape::Shape::BuildTransform();
+  misc_buffer_shader_.world = XMMatrixTranspose( world_ );
   return S_OK;
 }
 

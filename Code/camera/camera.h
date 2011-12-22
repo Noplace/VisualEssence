@@ -1,8 +1,6 @@
 #ifndef GRAPHICS_CAMERA_H
 #define GRAPHICS_CAMERA_H
 
-#include "../component.h"
-#include "../context/context.h"
 
 namespace graphics {
 

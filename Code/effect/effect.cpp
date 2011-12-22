@@ -1,4 +1,4 @@
-#include "effect.h"
+#include "../ve.h"
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")

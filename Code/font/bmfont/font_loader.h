@@ -28,11 +28,6 @@
 #ifndef FONT_LOADER_H
 #define FONT_LOADER_H
 
-#include <windows.h>
-#include "../../context/context.h"
-#include "../../context/contextd3d11.h"
-#include "../../component.h"
-#include "font.h"
 
 namespace acGraphics {
 

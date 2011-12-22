@@ -1,12 +1,6 @@
 #ifndef GRAPHICS_FONT_WRITER_H
 #define GRAPHICS_FONT_WRITER_H
 
-#include "../context/context.h"
-#include "../shape/shape.h"
-#include "../shader/shader2d_helper.h"
-#include "../effect/effect.h"
-#include "../camera/camera.h"
-#include "bmfont/font.h"
 
 namespace graphics {
 namespace font {

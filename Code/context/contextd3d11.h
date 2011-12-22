@@ -1,14 +1,11 @@
 #ifndef GRAPHICS_CONTEXTD3D9_H
 #define GRAPHICS_CONTEXTD3D9_H
 
-#include <d3d11.h>
-#include <d3dx11.h>
-#include <d3dcompiler.h>
-#include <d2d1.h>
+/*#include <d2d1.h>
 #include <d2d1helper.h>
 #include <dwrite.h>
-#include <wincodec.h>
-#include "context.h"
+#include <wincodec.h>*/
+
 
 namespace graphics {
 
@@ -59,9 +56,13 @@ class ContextD3D11 : public Context {
   int SetShader(const Shader& shader);
   int ClearShader(ShaderType shader_type);
   int Draw(uint32_t vertex_count, uint32_t vertex_start_index);
-  int SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer);
+  int SetShaderResources(ShaderType shader_type, uint32_t start_slot, uint32_t count, void** resources_pointer);
   int SetPrimitiveTopology(uint32_t topology);
   int SetDepthState(void* ptr);
+  int CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture);
+  int DestroyTexture(Texture& texture);
+  int CreateResourceView(Texture& texture,ResourceView& resource_view);
+  int DestroyResourceView(ResourceView& resource_view);
   ID3D11Device* device() { return device_; }
   ID3D11DeviceContext* device_context() { return device_context_; }
 private:

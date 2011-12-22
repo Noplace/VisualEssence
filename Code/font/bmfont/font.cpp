@@ -24,8 +24,7 @@
    Andreas Jonsson
    andreas@angelcode.com
 */
-#include <WinCore/windows/windows.h>
-#include "font.h"
+#include "../../ve.h"
 #include "acutil_unicode.h"
 
 namespace acGraphics {
@@ -93,11 +92,13 @@ void Font::SetTextEncoding(EFontTextEncoding encoding) {
 }
 
 // Internal
+//optimized by khalid
 SCharDescr *Font::GetChar(int id) {
-	std::map<int, SCharDescr*>::iterator it = chars.find(id);
-	if( it == chars.end() ) return 0;
+	//std::map<int, SCharDescr*>::iterator it = chars.find(id);
+  
+	//if( it == chars.end() ) return 0;
 
-	return it->second;
+	return chars[id];//it->second;
 }
 
 // Internal

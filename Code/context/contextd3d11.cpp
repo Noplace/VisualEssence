@@ -1,4 +1,4 @@
-#include "contextd3d11.h"
+#include "../ve.h"
 
 #pragma comment(lib, "d3d11.lib")
 #ifdef _DEBUG 
@@ -88,7 +88,7 @@ int ContextD3D11::CreateDisplay(core::windows::Window* window) {
   width_ = rc.right - rc.left;
   height_ = rc.bottom - rc.top;
 
-  UINT createDeviceFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+  UINT createDeviceFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;//D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
   createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
@@ -111,7 +111,7 @@ int ContextD3D11::CreateDisplay(core::windows::Window* window) {
 
   DXGI_SWAP_CHAIN_DESC sd;
   ZeroMemory( &sd, sizeof( sd ) );
-  sd.BufferCount = 1;
+  sd.BufferCount = 2;
   sd.BufferDesc.Width = width_;
   sd.BufferDesc.Height = height_;
   sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -291,6 +291,7 @@ int ContextD3D11::ClearTarget() {
 }
 
 int ContextD3D11::Begin() {
+  //device_context_->Begin();
   return S_OK;//device_->BeginScene();
 }
 
@@ -301,6 +302,7 @@ int ContextD3D11::End() {
 int ContextD3D11::DestoryInputLayout(InputLayout& input_layout) {
   if( input_layout.pointer() ) 
     ((IUnknown*)input_layout.pointer())->Release();
+  input_layout.set_pointer(NULL);
   return S_OK;
 }
 
@@ -310,19 +312,19 @@ int ContextD3D11::SetInputLayout(InputLayout& input_layout) {
 }
 
 int ContextD3D11::CreateBuffer(Buffer& buffer, void* initial_data) {
-    if (buffer.internal_pointer != NULL)
-      return S_FALSE;
-    D3D11_BUFFER_DESC bd;
-    ZeroMemory( &bd, sizeof(bd) );
-    bd.Usage = (D3D11_USAGE)buffer.description.usage;
-    bd.ByteWidth = buffer.description.byte_width;
-    bd.BindFlags = buffer.description.bind_flags;
-    bd.CPUAccessFlags = buffer.description.cpu_access_flags;
-    D3D11_SUBRESOURCE_DATA InitData;
-    ZeroMemory( &InitData, sizeof(InitData) );
-    InitData.pSysMem = initial_data;
-    HRESULT result = device_->CreateBuffer( &bd, NULL, (ID3D11Buffer**)&buffer.internal_pointer );
-    return result;
+  if (buffer.internal_pointer != NULL)
+    return S_FALSE;
+  D3D11_BUFFER_DESC bd;
+  ZeroMemory( &bd, sizeof(bd) );
+  bd.Usage = (D3D11_USAGE)buffer.description.usage;
+  bd.ByteWidth = buffer.description.byte_width;
+  bd.BindFlags = buffer.description.bind_flags;
+  bd.CPUAccessFlags = buffer.description.cpu_access_flags;
+  D3D11_SUBRESOURCE_DATA InitData;
+  ZeroMemory( &InitData, sizeof(InitData) );
+  InitData.pSysMem = initial_data;
+  HRESULT result = device_->CreateBuffer( &bd, NULL, (ID3D11Buffer**)&buffer.internal_pointer );
+  return result;
 }
 
 int ContextD3D11::DestroyBuffer(Buffer& buffer) {
@@ -553,6 +555,27 @@ int ContextD3D11::SetPrimitiveTopology(uint32_t topology) {
 
 int ContextD3D11::SetDepthState(void* ptr) {
   device_context_->OMSetDepthStencilState(default_depth_state, 0);
+  return S_OK;
+}
+
+int ContextD3D11::CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture) {
+  texture.data_length = data_length;
+  
+  int result = D3DX11CreateTextureFromMemory(device_,data_pointer,data_length,NULL,NULL,(ID3D11Resource**)&texture.data_pointer,NULL);
+  return result;
+}
+
+int ContextD3D11::DestroyTexture(Texture& texture) {
+  SafeRelease((ID3D11Resource**)&texture.data_pointer);
+  return S_OK;
+}
+
+int ContextD3D11::CreateResourceView(Texture& texture,ResourceView& resource_view) {
+  return device_->CreateShaderResourceView((ID3D11Resource*)texture.data_pointer,NULL,(ID3D11ShaderResourceView**)&resource_view.data_pointer);
+}
+
+int ContextD3D11::DestroyResourceView(ResourceView& resource_view) {
+  SafeRelease((ID3D11ShaderResourceView**)&resource_view.data_pointer);
   return S_OK;
 }
 

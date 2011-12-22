@@ -90,6 +90,7 @@
     <ClInclude Include="Code\font\font_sprite.h" />
     <ClInclude Include="Code\font\writer.h" />
     <ClInclude Include="Code\input_layout.h" />
+    <ClInclude Include="Code\resource_view.h" />
     <ClInclude Include="Code\scene\scene.h" />
     <ClInclude Include="Code\shader\shader.h" />
     <ClInclude Include="Code\buffer\vertex.h" />
@@ -99,6 +100,8 @@
     <ClInclude Include="Code\shape\rectangle.h" />
     <ClInclude Include="Code\shape\shape.h" />
     <ClInclude Include="Code\sprite\sprite.h" />
+    <ClInclude Include="Code\texture.h" />
+    <ClInclude Include="Code\ve.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\context\contextd3d11.cpp" />
