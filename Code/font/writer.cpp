@@ -5,8 +5,8 @@ namespace font {
 
 
 
-Writer::Writer() {
-  
+Writer::Writer() : Shape(), vertex_array_(NULL) {
+  memset(&vertex_buffer_,0,sizeof(vertex_buffer_));
 }
 
 Writer::~Writer() {
@@ -39,7 +39,9 @@ int Writer::Initialize(Context* context) {
 
 int Writer::Deinitialize() {
   //context_->DestroyBuffer(misc_buffer_);
-  context_->DestroyBuffer(vertex_buffer_);
+  if (context_!=nullptr) {
+    context_->DestroyBuffer(vertex_buffer_);
+  }
   if (vertex_array_)
     delete [] vertex_array_;
   //camera_.Deinitialize();

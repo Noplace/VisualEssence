@@ -33,7 +33,7 @@ struct DrawableId {
 
 class Drawable : public Component {
  public:
-  Drawable() {}
+  Drawable() : Component() {}
   virtual ~Drawable() {}
   void set_id(DrawableId id) { id_ = id; }
   DrawableId id() { return id_; }

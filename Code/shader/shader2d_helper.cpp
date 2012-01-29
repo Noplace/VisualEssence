@@ -4,7 +4,7 @@ namespace graphics {
 namespace shader { 
 
 Shader2DHelper::Shader2DHelper() {
-
+  memset(&cef_buffer,0,sizeof(cef_buffer));
 }
 
 Shader2DHelper::~Shader2DHelper() {
@@ -26,8 +26,11 @@ int Shader2DHelper::Initialize(Context* context) {
       return hr;
   return S_OK; 
 }
+
 int Shader2DHelper::Deinitialize() { 
-  context_->DestroyBuffer(cef_buffer);
+  if (context_!=nullptr) {
+    context_->DestroyBuffer(cef_buffer);
+  }
   camera_.Deinitialize();
   effect_.Deinitialize();
   return S_OK; 

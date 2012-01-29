@@ -90,7 +90,7 @@ int ContextD3D11::CreateDisplay(core::windows::Window* window) {
 
   UINT createDeviceFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;//D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
-  createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+ // createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
   D3D_DRIVER_TYPE driverTypes[] =
@@ -126,7 +126,7 @@ int ContextD3D11::CreateDisplay(core::windows::Window* window) {
   D3D_FEATURE_LEVEL feature_level;
   hr = D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, NULL, 0,
                                           D3D11_SDK_VERSION, &sd, &swap_chain_, &device_, &feature_level, &device_context_ );
-
+  int inta = GetLastError();
   if( FAILED( hr ) )
       return hr;
 

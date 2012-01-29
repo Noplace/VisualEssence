@@ -23,7 +23,7 @@ struct Vertex {
 
 class Shape : public Drawable {
  public:
-  Shape() : x_(0), y_(0),z_(0), scale_(1), angle_(0) {
+  Shape() : Drawable(), x_(0), y_(0),z_(0), scale_(1), angle_(0) {
   }
   virtual ~Shape() { }
   virtual int SetTopLeft(float x,float y) {
