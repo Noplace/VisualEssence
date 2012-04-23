@@ -1,4 +1,4 @@
-#include "contextd3d9.h"
+#include "../ve.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
@@ -55,6 +55,13 @@ int ContextD3D9::Initialize() {
   return S_OK;
 }
 
+int ContextD3D9::Deinitialize() {
+  delete []display_modes_;
+  SafeRelease(&device_);
+  SafeRelease(&direct3d_);
+  return S_OK;
+}
+
 int ContextD3D9::CreateDisplay(core::windows::Window* window) {
   window_ = window;
 
@@ -102,17 +109,114 @@ int ContextD3D9::End() {
   return device_->EndScene();
 }
 
-int ContextD3D9::CreateBuffer(BufferDescription& buffer_description,void** buffer_pointer) {
-  return device_->CreateVertexBuffer(buffer_description.byte_width,
-           buffer_description.usage,
-           0,
-           D3DPOOL_MANAGED,
-           (IDirect3DVertexBuffer9**)buffer_pointer,
-           NULL);
+int ContextD3D9::DestoryInputLayout(InputLayout& input_layout) {
+  return S_FALSE;
 }
 
-int ContextD3D9::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, void *const * buffers, const uint32_t * strides,const uint32_t *offsets) {
-  return device_->SetStreamSource(start_slot,(IDirect3DVertexBuffer9*)*buffers,offsets[0],strides[0]);
+int ContextD3D9::SetInputLayout(InputLayout& input_layout) {
+  return S_FALSE;
 }
+
+int ContextD3D9::CreateBuffer(Buffer& buffer, void* initial_data) {
+  if (buffer.internal_pointer != NULL)
+    return S_FALSE;
+  return device_->CreateVertexBuffer(buffer.description.byte_width,
+          buffer.description.usage,
+          0,
+          D3DPOOL_MANAGED,
+          (IDirect3DVertexBuffer9**)&buffer.internal_pointer,
+          NULL);
+}
+
+int ContextD3D9::DestroyBuffer(Buffer& buffer) {
+  IDirect3DVertexBuffer9* internal_buffer_ = (IDirect3DVertexBuffer9*)buffer.internal_pointer;
+  if (internal_buffer_ != NULL) {
+    internal_buffer_->Release();
+    internal_buffer_ = NULL;
+    buffer.internal_pointer =  NULL;
+    return S_OK;
+  }
+  return S_FALSE;
+}
+
+int ContextD3D9::UpdateSubresource(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size) {
+  return S_FALSE;
+}
+
+int ContextD3D9::CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, uint32_t type_size, uint32_t offset, uint32_t count) { 
+  return S_FALSE; 
+};
+
+int ContextD3D9::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array) {
+  return S_FALSE;
+}
+
+int ContextD3D9::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, Buffer* buffers, const uint32_t* strides, const uint32_t* offsets) {
+  return device_->SetStreamSource(start_slot,(IDirect3DVertexBuffer9*)buffers->internal_pointer,offsets[0],strides[0]);
+}
+
+int ContextD3D9::SetIndexBuffer(const Buffer& buffer, const uint32_t offset) {
+  return S_FALSE;
+}
+int ContextD3D9::ClearIndexBuffer() {
+    return S_FALSE;
+}
+int ContextD3D9::LockBuffer(void* buffer,uint32_t index,uint32_t type,BufferSubresource& subresource) { 
+  return S_FALSE;
+}
+int ContextD3D9::UnlockBuffer(void* buffer,uint32_t index) {
+  return S_FALSE;
+}
+int ContextD3D9::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob) {
+  return S_FALSE;
+}
+int ContextD3D9::CreateVertexShader(void* data, uint32_t length, VertexShader& vs) {
+  return S_FALSE;
+}
+int ContextD3D9::CreatePixelShader(void* data, uint32_t length, PixelShader& ps) {
+  return S_FALSE;
+}
+int ContextD3D9::CreateGeometryShader(void* data, uint32_t length, GeometryShader& gs) {
+  return S_FALSE;
+}
+int ContextD3D9::DestroyShader(Shader& shader) {
+  if( shader.internal_pointer() ) 
+    ((IUnknown*)shader.internal_pointer())->Release();
+  return S_OK;
+}
+int ContextD3D9::SetShader(const Shader& shader) {
+  return S_FALSE;
+}
+int ContextD3D9::ClearShader(ShaderType shader_type) {
+  return S_FALSE;
+}
+int ContextD3D9::Draw(uint32_t vertex_count, uint32_t vertex_start_index) {
+  return S_FALSE;
+}
+int ContextD3D9::SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer) {
+  return S_FALSE;
+}
+int ContextD3D9::SetPrimitiveTopology(uint32_t topology) {
+  return S_FALSE;
+}
+int ContextD3D9::CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture) {
+  texture.data_length = data_length;
+  
+  int result = D3DXCreateTextureFromFileInMemory(device_,data_pointer,data_length,(IDirect3DTexture9**)&texture.data_pointer);
+  return result;
+}
+int ContextD3D9::DestroyTexture(Texture& texture) {
+  SafeRelease((IDirect3DTexture9**)&texture.data_pointer);
+  return S_OK;
+}
+int ContextD3D9::CreateResourceView(Texture& texture,ResourceView& resource_view) {
+  resource_view.data_pointer = texture.data_pointer;
+  resource_view.data_length = texture.data_length;
+  return S_OK;
+}
+int ContextD3D9::DestroyResourceView(ResourceView& resource_view) {
+  return S_OK;
+}
+
 
 }

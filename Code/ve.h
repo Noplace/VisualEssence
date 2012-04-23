@@ -8,6 +8,8 @@
 #include <d3d11.h>
 #include <d3dx11.h>
 #include <d3dcompiler.h>
+#include <d3d9.h>
+#include <d3dx9.h>
 #include <xnamath.h>
 #include "component.h"
 #include "drawable.h"
@@ -19,6 +21,7 @@
 #include "shape/shape.h"
 #include "context/context.h"
 #include "context/contextd3d11.h"
+#include "context/contextd3d9.h"
 #include "camera/camera.h"
 #include "camera/camera2d.h"
 #include "shape/rectangle.h"
