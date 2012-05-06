@@ -299,6 +299,10 @@ int ContextD3D11::End() {
   return S_OK;//device_->EndScene();
 }
 
+int ContextD3D11::CreateInputLayout(const InputElement inputs[], InputLayout& input_layout) {
+  return S_FALSE;
+}
+
 int ContextD3D11::DestoryInputLayout(InputLayout& input_layout) {
   if( input_layout.pointer() ) 
     ((IUnknown*)input_layout.pointer())->Release();

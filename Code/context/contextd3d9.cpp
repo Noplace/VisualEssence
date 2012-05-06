@@ -109,12 +109,42 @@ int ContextD3D9::End() {
   return device_->EndScene();
 }
 
+int ContextD3D9::CreateInputLayout(const InputElement inputs[], InputLayout& input_layout) {
+
+  int element_count = 0;
+  auto ptr = inputs;
+  while (ptr->Stream != 0xFF && ptr->Type != D3DDECLTYPE_UNUSED) {
+    ++ptr;
+    ++element_count;
+  }
+  ++element_count;
+
+  auto d3d9elements = new D3DVERTEXELEMENT9[element_count];
+  for (int i=0;i<element_count; ++i) {
+    d3d9elements[i].Method = inputs[i].Method;
+    d3d9elements[i].Offset = inputs[i].Offset;
+    d3d9elements[i].Stream = inputs[i].Stream;
+    d3d9elements[i].Type = inputs[i].Type;
+    d3d9elements[i].Usage = inputs[i].Usage;
+    d3d9elements[i].UsageIndex = inputs[i].UsageIndex;
+  }
+  IDirect3DVertexDeclaration9* d3ddec;
+  device_->CreateVertexDeclaration(d3d9elements,&d3ddec);
+  input_layout.set_pointer(d3ddec);
+  delete [] d3d9elements;
+  return S_OK;
+}
+
 int ContextD3D9::DestoryInputLayout(InputLayout& input_layout) {
-  return S_FALSE;
+  auto decl = (IDirect3DVertexDeclaration9*)input_layout.pointer();
+  decl->Release();
+  return S_OK;
 }
 
 int ContextD3D9::SetInputLayout(InputLayout& input_layout) {
-  return S_FALSE;
+  auto decl = (IDirect3DVertexDeclaration9*)input_layout.pointer();
+  device_->SetVertexDeclaration(decl);
+  return S_OK;
 }
 
 int ContextD3D9::CreateBuffer(Buffer& buffer, void* initial_data) {

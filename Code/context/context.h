@@ -25,6 +25,7 @@ class Context {
   virtual int ClearTarget() = 0;
   virtual int Begin() = 0;
   virtual int End() = 0;
+  virtual int CreateInputLayout(const InputElement[],InputLayout&) = 0;
   virtual int DestoryInputLayout(InputLayout&) = 0;
   virtual int SetInputLayout(InputLayout&) = 0;
   virtual int CreateBuffer(Buffer& , void* ) = 0;

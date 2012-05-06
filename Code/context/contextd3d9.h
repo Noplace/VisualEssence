@@ -23,6 +23,7 @@ class ContextD3D9 : public Context {
   int ClearTarget();
   int Begin();
   int End();
+  int CreateInputLayout(const InputElement inputs[], InputLayout& input_layout);
   int DestoryInputLayout(InputLayout&);
   int SetInputLayout(InputLayout&);
   int CreateBuffer(Buffer& buffer, void* initial_data);

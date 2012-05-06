@@ -3,6 +3,15 @@
 
 namespace graphics {
 
+struct InputElement {
+  WORD Stream;
+  WORD Offset;
+  BYTE Type;
+  BYTE Method;
+  BYTE Usage;
+  BYTE UsageIndex;
+};
+
 class InputLayout {
  public:
   InputLayout() : pointer_(0) {}
