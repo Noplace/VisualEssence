@@ -1,3 +1,21 @@
+/*****************************************************************************************************************
+* Copyright (c) 2012 Khalid Ali Al-Kooheji                                                                       *
+*                                                                                                                *
+* Permission is hereby granted, free of charge, to any person obtaining a copy of this software and              *
+* associated documentation files (the "Software"), to deal in the Software without restriction, including        *
+* without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell        *
+* copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the       *
+* following conditions:                                                                                          *
+*                                                                                                                *
+* The above copyright notice and this permission notice shall be included in all copies or substantial           *
+* portions of the Software.                                                                                      *
+*                                                                                                                *
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT          *
+* LIMITED TO THE WARRANTIES OF MERCHANTABILITY, * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.          *
+* IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, * DAMAGES OR OTHER LIABILITY,      *
+* WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
+* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
+*****************************************************************************************************************/
 #include "../ve.h"
 
 #pragma comment(lib, "d3d9.lib")
@@ -244,7 +262,15 @@ int ContextD3D9::CreateResourceView(Texture& texture,ResourceView& resource_view
   resource_view.data_length = texture.data_length;
   return S_OK;
 }
+
 int ContextD3D9::DestroyResourceView(ResourceView& resource_view) {
+  return S_OK;
+}
+
+int ContextD3D9::SetCamera(Camera* camera) {
+  camera_ = camera;
+  device_->SetTransform(D3DTS_VIEW,(D3DMATRIX*)&camera_->view());
+  device_->SetTransform(D3DTS_PROJECTION,(D3DMATRIX*)&camera_->projection());
   return S_OK;
 }
 
