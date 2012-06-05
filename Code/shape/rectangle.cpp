@@ -34,8 +34,7 @@ int Rectangle::Initialize(Context* context) {
   scale_ = 1;
   angle_ = 0;
   world_ = XMMatrixIdentity();
-  color_ = XMCOLOR(0xffffffff);
-
+  SetColors(XMCOLOR(0xffffffff),XMCOLOR(0xffffffff),XMCOLOR(0xffffffff),XMCOLOR(0xffffffff));
   memset(&vertex_buffer_,0,sizeof(vertex_buffer_));
   vertex_count_  = 0;
   return S_OK;
@@ -46,8 +45,11 @@ int Rectangle::Deinitialize() {
   return hr;
 }
 
-int Rectangle::SetColor(XMCOLOR color) {
-  color_ = color;
+int Rectangle::SetColors(XMCOLOR color1,XMCOLOR color2,XMCOLOR color3,XMCOLOR color4) {
+  color1_ = color1;
+  color2_ = color2;
+  color3_ = color3;
+  color4_ = color4;
   return S_OK;
 }
 
@@ -96,13 +98,13 @@ Vertex* Rectangle::CreateVertices() {
 
   Vertex* vertices = new Vertex[4];
   vertices[0].pos = XMFLOAT3(0,0,0.0f);
-  vertices[0].color = XMFLOAT4(1,1,1,1);
+  vertices[0].color = XMCOLOR(1,1,1,1);
   vertices[1].pos = XMFLOAT3(width_,0,0.0f);
-  vertices[1].color = XMFLOAT4(1,1,1,1);
+  vertices[1].color = XMCOLOR(1,1,1,1);
   vertices[2].pos = XMFLOAT3(0,height_,0.0f);
-  vertices[2].color = XMFLOAT4(1,1,1,1);
+  vertices[2].color = XMCOLOR(1,1,1,1);
   vertices[3].pos = XMFLOAT3(width_,height_,0.0f);
-  vertices[3].color = XMFLOAT4(1,1,1,1);
+  vertices[3].color = XMCOLOR(1,1,1,1);
   vertex_count_ = 4;
   return vertices;
 }

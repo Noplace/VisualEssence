@@ -19,7 +19,9 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "../ve.h"
+#include "../buffer/vertex_buffer_pool.h"
 
+//graphics::VertexBufferPool<graphics::shape::Vertex> pool;
 
 namespace graphics {
 namespace shape {
@@ -29,40 +31,39 @@ int Arc::Initialize(Context* context) {
 
   if (hr != S_OK)
     return hr;
+  //pool.Initialize(context,800);
   x_ = 0;
   y_ = 0;
   scale_ = 1;
   angle_ = 0;
   world_ = XMMatrixIdentity();
-  color_ = XMCOLOR(0xffffffff);
+  color0_ = XMCOLOR(0xffffffff);
+  color1_ = XMCOLOR(0xffffffff);
 
   memset(&vertex_buffer_,0,sizeof(vertex_buffer_));
   vertex_count_  = 0;
+  
   return S_OK;
 }
 
 int Arc::Deinitialize() {
+  //pool.Deinitialize();
   int hr = context_->DestroyBuffer(vertex_buffer_);
   return hr;
 }
 
-int Arc::SetColor(XMCOLOR color) {
-  color_ = color;
-  return S_OK;
-}
-
-int Arc::SetParams(float radius,float start_angle,float end_angle,float thickness) {
+void Arc::SetParams(float radius,float start_angle,float end_angle,float thickness) {
   radius_ = radius;
   start_angle_ = start_angle;
   end_angle_ = end_angle;
   thickness_ = thickness;
-  return S_OK;
 }
 
 int Arc::Construct() {
   Vertex* vertices = CreateVertices();
   if (!vertices)
     return S_FALSE;
+  //vb_id = pool.Allocate(vertex_count_);
 
   vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
@@ -71,6 +72,7 @@ int Arc::Construct() {
   context_->DestroyBuffer(vertex_buffer_);
   context_->CreateBuffer(vertex_buffer_,NULL);
   int hr = context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Vertex),0,vertex_count_);
+  //pool.CopyData(vb_id,vertices,vertex_count_);
   delete [] vertices;
   return hr;
 }
@@ -94,6 +96,7 @@ int Arc::Draw() {
   UINT offset = 0;
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
   context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+  //pool.Set(vb_id,0);
   return context_->Draw(vertex_count_,0);
 }
 
@@ -105,19 +108,24 @@ Vertex* Arc::CreateVertices() {
   Vertex* vertices = new Vertex[count];
   float theta = start_angle_;
   int index=0;
+  auto c0_vec = XMLoadColor(&color0_);
+  auto c1_vec = XMLoadColor(&color1_);
   while (theta < end_angle_) {
     float x = radius_*cos(theta);
     float y = -radius_*sin(theta);
     float x2 = (radius_-thickness_)*cos(theta);
     float y2 = -(radius_-thickness_)*sin(theta);
-    theta += step;
-
+    
+    auto color_vec = XMVectorLerp(c0_vec,c1_vec,theta/(end_angle_-start_angle_));
+    XMCOLOR color;
+    XMStoreColor(&color,color_vec);
     vertices[index].pos = XMFLOAT3(x,y,0.0f);
-    vertices[index].color = XMFLOAT4(1,1,1,1);
+    vertices[index].color = color;
     ++index;
     vertices[index].pos = XMFLOAT3(x2,y2,0.0f);
-    vertices[index].color = XMFLOAT4(1,1,1,1);
+    vertices[index].color = color;
     ++index;
+    theta += step;
   }
   vertex_count_ = index;
   return vertices;

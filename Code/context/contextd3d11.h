@@ -78,11 +78,13 @@ class ContextD3D11 : public Context {
   int SetShaderResources(ShaderType shader_type, uint32_t start_slot, uint32_t count, void** resources_pointer);
   int SetPrimitiveTopology(uint32_t topology);
   int SetDepthState(void* ptr);
+  int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture);
   int CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture);
   int DestroyTexture(Texture& texture);
   int CreateResourceView(Texture& texture,ResourceView& resource_view);
   int DestroyResourceView(ResourceView& resource_view);
   int SetCamera(Camera* camera);
+  int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth);
   ID3D11Device* device() { return device_; }
   ID3D11DeviceContext* device_context() { return device_context_; }
 private:

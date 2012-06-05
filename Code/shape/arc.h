@@ -31,19 +31,22 @@ class Arc : public Shape {
   ~Arc() {}
   int Initialize(Context* context);
   int Deinitialize();
-  int SetColor(XMCOLOR color);
-  int SetParams(float radius,float start_angle,float end_angle,float thickness);
+  void SetColor0(XMCOLOR color0) { color0_ = color0; }
+  void SetColor1(XMCOLOR color1) { color1_ = color1; } 
+  void SetParams(float radius,float start_angle,float end_angle,float thickness);
   int Construct();
   int BuildTransform();
   int Draw();
-  XMVECTOR color() { return XMLoadColor(&color_); }
+  //XMVECTOR color() { return XMLoadColor(&color_); }
  private:
   Arc::Vertex* CreateVertices();
   float radius_;
   float start_angle_;
   float end_angle_;
   float thickness_;
-  XMCOLOR color_;
+  XMCOLOR color0_;
+  XMCOLOR color1_;
+  int vb_id;
 };
 
 }

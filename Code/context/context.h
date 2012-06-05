@@ -66,11 +66,15 @@ class Context {
   virtual int Draw(uint32_t, uint32_t) = 0;
   virtual int SetShaderResources(ShaderType, uint32_t, uint32_t, void**) = 0;
   virtual int SetPrimitiveTopology(uint32_t) = 0;
+  virtual int CreateTexture(uint32_t, uint32_t, uint32_t, uint32_t, Texture&) = 0;
   virtual int CreateTextureFromMemory(void*, uint32_t, Texture&) = 0;
   virtual int DestroyTexture(Texture&) = 0;
+  //virtual int LockTexture(Texture&) = 0;
+  //virtual int UnlockTexture(Texture&) = 0;
   virtual int CreateResourceView(Texture&,ResourceView&) = 0;
   virtual int DestroyResourceView(ResourceView&) = 0;
-  virtual int SetCamera(Camera* camera) = 0;
+  virtual int SetCamera(Camera*) = 0;
+  virtual int SetViewport(float, float, float, float, float, float ) = 0;
   core::windows::Window* window() { return window_; }
   uint32_t width() { return width_; }
   uint32_t height() { return height_; }

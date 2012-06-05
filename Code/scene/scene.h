@@ -19,10 +19,6 @@
 #ifndef GRAPHICS_SCENE_H
 #define GRAPHICS_SCENE_H
 
-#include "component.h"
-#include "../camera/camera.h"
-#include "../shader/shader.h"
-
 namespace graphics {
 
 class Scene : public Component {
@@ -40,7 +36,8 @@ class Scene : public Component {
     hr = camera_.Deinitialize();
     return hr;
   }
-  virtual void Draw() = 0;
+  virtual int Update(double) = 0;
+  virtual int Draw() = 0;
  protected:
 
   Camera camera_;

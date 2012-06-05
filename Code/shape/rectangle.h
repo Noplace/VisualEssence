@@ -31,17 +31,19 @@ class Rectangle : public Shape {
   ~Rectangle() {}
   int Initialize(Context* context);
   int Deinitialize();
-  int SetColor(XMCOLOR color);
+  int SetColors(XMCOLOR color1,XMCOLOR color2,XMCOLOR color3,XMCOLOR color4);
   int SetParams(float width, float height);
   int Construct();
   int BuildTransform();
   int Draw();
-  XMVECTOR color() { return XMLoadColor(&color_); }
   float width() { return width_; }
   float height() { return height_; }
  private:
   Rectangle::Vertex* CreateVertices();
-  XMCOLOR color_;
+  XMCOLOR color1_;
+  XMCOLOR color2_;
+  XMCOLOR color3_;
+  XMCOLOR color4_;
   float width_;
   float height_;
 };

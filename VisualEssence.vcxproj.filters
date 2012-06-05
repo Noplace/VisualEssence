@@ -137,6 +137,9 @@
     <ClCompile Include="Code\context\contextd3d9.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Code\buffer\vertex_buffer_pool.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />

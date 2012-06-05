@@ -27,11 +27,11 @@ namespace shape {
 struct Vertex {
   XMFLOAT3 pos;
   XMFLOAT2 tex_uv;
-  XMFLOAT4 color;
+  XMCOLOR  color;
   uint32_t tex_page;
-  Vertex() : pos(XMFLOAT3(0,0,0)),tex_uv(XMFLOAT2(0,0)),color(XMFLOAT4(0,0,0,0)),tex_page(0) {
+  Vertex() : pos(XMFLOAT3(0,0,0)),tex_uv(XMFLOAT2(0,0)),color(XMCOLOR((UINT)0)),tex_page(0) {
   }
-  Vertex(XMFLOAT3 pos,XMFLOAT2 tex_uv,XMFLOAT4 color,uint32_t tex_page) {
+  Vertex(XMFLOAT3 pos,XMFLOAT2 tex_uv,XMCOLOR color,uint32_t tex_page) {
     this->pos = pos;
     this->tex_uv = tex_uv;
     this->color = color;

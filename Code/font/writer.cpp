@@ -270,7 +270,7 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
   
 	//y -= font_->scale * float(font_->base);
   //y += font_->scale * float(font_->fontHeight);
-  XMFLOAT4 color = XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
+  XMCOLOR color = XMCOLOR(1.0f,1.0f,1.0f,1.0f);
   char_count += count;
 	for( int n = 0; n < count; ) {
 		int charId = font_->GetTextChar(text, n, &n);
@@ -345,7 +345,7 @@ int Writer::Draw() {
   UINT offset = 0;
   context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
   context_->ClearIndexBuffer();
-  context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+  context_->SetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
   //camera_.SetConstantBuffer(0);
 
   //set contant buffer;

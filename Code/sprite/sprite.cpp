@@ -70,10 +70,10 @@ int Sprite::SetUV(float u0,float v0,float u1,float v1) {
 int Sprite::Construct() {
   graphics::shape::Vertex vertices[] =
   {
-    graphics::shape::Vertex(XMFLOAT3( 0, 0 ,0.0f), XMFLOAT2( u0, v0  ),XMFLOAT4(1,1,1,1),0),  
-    graphics::shape::Vertex(XMFLOAT3( width_, 0,0.0f ), XMFLOAT2( u1, v0 ),XMFLOAT4(1,1,1,1),0),
-    graphics::shape::Vertex(XMFLOAT3( 0, height_,0.0f ), XMFLOAT2( u0, v1 ),XMFLOAT4(1,1,1,1),0),
-    graphics::shape::Vertex(XMFLOAT3( width_, height_,0.0f ), XMFLOAT2( u1, v1 ),XMFLOAT4(1,1,1,1),0)
+    graphics::shape::Vertex(XMFLOAT3( 0, 0 ,0.0f), XMFLOAT2( u0, v0  ),XMCOLOR(1,1,1,1),0),  
+    graphics::shape::Vertex(XMFLOAT3( width_, 0,0.0f ), XMFLOAT2( u1, v0 ),XMCOLOR(1,1,1,1),0),
+    graphics::shape::Vertex(XMFLOAT3( 0, height_,0.0f ), XMFLOAT2( u0, v1 ),XMCOLOR(1,1,1,1),0),
+    graphics::shape::Vertex(XMFLOAT3( width_, height_,0.0f ), XMFLOAT2( u1, v1 ),XMCOLOR(1,1,1,1),0)
   };
   return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(graphics::shape::Vertex),0,4);
 }

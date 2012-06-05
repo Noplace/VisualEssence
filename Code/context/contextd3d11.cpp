@@ -580,6 +580,12 @@ int ContextD3D11::SetDepthState(void* ptr) {
   return S_OK;
 }
 
+int ContextD3D11::CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture) {
+  //todo whole thing
+  //return device_->CreateTexture2D(width,height,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,(IDirect3DTexture9**)&texture.data_pointer,0);
+  return S_FALSE;
+}
+
 int ContextD3D11::CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture) {
   texture.data_length = data_length;
   
@@ -603,6 +609,18 @@ int ContextD3D11::DestroyResourceView(ResourceView& resource_view) {
 
 int ContextD3D11::SetCamera(Camera* camera) {
   return S_FALSE;
+}
+
+int ContextD3D11::SetViewport(float x,float y,float w,float h,float min_depth,float max_depth) {
+  D3D11_VIEWPORT vp;
+  vp.MaxDepth = min_depth;
+  vp.MinDepth = max_depth;
+  vp.Height = h;
+  vp.Width = w;
+  vp.TopLeftX = x;
+  vp.TopLeftY = y;
+  device_context_->RSSetViewports(0,&vp);
+  return S_OK;
 }
 
 }

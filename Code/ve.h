@@ -19,6 +19,9 @@
 #ifndef VE_H
 #define VE_H
 
+#pragma warning( push )             //Suppress MSVC warning spam
+#pragma warning( disable : 4275 )
+
 //forwards
 namespace graphics {
 class Camera;
@@ -52,10 +55,12 @@ class Camera;
 #include "sprite/sprite.h"
 #include "effect/effect.h"
 #include "shader/shader2d_helper.h"
+#include "scene/scene.h"
 #include "font/font_sprite.h"
 #include "font/bmfont/font.h"
 #include "font/bmfont/font_loader.h"
 #include "font/writer.h"
 
+#pragma warning( pop )
 
 #endif

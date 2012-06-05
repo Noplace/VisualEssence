@@ -16,12 +16,42 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
+#include <functional>
 #include "../ve.h"
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "dxguid.lib")
 
+namespace _1 {
+
+UINT vert_to_prim_D3DPT_POINTLIST(UINT i) {
+  return i;
+}
+
+UINT vert_to_prim_D3DPT_LINELIST(UINT i) {
+  return i>>1;
+};
+
+UINT vert_to_prim_D3DPT_LINESTRIP(UINT i) {
+  return i-1;
+};
+
+UINT vert_to_prim_D3DPT_TRIANGLELIST(UINT i) {
+  return i/3;
+}
+
+UINT vert_to_prim_D3DPT_TRIANGLESTRIP(UINT i) {
+  return i-2;
+}
+
+UINT vert_to_prim_D3DPT_TRIANGLEFAN(UINT i) {
+  return i-2;
+}
+
+UINT (*vert_to_prim)(UINT) = nullptr;
+
+}
 
 namespace graphics {
 
@@ -92,7 +122,10 @@ int ContextD3D9::CreateDisplay(core::windows::Window* window) {
   d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   d3dpp.BackBufferFormat = mode.Format;
   d3dpp.hDeviceWindow = window_->handle();
-  
+  RECT rc;
+  GetClientRect(window_->handle(),&rc);
+  width_ = rc.right;
+  height_ = rc.bottom;
   if( FAILED( direct3d_->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window_->handle(),
 									  D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 									  &d3dpp, &device_ ) ) )
@@ -168,12 +201,20 @@ int ContextD3D9::SetInputLayout(InputLayout& input_layout) {
 int ContextD3D9::CreateBuffer(Buffer& buffer, void* initial_data) {
   if (buffer.internal_pointer != NULL)
     return S_FALSE;
-  return device_->CreateVertexBuffer(buffer.description.byte_width,
+  int result = device_->CreateVertexBuffer(buffer.description.byte_width,
           buffer.description.usage,
           0,
-          D3DPOOL_MANAGED,
+          D3DPOOL_DEFAULT,
           (IDirect3DVertexBuffer9**)&buffer.internal_pointer,
           NULL);
+  if (initial_data != nullptr) {
+    auto internal_buffer_ = (IDirect3DVertexBuffer9*)buffer.internal_pointer;
+    void* buffer_pointer;
+    internal_buffer_->Lock(0,buffer.description.byte_width,&buffer_pointer,D3DLOCK_DISCARD);
+    memcpy(buffer_pointer,initial_data,buffer.description.byte_width);
+    internal_buffer_->Unlock();
+  }
+  return result;
 }
 
 int ContextD3D9::DestroyBuffer(Buffer& buffer) {
@@ -192,6 +233,11 @@ int ContextD3D9::UpdateSubresource(const Buffer& buffer, void* data_pointer, voi
 }
 
 int ContextD3D9::CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, uint32_t type_size, uint32_t offset, uint32_t count) { 
+  auto internal_buffer_ = (IDirect3DVertexBuffer9*)buffer.internal_pointer;
+  void* buffer_pointer;
+  internal_buffer_->Lock(offset*type_size,count*type_size,&buffer_pointer,D3DLOCK_DISCARD);
+  memcpy(buffer_pointer,data_pointer,type_size*count);
+  internal_buffer_->Unlock();
   return S_FALSE; 
 };
 
@@ -200,7 +246,11 @@ int ContextD3D9::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot,
 }
 
 int ContextD3D9::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, Buffer* buffers, const uint32_t* strides, const uint32_t* offsets) {
-  return device_->SetStreamSource(start_slot,(IDirect3DVertexBuffer9*)buffers->internal_pointer,offsets[0],strides[0]);
+  int result = S_OK;
+  for (uint32_t i=0;i<buffer_count;++i) {
+    result = device_->SetStreamSource(start_slot+i,(IDirect3DVertexBuffer9*)buffers[i].internal_pointer,offsets[i],strides[i]);
+  }
+  return result;
 }
 
 int ContextD3D9::SetIndexBuffer(const Buffer& buffer, const uint32_t offset) {
@@ -221,32 +271,70 @@ int ContextD3D9::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntr
 int ContextD3D9::CreateVertexShader(void* data, uint32_t length, VertexShader& vs) {
   return S_FALSE;
 }
+
 int ContextD3D9::CreatePixelShader(void* data, uint32_t length, PixelShader& ps) {
   return S_FALSE;
 }
+
 int ContextD3D9::CreateGeometryShader(void* data, uint32_t length, GeometryShader& gs) {
   return S_FALSE;
 }
+
 int ContextD3D9::DestroyShader(Shader& shader) {
   if( shader.internal_pointer() ) 
     ((IUnknown*)shader.internal_pointer())->Release();
   return S_OK;
 }
+
 int ContextD3D9::SetShader(const Shader& shader) {
   return S_FALSE;
 }
+
 int ContextD3D9::ClearShader(ShaderType shader_type) {
   return S_FALSE;
 }
+
 int ContextD3D9::Draw(uint32_t vertex_count, uint32_t vertex_start_index) {
+  device_->DrawPrimitive((D3DPRIMITIVETYPE)primitive_topology_,vertex_start_index,_1::vert_to_prim(vertex_count));
   return S_FALSE;
 }
+
 int ContextD3D9::SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer) {
   return S_FALSE;
 }
+     
 int ContextD3D9::SetPrimitiveTopology(uint32_t topology) {
-  return S_FALSE;
+  if (primitive_topology_ == topology)
+    return S_FALSE;
+  primitive_topology_ = topology;
+  switch (primitive_topology_) {
+    case D3DPT_POINTLIST:
+      _1::vert_to_prim = _1::vert_to_prim_D3DPT_POINTLIST;
+    break;
+    case D3DPT_LINELIST:
+      _1::vert_to_prim = _1::vert_to_prim_D3DPT_LINELIST;
+    break;
+    case D3DPT_LINESTRIP:
+     _1::vert_to_prim = _1::vert_to_prim_D3DPT_LINESTRIP;
+    break;
+    case D3DPT_TRIANGLELIST:
+     _1::vert_to_prim = _1::vert_to_prim_D3DPT_TRIANGLELIST;
+    break;
+    case D3DPT_TRIANGLESTRIP:
+      _1::vert_to_prim = _1::vert_to_prim_D3DPT_TRIANGLESTRIP;
+    break;
+    case D3DPT_TRIANGLEFAN:
+      _1::vert_to_prim = _1::vert_to_prim_D3DPT_TRIANGLEFAN;
+    break;
+  }
+  return S_OK;
 }
+
+int ContextD3D9::CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture) {
+  //todo : change the defaults ( make them configurable )
+  return device_->CreateTexture(width,height,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,(IDirect3DTexture9**)&texture.data_pointer,0);
+}
+
 int ContextD3D9::CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture) {
   texture.data_length = data_length;
   
@@ -257,6 +345,28 @@ int ContextD3D9::DestroyTexture(Texture& texture) {
   SafeRelease((IDirect3DTexture9**)&texture.data_pointer);
   return S_OK;
 }
+
+int ContextD3D9::CopyToTexture(Texture& texture, void* data_pointer,uint32_t data_format, uint32_t data_pitch, const TexturePoint src_pos, const TexturePoint dest_pos, uint32_t w, uint32_t h) {
+    auto d3dtex = (IDirect3DTexture9*)texture.data_pointer;
+    D3DLOCKED_RECT lr;
+    RECT rc = {dest_pos.x,dest_pos.y,dest_pos.x+w,dest_pos.x+h};
+    d3dtex->LockRect(0,&lr,&rc,D3DLOCK_DISCARD);
+    auto dest_bytes = (uint8_t*)lr.pBits;
+    auto src_bytes = (uint8_t*)data_pointer;
+    src_bytes += src_pos.y*(data_pitch<<2);
+    for (int j=0;j<h;++j) {
+      auto dest_line = (uint32_t*)dest_bytes;
+      auto src_line = (uint32_t*)src_bytes;
+      for (int i=0;i<w;++i) {
+        dest_line[i] = src_line[i+src_pos.x];
+      }
+      dest_bytes += lr.Pitch;
+      src_bytes += data_pitch<<2;
+    }
+    d3dtex->UnlockRect(0);
+  return S_OK;
+}
+
 int ContextD3D9::CreateResourceView(Texture& texture,ResourceView& resource_view) {
   resource_view.data_pointer = texture.data_pointer;
   resource_view.data_length = texture.data_length;
@@ -271,7 +381,20 @@ int ContextD3D9::SetCamera(Camera* camera) {
   camera_ = camera;
   device_->SetTransform(D3DTS_VIEW,(D3DMATRIX*)&camera_->view());
   device_->SetTransform(D3DTS_PROJECTION,(D3DMATRIX*)&camera_->projection());
+
   return S_OK;
+}
+
+
+int ContextD3D9::SetViewport(float x,float y,float w,float h,float min_depth,float max_depth) {
+  D3DVIEWPORT9 vp;
+  vp.MinZ = min_depth;
+  vp.MaxZ = max_depth;
+  vp.Height = (DWORD)h;
+  vp.Width = (DWORD)w;
+  vp.X = (DWORD)x;
+  vp.Y = (DWORD)y;
+  return device_->SetViewport(&vp);
 }
 
 

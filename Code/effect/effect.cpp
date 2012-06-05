@@ -18,6 +18,11 @@
 *****************************************************************************************************************/
 #include "../ve.h"
 
+#ifdef _DEBUG 
+#pragma comment(lib, "d3dx11d.lib")
+#else
+#pragma comment(lib, "d3dx11.lib")
+#endif
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 

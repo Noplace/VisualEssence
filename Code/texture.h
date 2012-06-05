@@ -21,6 +21,36 @@
 
 namespace graphics {
 
+struct TexturePoint {
+  uint32_t x,y;
+  TexturePoint() : x(0),y(0) {
+  }
+  TexturePoint(uint32_t x,uint32_t y) : x(x),y(y) {
+  }
+
+  TexturePoint& operator=(const TexturePoint& other) {
+    this->x = other.x;
+    this->y = other.y;
+    return *this;
+  }
+};
+
+struct TextureRegion {
+  uint32_t x,y,w,h;
+  TextureRegion() : x(0),y(0),w(0),h(0) {
+  }
+  TextureRegion(uint32_t x,uint32_t y,uint32_t w,uint32_t h) : x(x),y(y),w(w),h(h) {
+  }
+
+  TextureRegion& operator=(const TextureRegion& other) {
+    this->x = other.x;
+    this->y = other.y;
+    this->w = other.w;
+    this->h = other.h;
+    return *this;
+  }
+};
+
 class Texture {
  public:
   Texture() : data_pointer(nullptr),data_length(0) {}
@@ -29,6 +59,7 @@ class Texture {
   }
   void* data_pointer;
   uint32_t data_length;
+  uint32_t format,type;
 };
 
 }

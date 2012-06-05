@@ -61,14 +61,17 @@ class ContextD3D9 : public Context {
   int DestroyShader(Shader&);
   int SetShader(const Shader&);
   int ClearShader(ShaderType);
-  int Draw(uint32_t, uint32_t);
+  int Draw(uint32_t vertex_count, uint32_t start_vertex_index);
   int SetShaderResources(ShaderType, uint32_t, uint32_t, void**);
   int SetPrimitiveTopology(uint32_t);
-  int CreateTextureFromMemory(void*, uint32_t, Texture&);
+  int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture);
+  int CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture);
   int DestroyTexture(Texture&);
+  int CopyToTexture(Texture& texture, void* data_pointer, uint32_t data_format, uint32_t data_pitch, const TexturePoint src_pos, const TexturePoint dest_pos, uint32_t w, uint32_t h);
   int CreateResourceView(Texture&,ResourceView&);
   int DestroyResourceView(ResourceView&);
   int SetCamera(Camera* camera);
+  int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth);
   /*int CreateBuffer(BufferDescription& buffer_description,void** buffer_pointer);
   int SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, void *const * buffers, const uint32_t * strides,const uint32_t *offsets);*/
   LPDIRECT3DDEVICE9 device() { return device_; }
@@ -77,6 +80,7 @@ private:
   LPDIRECT3D9 direct3d_;
   LPDIRECT3DDEVICE9 device_;
   D3DPRESENT_PARAMETERS d3dpp;
+  uint32_t primitive_topology_;
 };
 
 }
