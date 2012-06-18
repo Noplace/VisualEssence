@@ -354,10 +354,10 @@ int ContextD3D9::CopyToTexture(Texture& texture, void* data_pointer,uint32_t dat
     auto dest_bytes = (uint8_t*)lr.pBits;
     auto src_bytes = (uint8_t*)data_pointer;
     src_bytes += src_pos.y*(data_pitch<<2);
-    for (int j=0;j<h;++j) {
+    for (uint32_t j=0;j<h;++j) {
       auto dest_line = (uint32_t*)dest_bytes;
       auto src_line = (uint32_t*)src_bytes;
-      for (int i=0;i<w;++i) {
+      for (uint32_t i=0;i<w;++i) {
         dest_line[i] = src_line[i+src_pos.x];
       }
       dest_bytes += lr.Pitch;
