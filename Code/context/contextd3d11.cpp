@@ -427,49 +427,48 @@ int ContextD3D11::UnlockBuffer(void* buffer,uint32_t index) {
   return S_OK;
 }
 
-int ContextD3D11::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob)
-{
+int ContextD3D11::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob) {
     int hr = S_OK;
-
     DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
-    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-    // Setting this flag improves the shader debugging experience, but still allows 
-    // the shaders to be optimized and to run exactly the way they will run in 
-    // the release configuration of this program.
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
+    #if defined( DEBUG ) || defined( _DEBUG )
+      dwShaderFlags |= D3DCOMPILE_DEBUG;
+    #endif
 
-    ID3DBlob* pErrorBlob;
+    ID3DBlob* pErrorBlob,*buffer;
     hr = D3DX11CompileFromMemory( (LPCSTR)data,len,NULL, NULL, NULL, szEntryPoint, szShaderModel, 
-      dwShaderFlags, 0, NULL, &blob.internal_, &pErrorBlob, NULL );
-    if( FAILED(hr) )
-    {
-        if( pErrorBlob != NULL )
-            OutputDebugStringA( (char*)pErrorBlob->GetBufferPointer() );
-        if( pErrorBlob ) pErrorBlob->Release();
-        return hr;
+      dwShaderFlags, 0, NULL, &buffer, &pErrorBlob, NULL );
+    if( FAILED(hr) ) {
+      #ifdef _DEBUG
+      if( pErrorBlob != NULL )
+          OutputDebugStringA( (char*)pErrorBlob->GetBufferPointer() );
+          SafeRelease(&pErrorBlob);
+      #endif
+      return hr;
     }
-    if( pErrorBlob ) pErrorBlob->Release();
+    SafeRelease(&pErrorBlob);
+
+    blob.internal_ = buffer;
+    blob.set_data(buffer->GetBufferPointer());
+    blob.set_size(buffer->GetBufferSize());
 
     return S_OK;
 }
 
-int ContextD3D11::CreateVertexShader(void* data, uint32_t length, VertexShader& vs) {
+int ContextD3D11::CreateVertexShader(void* data, size_t length, VertexShader& vs) {
   void* ptr;
   int hr = device_->CreateVertexShader(data, length, NULL, (ID3D11VertexShader**)&ptr);
   vs.set_internal_pointer(ptr);
   return hr;
 }
 
-int ContextD3D11::CreatePixelShader(void* data, uint32_t length, PixelShader& ps) {
+int ContextD3D11::CreatePixelShader(void* data, size_t length, PixelShader& ps) {
   void* ptr;
   int hr = device_->CreatePixelShader(data, length, NULL, (ID3D11PixelShader**)&ptr);
   ps.set_internal_pointer(ptr);
   return hr;
 }
 
-int ContextD3D11::CreateGeometryShader(void* data, uint32_t length, GeometryShader& gs) {
+int ContextD3D11::CreateGeometryShader(void* data, size_t length, GeometryShader& gs) {
   void* ptr;
   int hr = device_->CreateGeometryShader(data, length, NULL, (ID3D11GeometryShader**)&ptr);
   gs.set_internal_pointer(ptr);

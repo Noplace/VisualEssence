@@ -37,6 +37,13 @@ struct Vertex {
     this->color = color;
     this->tex_page = tex_page;
   }
+  Vertex(const Vertex& other) {
+    memcpy(this,&other,sizeof(Vertex));
+  }
+  Vertex& operator=(const Vertex& other) {
+    memcpy(this,&other,sizeof(Vertex));
+    return *this;
+  }
 };
 
 class Shape : public Drawable {
@@ -82,7 +89,7 @@ class Shape : public Drawable {
   }
  protected:
   int vertex_count_;
-  graphics::Buffer vertex_buffer_;
+  graphics::Buffer vertex_buffer_,index_buffer_;
   XMMATRIX world_;
   float x_,y_,z_,scale_,angle_;
 };

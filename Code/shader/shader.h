@@ -37,11 +37,14 @@ class ShaderBlob {
  public:
   ShaderBlob() : internal_(NULL) { }
   ~ShaderBlob() { SafeRelease(&internal_); }
-  void* data() { return internal_->GetBufferPointer(); }
-  size_t size() { return internal_->GetBufferSize(); }
-  ID3DBlob* internal_;
+  void* data() { return data_;/*internal_->GetBufferPointer();*/ }
+  void set_data(void* data) { data_ = data; }
+  size_t size() { return size_;/*internal_->GetBufferSize();*/ }
+  void set_size(size_t size) { size_ = size; }
+  IUnknown* internal_;
 private:
-
+  void* data_;
+  size_t size_;
 };
 
 class Shader {

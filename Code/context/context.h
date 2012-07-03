@@ -57,9 +57,9 @@ class Context {
   virtual int LockBuffer(void*, uint32_t,uint32_t, BufferSubresource&) = 0; 
   virtual int UnlockBuffer(void*, uint32_t) = 0;
   virtual int CompileShaderFromMemory(void*, uint32_t, LPCSTR, LPCSTR, ShaderBlob&) = 0;
-  virtual int CreateVertexShader(void*, uint32_t, VertexShader&) = 0;
-  virtual int CreatePixelShader(void*, uint32_t, PixelShader&) = 0;
-  virtual int CreateGeometryShader(void*, uint32_t, GeometryShader&) = 0;
+  virtual int CreateVertexShader(void*, size_t, VertexShader&) = 0;
+  virtual int CreatePixelShader(void*, size_t, PixelShader&) = 0;
+  virtual int CreateGeometryShader(void*, size_t, GeometryShader&) = 0;
   virtual int DestroyShader(Shader&) = 0;
   virtual int SetShader(const Shader&) = 0;
   virtual int ClearShader(ShaderType) = 0;

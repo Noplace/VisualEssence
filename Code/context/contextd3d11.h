@@ -68,9 +68,9 @@ class ContextD3D11 : public Context {
   int LockBuffer(void* buffer, uint32_t index, uint32_t type, BufferSubresource& subresource); 
   int UnlockBuffer(void* buffer, uint32_t index);
   int CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob);
-  int CreateVertexShader(void* data, uint32_t length, VertexShader& vs);
-  int CreatePixelShader(void* data, uint32_t length, PixelShader& ps);
-  int CreateGeometryShader(void* data, uint32_t length, GeometryShader& gs);
+  int CreateVertexShader(void* data, size_t length, VertexShader& vs);
+  int CreatePixelShader(void* data, size_t length, PixelShader& ps);
+  int CreateGeometryShader(void* data, size_t length, GeometryShader& gs);
   int DestroyShader(Shader& shader);
   int SetShader(const Shader& shader);
   int ClearShader(ShaderType shader_type);

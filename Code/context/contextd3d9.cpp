@@ -20,8 +20,13 @@
 #include "../ve.h"
 
 #pragma comment(lib, "d3d9.lib")
-#pragma comment(lib, "d3dx9.lib")
 #pragma comment(lib, "dxguid.lib")
+
+#ifdef _DEBUG
+#pragma comment(lib, "d3dx9d.lib")
+#else
+#pragma comment(lib, "d3dx9.lib")
+#endif
 
 namespace _1 {
 
@@ -68,32 +73,25 @@ const D3DVERTEXELEMENT9 ContextD3D9::ve_xyzcuv[4] = {
   D3DDECL_END()
 };
 
-ContextD3D9::ContextD3D9(): Context(),direct3d_(NULL),display_modes_(NULL),device_(NULL) {
+ContextD3D9::ContextD3D9(): Context(),direct3d_(nullptr),display_modes_(nullptr),device_(nullptr) {
 
 }
 
 ContextD3D9::~ContextD3D9() {
-
-  if (device_ != NULL) {
-    device_->Release();
-    device_ = NULL;
-  }
-
-  if (direct3d_ != NULL) {
-    direct3d_->Release();
-    direct3d_ = NULL;
-  }
+  Deinitialize();
 }
 
 int ContextD3D9::Initialize() {
   
 
-  if( NULL == (direct3d_ = Direct3DCreate9(D3D_SDK_VERSION)))
+  if( nullptr == (direct3d_ = Direct3DCreate9(D3D_SDK_VERSION)))
     return E_FAIL;
   
   int count = direct3d_->GetAdapterModeCount(D3DADAPTER_DEFAULT,D3DFMT_X8R8G8B8);
-  if (count == 0)
+  if (count == 0) {
+    Deinitialize();
     return E_FAIL;
+  }
 
   display_modes_ = new D3DDISPLAYMODE[count];
   for (int i=0;i<count;++i) {
@@ -104,7 +102,7 @@ int ContextD3D9::Initialize() {
 }
 
 int ContextD3D9::Deinitialize() {
-  delete []display_modes_;
+  SafeDeleteArray(&display_modes_);
   SafeRelease(&device_);
   SafeRelease(&direct3d_);
   return S_OK;
@@ -127,19 +125,17 @@ int ContextD3D9::CreateDisplay(core::windows::Window* window) {
   width_ = rc.right;
   height_ = rc.bottom;
   if( FAILED( direct3d_->CreateDevice( D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, window_->handle(),
-									  D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+									  D3DCREATE_SOFTWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
 									  &d3dpp, &device_ ) ) )
 	  return E_FAIL;
-
   return S_OK;
-
 }
 
 int ContextD3D9::Render() {
   
 
 
-  HRESULT result = device_->Present(NULL,NULL,NULL,NULL);
+  HRESULT result = device_->Present(nullptr,nullptr,nullptr,nullptr);
   if (result == D3DERR_DEVICELOST) {
     //signal resources to be recreated
     device_->Reset(&d3dpp);
@@ -149,7 +145,7 @@ int ContextD3D9::Render() {
 }
 
 int ContextD3D9::ClearTarget() {
-  return device_->Clear(0,NULL,D3DCLEAR_TARGET,D3DCOLOR_XRGB(0,0,0),1.0f,0);
+  return device_->Clear(0,nullptr,D3DCLEAR_TARGET,D3DCOLOR_XRGB(0,0,0),1.0f,0);
 }
 
 int ContextD3D9::Begin() {
@@ -199,36 +195,63 @@ int ContextD3D9::SetInputLayout(InputLayout& input_layout) {
 }
 
 int ContextD3D9::CreateBuffer(Buffer& buffer, void* initial_data) {
-  if (buffer.internal_pointer != NULL)
+  if (buffer.internal_pointer != nullptr)
     return S_FALSE;
-  int result = device_->CreateVertexBuffer(buffer.description.byte_width,
-          buffer.description.usage,
-          0,
-          D3DPOOL_DEFAULT,
-          (IDirect3DVertexBuffer9**)&buffer.internal_pointer,
-          NULL);
-  if (initial_data != nullptr) {
-    auto internal_buffer_ = (IDirect3DVertexBuffer9*)buffer.internal_pointer;
-    void* buffer_pointer;
-    internal_buffer_->Lock(0,buffer.description.byte_width,&buffer_pointer,D3DLOCK_DISCARD);
-    memcpy(buffer_pointer,initial_data,buffer.description.byte_width);
-    internal_buffer_->Unlock();
+  int result=S_FALSE;
+  if (buffer.description.bind_flags & D3D11_BIND_VERTEX_BUFFER) {
+    result = device_->CreateVertexBuffer(buffer.description.byte_width,
+            buffer.description.usage,
+            0,
+            D3DPOOL_DEFAULT,
+            (IDirect3DVertexBuffer9**)&buffer.internal_pointer,
+            nullptr);
+    if (initial_data != nullptr) {
+      auto internal_buffer_ = (IDirect3DVertexBuffer9*)buffer.internal_pointer;
+      void* buffer_pointer;
+      internal_buffer_->Lock(0,buffer.description.byte_width,&buffer_pointer,D3DLOCK_DISCARD);
+      memcpy(buffer_pointer,initial_data,buffer.description.byte_width);
+      internal_buffer_->Unlock();
+    }
+  } else if (buffer.description.bind_flags & D3D11_BIND_INDEX_BUFFER) {
+    result = device_->CreateIndexBuffer(buffer.description.byte_width,buffer.description.usage,D3DFMT_INDEX16,D3DPOOL_DEFAULT,(IDirect3DIndexBuffer9**)&buffer.internal_pointer,nullptr);
+    if (initial_data != nullptr) {
+      auto internal_buffer_ = (IDirect3DIndexBuffer9*)buffer.internal_pointer;
+      void* buffer_pointer;
+      internal_buffer_->Lock(0,buffer.description.byte_width,&buffer_pointer,D3DLOCK_DISCARD);
+      memcpy(buffer_pointer,initial_data,buffer.description.byte_width);
+      internal_buffer_->Unlock();
+    }
+  } else if (buffer.description.bind_flags & D3D11_BIND_CONSTANT_BUFFER) {
+    buffer.internal_pointer = new char[buffer.description.byte_width];
+    if (initial_data != nullptr) {
+      memcpy(buffer.internal_pointer,initial_data,buffer.description.byte_width);
+    }
   }
+
   return result;
 }
 
 int ContextD3D9::DestroyBuffer(Buffer& buffer) {
-  IDirect3DVertexBuffer9* internal_buffer_ = (IDirect3DVertexBuffer9*)buffer.internal_pointer;
-  if (internal_buffer_ != NULL) {
-    internal_buffer_->Release();
-    internal_buffer_ = NULL;
-    buffer.internal_pointer =  NULL;
+  if (buffer.description.bind_flags & D3D11_BIND_CONSTANT_BUFFER) {
+    SafeDeleteArray(&buffer.internal_pointer);
     return S_OK;
+  } else {
+    auto internal_buffer_ = (IUnknown*)buffer.internal_pointer;
+    if (internal_buffer_ != nullptr) {
+      internal_buffer_->Release();
+      internal_buffer_ = nullptr;
+      buffer.internal_pointer =  nullptr;
+      return S_OK;
+    }
   }
   return S_FALSE;
 }
 
 int ContextD3D9::UpdateSubresource(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size) {
+  //if (size == 0)
+    //size = buffer.description.byte_width;
+  memcpy(buffer.internal_pointer,data_pointer,buffer.description.byte_width);
+
   return S_FALSE;
 }
 
@@ -242,6 +265,24 @@ int ContextD3D9::CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, ui
 };
 
 int ContextD3D9::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array) {
+  
+  switch (shader_type) {
+    case kShaderTypeVertex:
+      for (uint32_t i=0;i<buffer_count;++i) {
+        auto data = (const float*)buffer_array[i].internal_pointer;
+        auto float_count = buffer_array[i].description.byte_width / sizeof(float);
+        device_->SetVertexShaderConstantF(start_slot,data,float_count>>2);
+        start_slot+=float_count>>2;
+      }
+      return S_OK;
+    case kShaderTypePixel:
+      //device_->SetPixelShader((IDirect3DPixelShader9*)(shader.internal_pointer()));
+      return S_OK;
+    default:
+      return S_FALSE;
+  }
+  
+
   return S_FALSE;
 }
 
@@ -254,29 +295,61 @@ int ContextD3D9::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, Bu
 }
 
 int ContextD3D9::SetIndexBuffer(const Buffer& buffer, const uint32_t offset) {
-  return S_FALSE;
+  return device_->SetIndices((IDirect3DIndexBuffer9*)buffer.internal_pointer);
 }
+
 int ContextD3D9::ClearIndexBuffer() {
-    return S_FALSE;
+  return device_->SetIndices(nullptr);
 }
-int ContextD3D9::LockBuffer(void* buffer,uint32_t index,uint32_t type,BufferSubresource& subresource) { 
+
+int ContextD3D9::LockBuffer(void* buffer, uint32_t index, uint32_t type, BufferSubresource& subresource) { 
   return S_FALSE;
 }
-int ContextD3D9::UnlockBuffer(void* buffer,uint32_t index) {
+int ContextD3D9::UnlockBuffer(void* buffer, uint32_t index) {
   return S_FALSE;
 }
+
 int ContextD3D9::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob) {
-  return S_FALSE;
+  
+  uint32_t flags = 0;
+  #ifdef _DEBUG
+    flags |= D3DXSHADER_DEBUG;
+  #endif
+    //blob.internal_
+  LPD3DXBUFFER buffer,errormsgs;
+  auto hr = D3DXCompileShader((LPCSTR)data,len,nullptr,nullptr,szEntryPoint,szShaderModel,flags,&buffer,&errormsgs,nullptr);
+  if ( FAILED(hr) ) {
+    #ifdef _DEBUG
+    if( errormsgs != NULL )
+        OutputDebugStringA( (char*)errormsgs->GetBufferPointer() );
+    SafeRelease(&errormsgs);
+    #endif
+    return hr;
+  }
+
+  blob.set_data(buffer->GetBufferPointer());
+  blob.set_size(buffer->GetBufferSize());
+  blob.internal_ = buffer;
+
+  return S_OK;
 }
-int ContextD3D9::CreateVertexShader(void* data, uint32_t length, VertexShader& vs) {
+
+int ContextD3D9::CreateVertexShader(void* data, size_t length, VertexShader& vs) {
+  IDirect3DVertexShader9* ptr = nullptr;
+  auto hr = device_->CreateVertexShader((const DWORD*)data,&ptr);
+  vs.set_internal_pointer(ptr);
   return S_FALSE;
 }
 
-int ContextD3D9::CreatePixelShader(void* data, uint32_t length, PixelShader& ps) {
+int ContextD3D9::CreatePixelShader(void* data, size_t length, PixelShader& ps) {
+  IDirect3DPixelShader9* ptr;
+  device_->CreatePixelShader((const DWORD*)data,&ptr);
+  ps.set_internal_pointer(ptr);
   return S_FALSE;
 }
 
-int ContextD3D9::CreateGeometryShader(void* data, uint32_t length, GeometryShader& gs) {
+int ContextD3D9::CreateGeometryShader(void* data, size_t length, GeometryShader& gs) {
+
   return S_FALSE;
 }
 
@@ -287,15 +360,42 @@ int ContextD3D9::DestroyShader(Shader& shader) {
 }
 
 int ContextD3D9::SetShader(const Shader& shader) {
-  return S_FALSE;
+  switch (shader.type) {
+    case kShaderTypeVertex:
+      //if (settings.vertex_shader != &shader) {
+      device_->SetVertexShader((IDirect3DVertexShader9*)(shader.internal_pointer()));
+        //settings.vertex_shader = shader.internal_pointer();
+      //}
+      return S_OK;
+    case kShaderTypePixel:
+      device_->SetPixelShader((IDirect3DPixelShader9*)(shader.internal_pointer()));
+      return S_OK;
+    default:
+      return S_FALSE;
+  }
 }
 
 int ContextD3D9::ClearShader(ShaderType shader_type) {
-  return S_FALSE;
+  switch (shader_type) {
+    case kShaderTypeVertex:
+      device_->SetVertexShader(nullptr);
+      return S_OK;
+    case kShaderTypePixel:
+      device_->SetPixelShader(nullptr);
+      return S_OK;
+    default:
+      return S_FALSE;
+  }
 }
 
 int ContextD3D9::Draw(uint32_t vertex_count, uint32_t vertex_start_index) {
   device_->DrawPrimitive((D3DPRIMITIVETYPE)primitive_topology_,vertex_start_index,_1::vert_to_prim(vertex_count));
+  
+  return S_FALSE;
+}
+
+int ContextD3D9::DrawIndexed(uint32_t vertex_count, uint32_t base_vertex_index, uint32_t index) {
+  device_->DrawIndexedPrimitive((D3DPRIMITIVETYPE)primitive_topology_,base_vertex_index,0,vertex_count,index,_1::vert_to_prim(vertex_count));
   return S_FALSE;
 }
 

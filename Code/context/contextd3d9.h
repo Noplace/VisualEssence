@@ -55,13 +55,14 @@ class ContextD3D9 : public Context {
   int LockBuffer(void*, uint32_t,uint32_t, BufferSubresource&); 
   int UnlockBuffer(void*, uint32_t);
   int CompileShaderFromMemory(void*, uint32_t, LPCSTR, LPCSTR, ShaderBlob&);
-  int CreateVertexShader(void*, uint32_t, VertexShader&);
-  int CreatePixelShader(void*, uint32_t, PixelShader&);
-  int CreateGeometryShader(void*, uint32_t, GeometryShader&);
+  int CreateVertexShader(void*, size_t, VertexShader&);
+  int CreatePixelShader(void*, size_t, PixelShader&);
+  int CreateGeometryShader(void*, size_t, GeometryShader&);
   int DestroyShader(Shader&);
   int SetShader(const Shader&);
   int ClearShader(ShaderType);
   int Draw(uint32_t vertex_count, uint32_t start_vertex_index);
+  int DrawIndexed(uint32_t vertex_count, uint32_t base_vertex_index, uint32_t index);
   int SetShaderResources(ShaderType, uint32_t, uint32_t, void**);
   int SetPrimitiveTopology(uint32_t);
   int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture);
