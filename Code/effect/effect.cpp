@@ -16,6 +16,7 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
+#ifdef VE_USE_D3D11_ENGINE
 #include "../ve.h"
 
 #ifdef _DEBUG 
@@ -242,7 +243,7 @@ int Effect::CreateFromMemory(void* data,uint32_t size) {
   return CreateInputLayoutFromShader(vs_blob);
 }
 
-int Effect::CreateFromMemory2(Effect::Entry* entry_list, void* data, uint32_t size) {
+int Effect::CreateFromMemory2(Effect::Entry* entry_list, void* data, size_t size) {
   int hr = S_OK;
 
   ps_count = 0;
@@ -306,3 +307,5 @@ int Effect::Begin() {
 }
 
 }
+
+#endif

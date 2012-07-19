@@ -54,7 +54,7 @@ int Shader2DHelper::Deinitialize() {
   return S_OK; 
 }
 
-void Shader2DHelper::CreateFromMemory(void* data_pointer, uint32_t data_length) {
+void Shader2DHelper::CreateFromMemory(void* data_pointer, size_t data_length) {
   graphics::Effect::Entry entry_list[] = {
     {"VS","vs_5_0"},
     {"PS","ps_5_0"},

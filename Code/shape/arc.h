@@ -35,7 +35,7 @@ class Arc : public Shape {
   void SetColor1(XMCOLOR color1) { color1_ = color1; } 
   void SetParams(float radius,float start_angle,float end_angle,float thickness);
   int Construct();
-  int BuildTransform();
+  int Update();
   int Draw();
   //XMVECTOR color() { return XMLoadColor(&color_); }
  private:

@@ -25,8 +25,8 @@ int Sprite::Initialize(Context* context) {
 
   if (hr != S_OK)
     return hr;
-  x_ = 0;
-  y_ = 0;
+  pos_.x = 0;
+  pos_.y = 0;
   scale_ = 1;
   angle_ = 0;
   world_ = XMMatrixIdentity();
@@ -78,17 +78,21 @@ int Sprite::Construct() {
   return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(graphics::shape::Vertex),0,4);
 }
 
-int Sprite::BuildTransform() {
+int Sprite::Update() {
+  
+  if (changed_ == false) return S_FALSE;
+  
   world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(width_*0.5f,height_*0.5f)),
     0,
     XMLoadFloat2(&XMFLOAT2(scale_,scale_)),
     XMLoadFloat2(&XMFLOAT2(width_*0.5f,height_*0.5f)),
     angle_,
-    XMLoadFloat2(&XMFLOAT2(x_,y_)));
+    XMLoadFloat2(&XMFLOAT2(pos_.x,pos_.y)));
   world_._43 = z_;
   //world_ = XMMatrixRotationZ(angle_);
-  //world_ *= XMMatrixTranslation(x_,y_,0);
+  //world_ *= XMMatrixTranslation(pos_.x,pos_.y,0);
   //world_ = world_ * XMMatrixScaling(scale_,scale_,1);
+  changed_ = false;
   return S_OK;
 }
 

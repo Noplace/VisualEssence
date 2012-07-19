@@ -16,8 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#include <functional>
+#ifdef VE_USE_D3D9_ENGINE
 #include "../ve.h"
+//#include <functional>
 
 #pragma comment(lib, "d3d9.lib")
 #pragma comment(lib, "dxguid.lib")
@@ -83,7 +84,7 @@ ContextD3D9::~ContextD3D9() {
 
 int ContextD3D9::Initialize() {
   
-
+  memset(cbslot_sizes,0,sizeof(cbslot_sizes));
   if( nullptr == (direct3d_ = Direct3DCreate9(D3D_SDK_VERSION)))
     return E_FAIL;
   
@@ -265,14 +266,18 @@ int ContextD3D9::CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, ui
 };
 
 int ContextD3D9::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array) {
-  
+ 
   switch (shader_type) {
     case kShaderTypeVertex:
       for (uint32_t i=0;i<buffer_count;++i) {
         auto data = (const float*)buffer_array[i].internal_pointer;
-        auto float_count = buffer_array[i].description.byte_width / sizeof(float);
-        device_->SetVertexShaderConstantF(start_slot,data,float_count>>2);
-        start_slot+=float_count>>2;
+        uint32_t float_count = buffer_array[i].description.byte_width / sizeof(float);
+        cbslot_sizes[start_slot] = float_count>>2;
+        UINT reg = 0;
+        for (uint32_t i=0;i<start_slot;++i)
+          reg += cbslot_sizes[i];
+        device_->SetVertexShaderConstantF(reg,data,float_count>>2);
+        ++start_slot;
       }
       return S_OK;
     case kShaderTypePixel:
@@ -435,7 +440,7 @@ int ContextD3D9::CreateTexture(uint32_t width, uint32_t height, uint32_t format,
   return device_->CreateTexture(width,height,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,(IDirect3DTexture9**)&texture.data_pointer,0);
 }
 
-int ContextD3D9::CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture) {
+int ContextD3D9::CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture) {
   texture.data_length = data_length;
   
   int result = D3DXCreateTextureFromFileInMemory(device_,data_pointer,data_length,(IDirect3DTexture9**)&texture.data_pointer);
@@ -497,5 +502,28 @@ int ContextD3D9::SetViewport(float x,float y,float w,float h,float min_depth,flo
   return device_->SetViewport(&vp);
 }
 
+int ContextD3D9::CreateEffectInterface(uint8_t* data_pointer, size_t data_length, void** interface_) {
+  LPD3DXBUFFER errors=nullptr;
+  LPD3DXEFFECT effect;
+  auto result = D3DXCreateEffect(device_,data_pointer,data_length,nullptr,nullptr,0,nullptr,&effect,&errors);
+  #ifdef _DEBUG
+    if (errors != nullptr) {
+      OutputDebugString((LPCSTR)errors->GetBufferPointer());
+      errors->Release();
+    }
+  #endif
+  if (result == S_OK) {
+    *interface_ = effect;
+  }
+  return result;
+}
+
+int ContextD3D9::DestroyEffectInterface(void** interface_) {
+  ((LPD3DXEFFECT)*interface_)->Release();
+  *interface_ = nullptr;
+  return S_OK;
+}
 
 }
+
+#endif

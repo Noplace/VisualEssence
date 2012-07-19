@@ -79,7 +79,7 @@ class ContextD3D11 : public Context {
   int SetPrimitiveTopology(uint32_t topology);
   int SetDepthState(void* ptr);
   int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture);
-  int CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture);
+  int CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture);
   int DestroyTexture(Texture& texture);
   int CreateResourceView(Texture& texture,ResourceView& resource_view);
   int DestroyResourceView(ResourceView& resource_view);

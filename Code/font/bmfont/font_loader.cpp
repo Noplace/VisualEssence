@@ -16,6 +16,7 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
+#ifdef VE_USE_D3D11_ENGINE
 #include "../../ve.h"
 
 using namespace std;
@@ -384,3 +385,5 @@ struct kerningPairsBlock {
 } // end namespace
 
 
+
+#endif

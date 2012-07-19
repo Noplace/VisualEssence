@@ -35,7 +35,7 @@ class Effect : public Component {
   virtual ~Effect();
   int Deinitialize();
   int CreateFromMemory(void* data, uint32_t size);
-  int CreateFromMemory2(Entry* entry_list, void* data, uint32_t size);
+  int CreateFromMemory2(Entry* entry_list, void* data, size_t size);
   int Begin();
   VertexShader& vertex_shader() { return vertex_shader_; }
   PixelShader&  pixel_shader() { return pixel_shader_; }

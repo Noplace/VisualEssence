@@ -58,7 +58,7 @@ class Texture {
     //SafeRelease(&data_pointer);
   }
   void* data_pointer;
-  uint32_t data_length;
+  size_t data_length;
   uint32_t format,type;
 };
 

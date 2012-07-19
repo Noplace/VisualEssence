@@ -38,23 +38,23 @@ class Context {
   virtual ~Context() { }
   virtual int Initialize() = 0;
   virtual int Deinitialize() = 0;
-  virtual int CreateDisplay(core::windows::Window*) = 0;
+  virtual int CreateDisplay(core::windows::Window* window) = 0;
   virtual int Render() = 0;
   virtual int ClearTarget() = 0;
   virtual int Begin() = 0;
   virtual int End() = 0;
-  virtual int CreateInputLayout(const InputElement[],InputLayout&) = 0;
+  virtual int CreateInputLayout(const InputElement inputs[], InputLayout& input_layout) = 0;
   virtual int DestoryInputLayout(InputLayout&) = 0;
   virtual int SetInputLayout(InputLayout&) = 0;
-  virtual int CreateBuffer(Buffer& , void* ) = 0;
+  virtual int CreateBuffer(Buffer& buffer, void* initial_data) = 0;
   virtual int DestroyBuffer(Buffer& ) = 0;
   virtual int UpdateSubresource(const Buffer&, void*, void*, uint32_t , uint32_t) = 0;
-  virtual int CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) { return S_FALSE; };
+  virtual int CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) = 0;
   virtual int SetConstantBuffers(ShaderType, uint32_t, uint32_t, Buffer*) = 0;
   virtual int SetVertexBuffers(uint32_t , uint32_t , Buffer* , const uint32_t * , const uint32_t *) = 0;
   virtual int SetIndexBuffer(const Buffer& , const uint32_t ) = 0;
   virtual int ClearIndexBuffer() = 0;
-  virtual int LockBuffer(void*, uint32_t,uint32_t, BufferSubresource&) = 0; 
+  virtual int LockBuffer(void*, uint32_t,uint32_t, BufferSubresource&) = 0;
   virtual int UnlockBuffer(void*, uint32_t) = 0;
   virtual int CompileShaderFromMemory(void*, uint32_t, LPCSTR, LPCSTR, ShaderBlob&) = 0;
   virtual int CreateVertexShader(void*, size_t, VertexShader&) = 0;
@@ -63,18 +63,20 @@ class Context {
   virtual int DestroyShader(Shader&) = 0;
   virtual int SetShader(const Shader&) = 0;
   virtual int ClearShader(ShaderType) = 0;
-  virtual int Draw(uint32_t, uint32_t) = 0;
+  virtual int Draw(uint32_t vertex_count, uint32_t start_vertex_index) = 0;
+  virtual int DrawIndexed(uint32_t vertex_count, uint32_t base_vertex_index, uint32_t index) = 0;
   virtual int SetShaderResources(ShaderType, uint32_t, uint32_t, void**) = 0;
   virtual int SetPrimitiveTopology(uint32_t) = 0;
-  virtual int CreateTexture(uint32_t, uint32_t, uint32_t, uint32_t, Texture&) = 0;
-  virtual int CreateTextureFromMemory(void*, uint32_t, Texture&) = 0;
+  virtual int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture) = 0;
+  virtual int CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture) = 0;
   virtual int DestroyTexture(Texture&) = 0;
-  //virtual int LockTexture(Texture&) = 0;
-  //virtual int UnlockTexture(Texture&) = 0;
+  virtual int CopyToTexture(Texture& texture, void* data_pointer, uint32_t data_format, uint32_t data_pitch, const TexturePoint src_pos, const TexturePoint dest_pos, uint32_t w, uint32_t h) = 0;
   virtual int CreateResourceView(Texture&,ResourceView&) = 0;
   virtual int DestroyResourceView(ResourceView&) = 0;
-  virtual int SetCamera(Camera*) = 0;
-  virtual int SetViewport(float, float, float, float, float, float ) = 0;
+  virtual int SetCamera(Camera* camera) = 0;
+  virtual int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth) = 0;
+  virtual int CreateEffectInterface(uint8_t* data_pointer, size_t data_length, void** interface_) = 0;
+  virtual int DestroyEffectInterface(void** interface_) = 0;
   core::windows::Window* window() { return window_; }
   uint32_t width() { return width_; }
   uint32_t height() { return height_; }

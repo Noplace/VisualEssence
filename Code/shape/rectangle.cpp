@@ -17,7 +17,6 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
 #define _USE_MATH_DEFINES
-#include <math.h>
 #include "../ve.h"
 
 
@@ -29,9 +28,9 @@ int Rectangle::Initialize(Context* context) {
 
   if (hr != S_OK)
     return hr;
-  x_ = 0;
-  y_ = 0;
-  scale_ = 1;
+  pos_.x = 0;
+  pos_.y = 0;
+  scale_.x = scale_.y = 1;
   angle_ = 0;
   world_ = XMMatrixIdentity();
   SetColors(XMCOLOR(0xffffffff),XMCOLOR(0xffffffff),XMCOLOR(0xffffffff),XMCOLOR(0xffffffff));
@@ -75,15 +74,8 @@ int Rectangle::Construct() {
   return hr;
 }
 
-int Rectangle::BuildTransform() {
-  world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
-    0,
-    XMLoadFloat2(&XMFLOAT2(scale_,scale_)),
-    XMLoadFloat2(&XMFLOAT2(0,0)),
-    angle_,
-    XMLoadFloat2(&XMFLOAT2(x_,y_)));
-  world_._43 = z_;
-  return S_OK;
+int Rectangle::Update() {
+  return Shape::Update();
 }
 
 int Rectangle::Draw() {

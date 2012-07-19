@@ -22,20 +22,31 @@
 #pragma warning( push )             //Suppress MSVC warning spam
 #pragma warning( disable : 4275 )
 
+#ifdef _DEBUG
+#define D3D_DEBUG_INFO
+#endif
+
 //forwards
 namespace graphics {
 class Camera;
 }
 
 #include <WinCore/windows/windows.h>
+#include <WinCore/math/math.h>
 #include <vector>
 //#include <string>
 #include <map>
+#ifdef VE_USE_D3D11_ENGINE
 #include <d3d11.h>
 #include <d3dx11.h>
 #include <d3dcompiler.h>
+#endif
+#ifdef VE_USE_D3D9_ENGINE
 #include <d3d9.h>
 #include <d3dx9.h>
+#endif
+#ifdef VE_USE_OPENGL_ENGINE
+#endif
 #include <xnamath.h>
 #include "component.h"
 #include "drawable.h"

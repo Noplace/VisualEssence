@@ -69,7 +69,7 @@ class Writer : public graphics::shape::Shape {
   int GetOutput(graphics::shape::Vertex* vertex_array,int* vertex_count,int* char_count);
   int UpdateConstantBuffer();
   int Construct(); 
-  int BuildTransform();
+  int Update();
   int Draw();
   acGraphics::Font* font() { return font_; }
   void set_font(acGraphics::Font* font) { font_ = font; }

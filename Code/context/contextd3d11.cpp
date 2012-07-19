@@ -16,6 +16,7 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
+#ifdef VE_USE_D3D11_ENGINE
 #include "../ve.h"
 
 #pragma comment(lib, "d3d11.lib")
@@ -585,7 +586,7 @@ int ContextD3D11::CreateTexture(uint32_t width, uint32_t height, uint32_t format
   return S_FALSE;
 }
 
-int ContextD3D11::CreateTextureFromMemory(void* data_pointer, uint32_t data_length, Texture& texture) {
+int ContextD3D11::CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture) {
   texture.data_length = data_length;
   
   int result = D3DX11CreateTextureFromMemory(device_,data_pointer,data_length,NULL,NULL,(ID3D11Resource**)&texture.data_pointer,NULL);
@@ -623,3 +624,5 @@ int ContextD3D11::SetViewport(float x,float y,float w,float h,float min_depth,fl
 }
 
 }
+
+#endif

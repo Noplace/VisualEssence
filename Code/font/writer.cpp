@@ -331,8 +331,8 @@ int Writer::Construct() {
   return S_OK;
 }
 
-int Writer::BuildTransform() {
-  graphics::shape::Shape::BuildTransform();
+int Writer::Update() {
+  graphics::shape::Shape::Update();
   misc_buffer_shader_.world = XMMatrixTranspose( world_ );
   return S_OK;
 }

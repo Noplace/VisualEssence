@@ -33,7 +33,7 @@ class Sprite : public graphics::shape::Shape {
   int SetColor(XMCOLOR color);
   int SetUV(float u0,float v0,float u1,float v1);
   int Construct();
-  int BuildTransform();
+  int Update();
   int Draw();
   XMVECTOR color() { return XMLoadColor(&color_); }
  private:

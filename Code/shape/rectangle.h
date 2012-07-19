@@ -34,7 +34,7 @@ class Rectangle : public Shape {
   int SetColors(XMCOLOR color1,XMCOLOR color2,XMCOLOR color3,XMCOLOR color4);
   int SetParams(float width, float height);
   int Construct();
-  int BuildTransform();
+  int Update();
   int Draw();
   float width() { return width_; }
   float height() { return height_; }

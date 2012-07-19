@@ -17,7 +17,6 @@
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
 #define _USE_MATH_DEFINES
-#include <math.h>
 #include "../ve.h"
 #include "../buffer/vertex_buffer_pool.h"
 
@@ -32,9 +31,9 @@ int Arc::Initialize(Context* context) {
   if (hr != S_OK)
     return hr;
   //pool.Initialize(context,800);
-  x_ = 0;
-  y_ = 0;
-  scale_ = 1;
+  pos_.x = 0;
+  pos_.y = 0;
+  scale_.x = scale_.y = 1;
   angle_ = 0;
   world_ = XMMatrixIdentity();
   color0_ = XMCOLOR(0xffffffff);
@@ -77,18 +76,18 @@ int Arc::Construct() {
   return hr;
 }
 
-int Arc::BuildTransform() {
-  world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
+int Arc::Update() {
+  /*world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
     0,
-    XMLoadFloat2(&XMFLOAT2(scale_,scale_)),
+    XMLoadFloat2(&scale_),
     XMLoadFloat2(&XMFLOAT2(0,0)),
     angle_,
-    XMLoadFloat2(&XMFLOAT2(x_,y_)));
-  world_._43 = z_;
+    XMLoadFloat2(&pos_));
+  world_._43 = z_;*/
   //world_ = XMMatrixRotationZ(angle_);
   //world_ *= XMMatrixTranslation(x_,y_,0);
   //world_ = world_ * XMMatrixScaling(scale_,scale_,1);
-  return S_OK;
+  return Shape::Update();
 }
 
 int Arc::Draw() {

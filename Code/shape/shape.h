@@ -48,50 +48,60 @@ struct Vertex {
 
 class Shape : public Drawable {
  public:
-  Shape() : Drawable(), x_(0), y_(0),z_(0), scale_(1), angle_(0) {
+  Shape() : Drawable(), pos_(0,0), z_(0), scale_(1,1), angle_(0),changed_(true) {
   }
   virtual ~Shape() { }
   virtual int SetTopLeft(float x,float y) {
-    x_ = x;
-    y_ = y;
+    pos_.x = x;
+    pos_.y = y;
+    changed_ = true;
     return S_OK;
   }
   virtual int SetScale(float scale) {
-    scale_ = scale;
+    scale_.x = scale_.y = scale;
+    changed_ = true;
     return S_OK;
   }
   virtual int SetRotate(float angle) {
     angle_ = angle;
+    changed_ = true;
     return S_OK;
   }
   virtual int SetOrder(float z) {
     z_ = z;
+    changed_ = true;
     return S_OK;
   }
   graphics::Buffer& vertex_buffer() { return vertex_buffer_; }
-  float* x_ptr() { return &x_; }
-  float* y_ptr() { return &y_; }
-  float x() { return x_; }
-  float y() { return y_; }
-  float* scale_ptr() { return &scale_; }
+  float* x_ptr() { return &pos_.x; }
+  float* y_ptr() { return &pos_.y; }
+  float x() { return pos_.x; }
+  float y() { return pos_.y; }
+  float* scalex_ptr() { return &scale_.x; }
+  float* scaley_ptr() { return &scale_.y; }
   float* angle_ptr() { return &angle_; }
   XMMATRIX& world() { return world_; }
   virtual int Construct() = 0; 
-  virtual int BuildTransform() {
+  virtual int Update() {
+    if (changed_ == false) return S_FALSE;
     world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
     0,
-    XMLoadFloat2(&XMFLOAT2(scale_,scale_)),
+    XMLoadFloat2(&scale_),
     XMLoadFloat2(&XMFLOAT2(0,0)),
     angle_,
-    XMLoadFloat2(&XMFLOAT2(x_,y_)));
+    XMLoadFloat2(&pos_));
     world_._43 = z_;
+    changed_ = false;
     return S_OK;
   }
  protected:
   int vertex_count_;
   graphics::Buffer vertex_buffer_,index_buffer_;
   XMMATRIX world_;
-  float x_,y_,z_,scale_,angle_;
+  XMFLOAT2 scale_;
+  XMFLOAT2 pos_;
+  float z_,angle_;
+  bool changed_;
 };
 
 }

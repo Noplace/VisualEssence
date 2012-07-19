@@ -38,7 +38,7 @@ class Shader2DHelper : public graphics::Component {
   ~Shader2DHelper();
   int Initialize(Context* context);
   int Deinitialize();
-  void CreateFromMemory(void* data_pointer, uint32_t data_length);
+  void CreateFromMemory(void* data_pointer, size_t data_length);
   int PrepareDraw();
   int UpdateChangesEveryFrame(ConstantBuffer2Type* cef);
   int SetColorShader();
