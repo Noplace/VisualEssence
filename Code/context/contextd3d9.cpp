@@ -473,8 +473,10 @@ int ContextD3D9::CopyToTexture(Texture& texture, void* data_pointer,uint32_t dat
 }
 
 int ContextD3D9::CreateResourceView(Texture& texture,ResourceView& resource_view) {
-  resource_view.data_pointer = texture.data_pointer;
-  resource_view.data_length = texture.data_length;
+  auto d3dtex = (IDirect3DTexture9*)texture.data_pointer;
+  //resource_view.data_pointer = texture.data_pointer;
+  //resource_view.data_length = texture.data_length;
+  d3dtex->GetSurfaceLevel(0,(IDirect3DSurface9**)&resource_view.data_pointer);
   return S_OK;
 }
 
