@@ -43,11 +43,13 @@ class Camera;
 #endif
 #ifdef VE_USE_D3D9_ENGINE
 #include <d3d9.h>
-#include <d3dx9.h>
 #endif
 #ifdef VE_USE_OPENGL_ENGINE
 #endif
-#include <xnamath.h>
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
+using namespace DirectX; 
+using namespace DirectX::PackedVector;
 #include "component.h"
 #include "drawable.h"
 #include "input_layout.h"

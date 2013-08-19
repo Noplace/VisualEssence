@@ -88,7 +88,7 @@ int Sprite::Update() {
     XMLoadFloat2(&XMFLOAT2(width_*0.5f,height_*0.5f)),
     angle_,
     XMLoadFloat2(&XMFLOAT2(pos_.x,pos_.y)));
-  world_._43 = z_;
+  //world_.r[3]._43 = z_;
   //world_ = XMMatrixRotationZ(angle_);
   //world_ *= XMMatrixTranslation(pos_.x,pos_.y,0);
   //world_ = world_ * XMMatrixScaling(scale_,scale_,1);

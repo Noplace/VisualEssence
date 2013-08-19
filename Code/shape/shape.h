@@ -90,7 +90,7 @@ class Shape : public Drawable {
     XMLoadFloat2(&XMFLOAT2(0,0)),
     angle_,
     XMLoadFloat2(&pos_));
-    world_._43 = z_;
+    //world_._43 = z_;
     changed_ = false;
     return S_OK;
   }

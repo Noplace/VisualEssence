@@ -38,6 +38,7 @@ class ContextD3D9 : public Context {
   int Deinitialize();
   int CreateDisplay(core::windows::Window* window);
   int Render();
+  int Clear(int target, int zbuffer);
   int ClearTarget();
   int Begin();
   int End();
@@ -65,12 +66,14 @@ class ContextD3D9 : public Context {
   int DrawIndexed(uint32_t vertex_count, uint32_t base_vertex_index, uint32_t index);
   int SetShaderResources(ShaderType, uint32_t, uint32_t, void**);
   int SetPrimitiveTopology(uint32_t);
+  int GetRenderTarget(ResourceView& resource_view);
+  int SetRenderTarget(ResourceView& resource_view);
   int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture);
   int CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture);
   int DestroyTexture(Texture&);
   int CopyToTexture(Texture& texture, void* data_pointer, uint32_t data_format, uint32_t data_pitch, const TexturePoint src_pos, const TexturePoint dest_pos, uint32_t w, uint32_t h);
-  int CreateResourceView(Texture&,ResourceView&);
-  int DestroyResourceView(ResourceView&);
+  int CreateResourceView(Texture& texture, ResourceView& resource_view);
+  int DestroyResourceView(ResourceView& resource_view);
   int SetCamera(Camera* camera);
   int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth);
   int CreateEffectInterface(uint8_t* data_pointer, size_t data_length, void** interface_);

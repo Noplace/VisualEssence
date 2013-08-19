@@ -33,7 +33,7 @@ class Camera : public Component {
 
   }
   virtual ~Camera() {
-
+    Deinitialize();
   }
 
   virtual int Initialize(Context* context) {
@@ -54,8 +54,10 @@ class Camera : public Component {
 
   virtual int Deinitialize() {
     if (context_ == NULL) 
-      return -1;
-    return context_->DestroyBuffer(cam_buffer_);
+      return S_FALSE;
+    context_->DestroyBuffer(cam_buffer_);
+    context_ = nullptr;
+    return S_OK;
   }
 
   void Ortho2D() {
@@ -100,6 +102,7 @@ class Camera : public Component {
   float ratio() { return ratio_; }
   XMMATRIX& projection() { return projection_;  }
   XMMATRIX& view() { return view_;  }
+  XMMATRIX viewprojection() { return view_*projection_;  }
   XMMATRIX projection_transposed() { return XMMatrixTranspose(projection_);  }
   XMMATRIX view_transposed() { return XMMatrixTranspose(view_);  }
  private:

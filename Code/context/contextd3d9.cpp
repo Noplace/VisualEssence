@@ -31,31 +31,31 @@
 
 namespace _1 {
 
-UINT vert_to_prim_D3DPT_POINTLIST(UINT i) {
+static UINT vert_to_prim_D3DPT_POINTLIST(UINT i) {
   return i;
 }
 
-UINT vert_to_prim_D3DPT_LINELIST(UINT i) {
+static UINT vert_to_prim_D3DPT_LINELIST(UINT i) {
   return i>>1;
 };
 
-UINT vert_to_prim_D3DPT_LINESTRIP(UINT i) {
+static UINT vert_to_prim_D3DPT_LINESTRIP(UINT i) {
   return i-1;
 };
 
-UINT vert_to_prim_D3DPT_TRIANGLELIST(UINT i) {
+static UINT vert_to_prim_D3DPT_TRIANGLELIST(UINT i) {
   return i/3;
 }
 
-UINT vert_to_prim_D3DPT_TRIANGLESTRIP(UINT i) {
+static UINT vert_to_prim_D3DPT_TRIANGLESTRIP(UINT i) {
   return i-2;
 }
 
-UINT vert_to_prim_D3DPT_TRIANGLEFAN(UINT i) {
+static UINT vert_to_prim_D3DPT_TRIANGLEFAN(UINT i) {
   return i-2;
 }
 
-UINT (*vert_to_prim)(UINT) = nullptr;
+static UINT (*vert_to_prim)(UINT) = nullptr;
 
 }
 
@@ -86,12 +86,12 @@ int ContextD3D9::Initialize() {
   
   memset(cbslot_sizes,0,sizeof(cbslot_sizes));
   if( nullptr == (direct3d_ = Direct3DCreate9(D3D_SDK_VERSION)))
-    return E_FAIL;
+    return S_FALSE;
   
   int count = direct3d_->GetAdapterModeCount(D3DADAPTER_DEFAULT,D3DFMT_X8R8G8B8);
   if (count == 0) {
     Deinitialize();
-    return E_FAIL;
+    return S_FALSE;
   }
 
   display_modes_ = new D3DDISPLAYMODE[count];
@@ -121,6 +121,9 @@ int ContextD3D9::CreateDisplay(core::windows::Window* window) {
   d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
   d3dpp.BackBufferFormat = mode.Format;
   d3dpp.hDeviceWindow = window_->handle();
+  d3dpp.EnableAutoDepthStencil = TRUE;
+  d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+
   RECT rc;
   GetClientRect(window_->handle(),&rc);
   width_ = rc.right;
@@ -143,6 +146,10 @@ int ContextD3D9::Render() {
   }
 
   return S_OK;
+}
+
+int ContextD3D9::Clear(int target, int zbuffer) {
+  return device_->Clear(0,nullptr,target|(zbuffer<<1),D3DCOLOR_XRGB(0,0,0),1.0f,0);
 }
 
 int ContextD3D9::ClearTarget() {
@@ -394,14 +401,11 @@ int ContextD3D9::ClearShader(ShaderType shader_type) {
 }
 
 int ContextD3D9::Draw(uint32_t vertex_count, uint32_t vertex_start_index) {
-  device_->DrawPrimitive((D3DPRIMITIVETYPE)primitive_topology_,vertex_start_index,_1::vert_to_prim(vertex_count));
-  
-  return S_FALSE;
+  return device_->DrawPrimitive((D3DPRIMITIVETYPE)primitive_topology_,vertex_start_index,_1::vert_to_prim(vertex_count));
 }
 
 int ContextD3D9::DrawIndexed(uint32_t vertex_count, uint32_t base_vertex_index, uint32_t index) {
-  device_->DrawIndexedPrimitive((D3DPRIMITIVETYPE)primitive_topology_,base_vertex_index,0,vertex_count,index,_1::vert_to_prim(vertex_count));
-  return S_FALSE;
+  return device_->DrawIndexedPrimitive((D3DPRIMITIVETYPE)primitive_topology_,base_vertex_index,0,vertex_count,index,_1::vert_to_prim(vertex_count));
 }
 
 int ContextD3D9::SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer) {
@@ -435,6 +439,14 @@ int ContextD3D9::SetPrimitiveTopology(uint32_t topology) {
   return S_OK;
 }
 
+int ContextD3D9::GetRenderTarget(ResourceView& resource_view) {
+  return device_->GetRenderTarget(0,(IDirect3DSurface9**)&resource_view.data_pointer);
+}
+
+int ContextD3D9::SetRenderTarget(ResourceView& resource_view) {
+  return device_->SetRenderTarget(0,(IDirect3DSurface9*)resource_view.data_pointer);
+}
+
 int ContextD3D9::CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture) {
   //todo : change the defaults ( make them configurable )
   return device_->CreateTexture(width,height,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,(IDirect3DTexture9**)&texture.data_pointer,0);
@@ -443,7 +455,7 @@ int ContextD3D9::CreateTexture(uint32_t width, uint32_t height, uint32_t format,
 int ContextD3D9::CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture) {
   texture.data_length = data_length;
   
-  int result = D3DXCreateTextureFromFileInMemory(device_,data_pointer,data_length,(IDirect3DTexture9**)&texture.data_pointer);
+  int result = D3DXCreateTextureFromFileInMemory(device_,data_pointer,(UINT)data_length,(IDirect3DTexture9**)&texture.data_pointer);
   return result;
 }
 int ContextD3D9::DestroyTexture(Texture& texture) {
@@ -472,7 +484,7 @@ int ContextD3D9::CopyToTexture(Texture& texture, void* data_pointer,uint32_t dat
   return S_OK;
 }
 
-int ContextD3D9::CreateResourceView(Texture& texture,ResourceView& resource_view) {
+int ContextD3D9::CreateResourceView(Texture& texture, ResourceView& resource_view) {
   auto d3dtex = (IDirect3DTexture9*)texture.data_pointer;
   //resource_view.data_pointer = texture.data_pointer;
   //resource_view.data_length = texture.data_length;
@@ -481,6 +493,7 @@ int ContextD3D9::CreateResourceView(Texture& texture,ResourceView& resource_view
 }
 
 int ContextD3D9::DestroyResourceView(ResourceView& resource_view) {
+  SafeRelease((IDirect3DSurface9**)&resource_view.data_pointer);
   return S_OK;
 }
 
@@ -507,7 +520,11 @@ int ContextD3D9::SetViewport(float x,float y,float w,float h,float min_depth,flo
 int ContextD3D9::CreateEffectInterface(uint8_t* data_pointer, size_t data_length, void** interface_) {
   LPD3DXBUFFER errors=nullptr;
   LPD3DXEFFECT effect;
-  auto result = D3DXCreateEffect(device_,data_pointer,data_length,nullptr,nullptr,0,nullptr,&effect,&errors);
+  DWORD flags = 0;
+  #ifdef _DEBUG
+    flags |= D3DXSHADER_DEBUG;
+  #endif
+  auto result = D3DXCreateEffect(device_,data_pointer,(UINT)data_length,nullptr,nullptr,flags,nullptr,&effect,&errors);
   #ifdef _DEBUG
     if (errors != nullptr) {
       OutputDebugString((LPCSTR)errors->GetBufferPointer());
