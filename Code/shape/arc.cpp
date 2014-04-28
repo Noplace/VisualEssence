@@ -18,11 +18,14 @@
 *****************************************************************************************************************/
 #define _USE_MATH_DEFINES
 #include "../ve.h"
-#include "../buffer/vertex_buffer_pool.h"
 
-//graphics::VertexBufferPool<graphics::shape::Vertex> pool;
 
-namespace graphics {
+using namespace DirectX; 
+using namespace DirectX::PackedVector;
+
+//ve::VertexBufferPool<ve::shape::Vertex> pool;
+
+namespace ve {
 namespace shape {
 
 int Arc::Initialize(Context* context) {
@@ -35,9 +38,9 @@ int Arc::Initialize(Context* context) {
   pos_.y = 0;
   scale_.x = scale_.y = 1;
   angle_ = 0;
-  world_ = XMMatrixIdentity();
-  color0_ = XMCOLOR(0xffffffff);
-  color1_ = XMCOLOR(0xffffffff);
+  world_ = dx::XMMatrixIdentity();
+  color0_ = dxp::XMCOLOR(0xffffffff);
+  color1_ = dxp::XMCOLOR(0xffffffff);
 
   memset(&vertex_buffer_,0,sizeof(vertex_buffer_));
   vertex_count_  = 0;
@@ -47,7 +50,8 @@ int Arc::Initialize(Context* context) {
 
 int Arc::Deinitialize() {
   //pool.Deinitialize();
-  int hr = context_->DestroyBuffer(vertex_buffer_);
+  throw new std::exception();
+  int hr = S_FALSE;//context_->DestroyBuffer(vertex_buffer_);
   return hr;
 }
 
@@ -68,25 +72,26 @@ int Arc::Construct() {
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
   vertex_buffer_.description.byte_width = sizeof( Vertex ) * vertex_count_;
   vertex_buffer_.description.cpu_access_flags = 0;
-  context_->DestroyBuffer(vertex_buffer_);
-  context_->CreateBuffer(vertex_buffer_,NULL);
-  int hr = context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(Vertex),0,vertex_count_);
+  //context_->DestroyBuffer(vertex_buffer_);
+  //context_->CreateBuffer(vertex_buffer_,NULL);
+  throw new std::exception();
+  int hr = context_->CopyToVertexBuffer(vertex_buffer_.internal_pointer,vertices,sizeof(Vertex),0,vertex_count_);
   //pool.CopyData(vb_id,vertices,vertex_count_);
   delete [] vertices;
   return hr;
 }
 
 int Arc::Update() {
-  /*world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
+  /*world_ = dx::XMMatrixTransformation2D(dx::XMLoadFloat2(&dx::XMFLOAT2(0,0)),
     0,
-    XMLoadFloat2(&scale_),
-    XMLoadFloat2(&XMFLOAT2(0,0)),
+    dx::XMLoadFloat2(&scale_),
+    dx::XMLoadFloat2(&dx::XMFLOAT2(0,0)),
     angle_,
-    XMLoadFloat2(&pos_));
+    dx::XMLoadFloat2(&pos_));
   world_._43 = z_;*/
-  //world_ = XMMatrixRotationZ(angle_);
-  //world_ *= XMMatrixTranslation(x_,y_,0);
-  //world_ = world_ * XMMatrixScaling(scale_,scale_,1);
+  //world_ = dx::XMMatrixRotationZ(angle_);
+  //world_ *= dx::XMMatrixTranslation(x_,y_,0);
+  //world_ = world_ * dx::XMMatrixScaling(scale_,scale_,1);
   return Shape::Update();
 }
 
@@ -94,34 +99,35 @@ int Arc::Draw() {
   UINT stride = sizeof( Vertex );
   UINT offset = 0;
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-  context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+  //context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+throw new std::exception();
   //pool.Set(vb_id,0);
   return context_->Draw(vertex_count_,0);
 }
 
 Vertex* Arc::CreateVertices() {
   
-  float step = XM_PI/60;
+  float step = dx::XM_PI/60;
   int count = (int)((end_angle_-start_angle_) / step) + 1;
   count *= 2;
   Vertex* vertices = new Vertex[count];
   float theta = start_angle_;
   int index=0;
-  auto c0_vec = XMLoadColor(&color0_);
-  auto c1_vec = XMLoadColor(&color1_);
+  auto c0_vec = dxp::XMLoadColor(&color0_);
+  auto c1_vec = dxp::XMLoadColor(&color1_);
   while (theta < end_angle_) {
     float x = radius_*cos(theta);
     float y = -radius_*sin(theta);
     float x2 = (radius_-thickness_)*cos(theta);
     float y2 = -(radius_-thickness_)*sin(theta);
     
-    auto color_vec = XMVectorLerp(c0_vec,c1_vec,theta/(end_angle_-start_angle_));
-    XMCOLOR color;
-    XMStoreColor(&color,color_vec);
-    vertices[index].pos = XMFLOAT3(x,y,0.0f);
+    auto color_vec = dx::XMVectorLerp(c0_vec,c1_vec,theta/(end_angle_-start_angle_));
+    dxp::XMCOLOR color;
+    dxp::XMStoreColor(&color,color_vec);
+    vertices[index].pos = dx::XMFLOAT3(x,y,0.0f);
     vertices[index].color = color;
     ++index;
-    vertices[index].pos = XMFLOAT3(x2,y2,0.0f);
+    vertices[index].pos = dx::XMFLOAT3(x2,y2,0.0f);
     vertices[index].color = color;
     ++index;
     theta += step;

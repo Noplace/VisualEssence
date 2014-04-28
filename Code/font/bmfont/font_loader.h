@@ -33,7 +33,7 @@ namespace acGraphics {
 
 // Implement private helper classes for loading the bitmap font files
 
-class FontLoader : public graphics::Component {
+class FontLoader : public ve::Component {
  public:
 	FontLoader(const char *fontFile);
 	virtual int Load() = 0; // Must be implemented by derived class

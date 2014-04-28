@@ -16,13 +16,12 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef FONT_FONT_H
-#define FONT_FONT_H
+#pragma once
 
-namespace graphics {
+namespace ve {
 namespace font {
 
-class FontSprite : public graphics::shape::Shape  {
+class FontSprite : public ve::shape::Shape  {
  public:
   int Initialize(Context* context);
   int Deinitialize();
@@ -33,5 +32,3 @@ class FontSprite : public graphics::shape::Shape  {
 
 }
 }
-
-#endif

@@ -18,20 +18,55 @@
 *****************************************************************************************************************/
 #pragma once
 
+#include <hash_map>
+#include <unordered_map>
+
 namespace ve {
 
-class Context;
+struct RequestVertexShaderResult {
+  int hr;
+  ve::VertexShader vs;
+  ve::InputLayout il;
+};
 
-class Component {
+class ShaderManager : public Component {
  public:
-  Component() : context_(NULL)  {}
-  virtual ~Component() {}
-  virtual int Initialize(Context* context) { context_ = context; return S_OK; }
-  virtual int Deinitialize() { return S_OK; }
-  Context* context() { return context_; }
-protected:
-  Context* context_;
+  concurrency::task<RequestVertexShaderResult> RequestVertexShaderAsync(std::string filename, const void* elements, int count) {
+    auto vs = vs_map[filename];
+    if (vs.internal_pointer() == nullptr) {
+      
+      auto loadVSTask = ve::ReadDataAsync(filename.c_str());
+      auto createVSTask = loadVSTask.then([this,&vs,elements,count,filename](ve::FileData fd){
+        if (fd.data != nullptr) {
+          context_->CreateVertexShader(fd.data,fd.length,vs);
+
+          auto il = il_map[filename];
+          if (il.pointer() == nullptr) {
+            context_->CreateInputLayout(elements,count,fd,il);
+            il_map[filename] = il;
+          }
+
+          SafeDeleteArray(&fd.data);
+          vs_map[filename] = vs;
+          return RequestVertexShaderResult { S_OK,vs,il };
+        } else {
+          return RequestVertexShaderResult { S_FALSE };
+        }
+      });
+      return createVSTask;
+    } else {
+      return concurrency::create_task([this,vs,elements,filename](){
+        auto il = il_map[filename];
+        return RequestVertexShaderResult { S_OK,vs,il };
+      });
+    }
+  }
+ private:
+  std::unordered_map<std::string,ve::VertexShader> vs_map;
+  std::unordered_map<std::string,ve::InputLayout> il_map;
+
+
+
 };
 
 }
-

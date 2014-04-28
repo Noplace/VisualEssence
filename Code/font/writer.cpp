@@ -18,7 +18,7 @@
 *****************************************************************************************************************/
 #include "../ve.h"
 
-namespace graphics {
+namespace ve {
 namespace font {
 
 
@@ -38,10 +38,10 @@ int Writer::Initialize(Context* context) {
   //camera_.Ortho2D();
   //camera_.UpdateConstantBuffer();
   memset(&misc_buffer_shader_,0,sizeof(misc_buffer_shader_));
-  misc_buffer_shader_.ps_color = XMLoadColor(&XMCOLOR(0xffffffff));
-  misc_buffer_shader_.world = XMMatrixTranspose(XMMatrixScaling(1,1,1));
+  misc_buffer_shader_.ps_color = dxp::XMLoadColor(&dxp::XMCOLOR(0xffffffff));
+  misc_buffer_shader_.world = dx::XMMatrixTranspose(dx::XMMatrixScaling(1,1,1));
   /*misc_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  misc_buffer_.description.byte_width = sizeof(graphics::shader::ConstantBuffer2Type);
+  misc_buffer_.description.byte_width = sizeof(ve::shader::ConstantBuffer2Type);
   misc_buffer_.description.bind_flags = D3D11_BIND_CONSTANT_BUFFER;
   misc_buffer_.description.cpu_access_flags = 0;
   HRESULT hr = context_->CreateBuffer(misc_buffer_,NULL);
@@ -58,7 +58,8 @@ int Writer::Initialize(Context* context) {
 int Writer::Deinitialize() {
   //context_->DestroyBuffer(misc_buffer_);
   if (context_!=nullptr) {
-    context_->DestroyBuffer(vertex_buffer_);
+    //context_->DestroyBuffer(vertex_buffer_);
+    throw new std::exception();
   }
   if (vertex_array_)
     delete [] vertex_array_;
@@ -69,17 +70,19 @@ int Writer::Deinitialize() {
 }
 
 int Writer::PrepareWrite(int count) {
-  context_->DestroyBuffer(vertex_buffer_);
+  //context_->DestroyBuffer(vertex_buffer_);
+  throw new std::exception();
   vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_.description.byte_width = sizeof( graphics::shape::Vertex ) * count * 6;
+  vertex_buffer_.description.byte_width = sizeof( ve::shape::Vertex ) * count * 6;
   vertex_buffer_.description.cpu_access_flags = 0;
-  context_->CreateBuffer(vertex_buffer_,NULL);
+  //context_->CreateBuffer(vertex_buffer_,NULL);
+  throw new std::exception();
   if (vertex_array_ != NULL)
     delete [] vertex_array_;
   vertex_array_ = NULL;
-  vertex_array_ = new graphics::shape::Vertex[count * 6];
-  ZeroMemory(vertex_array_,sizeof(graphics::shape::Vertex)*count*6);
+  vertex_array_ = new ve::shape::Vertex[count * 6];
+  ZeroMemory(vertex_array_,sizeof(ve::shape::Vertex)*count*6);
   vcount = 0;
   return S_OK;
 }
@@ -270,7 +273,7 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
   
 	//y -= font_->scale * float(font_->base);
   //y += font_->scale * float(font_->fontHeight);
-  XMCOLOR color = XMCOLOR(1.0f,1.0f,1.0f,1.0f);
+  dxp::XMCOLOR color = dxp::XMCOLOR(1.0f,1.0f,1.0f,1.0f);
   char_count += count;
 	for( int n = 0; n < count; ) {
 		int charId = font_->GetTextChar(text, n, &n);
@@ -294,13 +297,13 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 		float oy = -font_->scale * float(ch->yOff);
 
     float dy = -oy;
-    vertex_array_[vcount++] = graphics::shape::Vertex(XMFLOAT3(x+ox, y-oy,z),XMFLOAT2(u,v),color,ch->page);
-    vertex_array_[vcount++] = graphics::shape::Vertex(XMFLOAT3(x+w+ox, y-oy,z),XMFLOAT2(u2,v),color,ch->page);
-    vertex_array_[vcount++] = graphics::shape::Vertex(XMFLOAT3(x+ox, y-oy-h,z),XMFLOAT2(u,v2),color,ch->page);
+    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+ox, y-oy,z),dx::XMFLOAT2(u,v),color,ch->page);
+    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+w+ox, y-oy,z),dx::XMFLOAT2(u2,v),color,ch->page);
+    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+ox, y-oy-h,z),dx::XMFLOAT2(u,v2),color,ch->page);
 
-    vertex_array_[vcount++] = graphics::shape::Vertex(XMFLOAT3(x+ox, y-oy-h,z),XMFLOAT2(u,v2),color,ch->page);
-    vertex_array_[vcount++] = graphics::shape::Vertex(XMFLOAT3(x+w+ox, y-oy,z),XMFLOAT2(u2,v),color,ch->page);
-    vertex_array_[vcount++] = graphics::shape::Vertex(XMFLOAT3(x+w+ox, y-oy-h,z),XMFLOAT2(u2,v2),color,ch->page);
+    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+ox, y-oy-h,z),dx::XMFLOAT2(u,v2),color,ch->page);
+    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+w+ox, y-oy,z),dx::XMFLOAT2(u2,v),color,ch->page);
+    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+w+ox, y-oy-h,z),dx::XMFLOAT2(u2,v2),color,ch->page);
 
 		x += a;
 		if( charId == ' ' )
@@ -309,12 +312,12 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 		if( n < count )
 			x += font_->AdjustForKerningPairs(charId, font_->GetTextChar(text,n));
 	}
-  context_->CopyToVertexBuffer(vertex_buffer_,vertex_array_,sizeof(graphics::shape::Vertex),0,vcount);
+  context_->CopyToVertexBuffer(vertex_buffer_.internal_pointer,vertex_array_,sizeof(ve::shape::Vertex),0,vcount);
 
   return S_OK;
 }
 
-int Writer::GetOutput(graphics::shape::Vertex* vertex_array,int* vertex_count,int* char_count) {
+int Writer::GetOutput(ve::shape::Vertex* vertex_array,int* vertex_count,int* char_count) {
   *vertex_count = vcount;
   *char_count = this->char_count;
   vertex_array = this->vertex_array_;
@@ -332,8 +335,8 @@ int Writer::Construct() {
 }
 
 int Writer::Update() {
-  graphics::shape::Shape::Update();
-  misc_buffer_shader_.world = XMMatrixTranspose( world_ );
+  ve::shape::Shape::Update();
+  misc_buffer_shader_.world = dx::XMMatrixTranspose( world_ );
   return S_OK;
 }
 
@@ -341,9 +344,10 @@ int Writer::Draw() {
 
   //effect_->Begin();
 
-  UINT stride = sizeof( graphics::shape::Vertex );
+  UINT stride = sizeof( ve::shape::Vertex );
   UINT offset = 0;
-  context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+  //context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+throw new std::exception();
   context_->ClearIndexBuffer();
   context_->SetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
   //camera_.SetConstantBuffer(0);

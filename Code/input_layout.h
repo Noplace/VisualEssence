@@ -16,10 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_INPUT_LAYOUT_H
-#define GRAPHICS_INPUT_LAYOUT_H
+#pragma once
 
-namespace graphics {
+namespace ve {
 
 struct InputElement {
   WORD Stream;
@@ -42,4 +41,3 @@ class InputLayout {
 
 }
 
-#endif

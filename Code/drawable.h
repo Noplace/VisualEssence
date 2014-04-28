@@ -16,12 +16,11 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_DRAWABLE_H
-#define GRAPHICS_DRAWABLE_H
+#pragma once
 
 #include "component.h"
 
-namespace graphics {
+namespace ve {
 
 #pragma pack(push,1)
 struct DrawableId {
@@ -63,4 +62,3 @@ class Drawable : public Component {
 
 }
 
-#endif

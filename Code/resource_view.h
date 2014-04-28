@@ -16,10 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_RESOURCE_VIEW_H
-#define GRAPHICS_RESOURCE_VIEW_H
+#pragma once
 
-namespace graphics {
+namespace ve {
 
 class ResourceView {
  public:
@@ -32,5 +31,3 @@ class ResourceView {
 };
 
 }
-
-#endif

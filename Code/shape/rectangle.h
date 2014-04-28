@@ -16,12 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_SHAPE_RECTANGLE_H
-#define GRAPHICS_SHAPE_RECTANGLE_H
+#pragma once
 
-#include "shape.h"
-
-namespace graphics {
+namespace ve {
 namespace shape {
 
 
@@ -31,7 +28,7 @@ class Rectangle : public Shape {
   ~Rectangle() {}
   int Initialize(Context* context);
   int Deinitialize();
-  int SetColors(XMCOLOR color1,XMCOLOR color2,XMCOLOR color3,XMCOLOR color4);
+  int SetColors(dxp::XMCOLOR color1,dxp::XMCOLOR color2,dxp::XMCOLOR color3,dxp::XMCOLOR color4);
   int SetParams(float width, float height);
   int Construct();
   int Update();
@@ -40,10 +37,10 @@ class Rectangle : public Shape {
   float height() { return height_; }
  private:
   Rectangle::Vertex* CreateVertices();
-  XMCOLOR color1_;
-  XMCOLOR color2_;
-  XMCOLOR color3_;
-  XMCOLOR color4_;
+  dxp::XMCOLOR color1_;
+  dxp::XMCOLOR color2_;
+  dxp::XMCOLOR color3_;
+  dxp::XMCOLOR color4_;
   float width_;
   float height_;
 };
@@ -51,4 +48,3 @@ class Rectangle : public Shape {
 }
 }
 
-#endif

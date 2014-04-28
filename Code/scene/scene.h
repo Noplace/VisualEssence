@@ -16,10 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_SCENE_H
-#define GRAPHICS_SCENE_H
+#pragma once
 
-namespace graphics {
+namespace ve {
 
 class Scene : public Component {
  public:
@@ -28,23 +27,41 @@ class Scene : public Component {
   virtual int Initialize(Context* context) {
     int hr = S_OK;
     hr = Component::Initialize(context);
-    hr = camera_.Initialize(context);
     return hr;
   }
   virtual int Deinitialize() {
-    int hr = S_OK;
-    hr = camera_.Deinitialize();
+    int hr  = Component::Deinitialize();
     return hr;
   }
-  virtual int Update(double) = 0;
-  virtual int Draw() = 0;
+  virtual concurrency::task<int> LoadAsync() = 0;
+  virtual concurrency::task<int>  UnloadAsync() = 0;
+  virtual int Load() {
+    return LoadAsync().get();
+  }
+  virtual int Unload() {
+    return UnloadAsync().get();
+  }
+  virtual int Set() = 0;
+  virtual int Update(float,float) = 0;
+  virtual int Render() = 0;
+  virtual int AddRenderObject(RenderObject* obj) {
+    render_list_.push_back(obj);
+    return S_OK;
+  }
+  virtual int RemoveRenderObject(RenderObject* obj) {
+    auto iter = std::find(render_list_.begin(),render_list_.end(),obj);
+    render_list_.erase(iter);
+    return S_OK;
+  }
+  virtual int RemoveRenderObject(int index) {
+    auto obj = render_list_.at(index);
+    return RemoveRenderObject(obj);
+  }
  protected:
-
-  Camera camera_;
-  VertexShader vertex_shader_;
-  PixelShader pixel_shader_;
+  VertexShader vs_;
+  PixelShader ps_;
+  std::vector<RenderObject*> render_list_;
 };
 
 }
 
-#endif

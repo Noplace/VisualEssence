@@ -16,22 +16,19 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_SHAPE_SHAPE_H
-#define GRAPHICS_SHAPE_SHAPE_H
+#pragma once
 
-#include "../drawable.h"
-
-namespace graphics {
+namespace ve {
 namespace shape {
 
 struct Vertex {
-  XMFLOAT3 pos;
-  XMFLOAT2 tex_uv;
-  XMCOLOR  color;
+  dx::XMFLOAT3 pos;
+  dx::XMFLOAT2 tex_uv;
+  dxp::XMCOLOR  color;
   uint32_t tex_page;
-  Vertex() : pos(XMFLOAT3(0,0,0)),tex_uv(XMFLOAT2(0,0)),color(XMCOLOR((UINT)0)),tex_page(0) {
+  Vertex() : pos(dx::XMFLOAT3(0,0,0)),tex_uv(dx::XMFLOAT2(0,0)),color(dxp::XMCOLOR((UINT)0)),tex_page(0) {
   }
-  Vertex(XMFLOAT3 pos,XMFLOAT2 tex_uv,XMCOLOR color,uint32_t tex_page) {
+  Vertex(dx::XMFLOAT3 pos,dx::XMFLOAT2 tex_uv,dxp::XMCOLOR color,uint32_t tex_page) {
     this->pos = pos;
     this->tex_uv = tex_uv;
     this->color = color;
@@ -72,7 +69,7 @@ class Shape : public Drawable {
     changed_ = true;
     return S_OK;
   }
-  graphics::Buffer& vertex_buffer() { return vertex_buffer_; }
+  ve::Buffer& vertex_buffer() { return vertex_buffer_; }
   float* x_ptr() { return &pos_.x; }
   float* y_ptr() { return &pos_.y; }
   float x() { return pos_.x; }
@@ -80,26 +77,26 @@ class Shape : public Drawable {
   float* scalex_ptr() { return &scale_.x; }
   float* scaley_ptr() { return &scale_.y; }
   float* angle_ptr() { return &angle_; }
-  XMMATRIX& world() { return world_; }
+  dx::XMMATRIX& world() { return world_; }
   virtual int Construct() = 0; 
   virtual int Update() {
     if (changed_ == false) return S_FALSE;
-    world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(0,0)),
+    world_ = dx::XMMatrixTransformation2D(dx::XMLoadFloat2(&dx::XMFLOAT2(0,0)),
     0,
-    XMLoadFloat2(&scale_),
-    XMLoadFloat2(&XMFLOAT2(0,0)),
+    dx::XMLoadFloat2(&scale_),
+    dx::XMLoadFloat2(&dx::XMFLOAT2(0,0)),
     angle_,
-    XMLoadFloat2(&pos_));
+    dx::XMLoadFloat2(&pos_));
     //world_._43 = z_;
     changed_ = false;
     return S_OK;
   }
  protected:
   int vertex_count_;
-  graphics::Buffer vertex_buffer_,index_buffer_;
-  XMMATRIX world_;
-  XMFLOAT2 scale_;
-  XMFLOAT2 pos_;
+  ve::Buffer vertex_buffer_,index_buffer_;
+  dx::XMMATRIX world_;
+  dx::XMFLOAT2 scale_;
+  dx::XMFLOAT2 pos_;
   float z_,angle_;
   bool changed_;
 };
@@ -107,4 +104,3 @@ class Shape : public Drawable {
 }
 }
 
-#endif

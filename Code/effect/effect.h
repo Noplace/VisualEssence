@@ -16,12 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_EFFECT_H
-#define GRAPHICS_EFFECT_H
+#pragma once
 
-#include "../context/contextd3d11.h"
-
-namespace graphics {
+namespace ve {
 
 
 
@@ -60,4 +57,3 @@ class Effect : public Component {
 
 }
 
-#endif

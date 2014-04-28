@@ -16,12 +16,11 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_BUFFER_H
-#define GRAPHICS_BUFFER_H
+#pragma once
 
-#include <WinCore/types.h>
 
-namespace graphics {
+
+namespace ve {
 
 struct BufferDescription {
   uint32_t  byte_width;
@@ -55,5 +54,3 @@ class Buffer {
 };
 
 }
-
-#endif 

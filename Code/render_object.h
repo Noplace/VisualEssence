@@ -20,17 +20,26 @@
 
 namespace ve {
 
-class Context;
+const int kRenderObjectDirtySize = 0x1;
+const int kRenderObjectDirtyUV = 0x1;
+const int kRenderObjectDirtyPosition = 0x2;
+const int kRenderObjectDirtyTransform = 0x2;
 
-class Component {
+class RenderObject : public Component {
  public:
-  Component() : context_(NULL)  {}
-  virtual ~Component() {}
-  virtual int Initialize(Context* context) { context_ = context; return S_OK; }
-  virtual int Deinitialize() { return S_OK; }
-  Context* context() { return context_; }
-protected:
-  Context* context_;
+  RenderObject() : Component(),opacity_(1.0f),dirty_(0) {}
+  virtual ~RenderObject() {}
+  virtual int UpdateVerticies() = 0;
+  virtual int UpdateTransform() = 0;
+  virtual int Update(float,float) = 0;
+  virtual int Render() = 0;
+  dx::XMMATRIX& world() { return world_; }
+  float opacity() const { return opacity_; }
+  void set_opacity(float opacity) { opacity_ = opacity; }
+ protected:
+  dx::XMMATRIX world_;
+  float opacity_;
+  int dirty_;
 };
 
 }

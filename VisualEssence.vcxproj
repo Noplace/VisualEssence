@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug - Intel C++|Win32">
       <Configuration>Debug - Intel C++</Configuration>
@@ -44,53 +44,53 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Intel C++|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Intel C++|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Intel C++|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Intel C++|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>NotSet</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -121,7 +121,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>D:\Personal\ProjectOutputs\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)..\Output\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Intel C++|Win32'">
     <OutDir>D:\Personal\ProjectOutputs\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
@@ -133,7 +133,7 @@
     <OutDir>D:\Personal\ProjectOutputs\$(SolutionName)\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IntDir>D:\Personal\ProjectOutputs\$(SolutionName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)..\Output\$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
     <IncludePath>D:\Personal\Projects;$(VCInstallDir)include;$(VCInstallDir)atlmfc\include;$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug - Intel C++|Win32'">
@@ -179,7 +179,6 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>/D "_HAS_EXCEPTIONS=0" /wd4275 %(AdditionalOptions)</AdditionalOptions>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <ExceptionHandling>false</ExceptionHandling>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -323,6 +322,7 @@
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Code\action\action_manager.h" />
     <ClInclude Include="Code\buffer\buffer.h" />
     <ClInclude Include="Code\buffer\constant_buffer.h" />
     <ClInclude Include="Code\camera\camera.h" />
@@ -330,8 +330,8 @@
     <ClInclude Include="Code\component.h" />
     <ClInclude Include="Code\context\context.h" />
     <ClInclude Include="Code\context\contextd3d11.h" />
-    <ClInclude Include="Code\context\contextd3d9.h" />
     <ClInclude Include="Code\drawable.h" />
+    <ClInclude Include="Code\util\easing.h" />
     <ClInclude Include="Code\effect\effect.h" />
     <ClInclude Include="Code\font\bmfont\acutil_unicode.h" />
     <ClInclude Include="Code\font\bmfont\font.h" />
@@ -339,23 +339,27 @@
     <ClInclude Include="Code\font\font_sprite.h" />
     <ClInclude Include="Code\font\writer.h" />
     <ClInclude Include="Code\input_layout.h" />
+    <ClInclude Include="Code\render_object.h" />
     <ClInclude Include="Code\resource_view.h" />
     <ClInclude Include="Code\scene\scene.h" />
     <ClInclude Include="Code\shader\shader.h" />
     <ClInclude Include="Code\buffer\vertex.h" />
     <ClInclude Include="Code\buffer\vertex_buffer.h" />
     <ClInclude Include="Code\shader\shader2d_helper.h" />
+    <ClInclude Include="Code\shader\shader_manager.h" />
     <ClInclude Include="Code\shape\arc.h" />
     <ClInclude Include="Code\shape\rectangle.h" />
     <ClInclude Include="Code\shape\shape.h" />
     <ClInclude Include="Code\sprite\sprite.h" />
     <ClInclude Include="Code\texture.h" />
+    <ClInclude Include="Code\util\asyncdataread.h" />
+    <ClInclude Include="Code\util\timer.h" />
+    <ClInclude Include="Code\util\WICTextureLoader.h" />
     <ClInclude Include="Code\ve.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Code\buffer\vertex_buffer_pool.h" />
+    <ClCompile Include="Code\action\action_manager.cpp" />
     <ClCompile Include="Code\context\contextd3d11.cpp" />
-    <ClCompile Include="Code\context\contextd3d9.cpp" />
     <ClCompile Include="Code\effect\effect.cpp" />
     <ClCompile Include="Code\font\bmfont\acutil_unicode.cpp" />
     <ClCompile Include="Code\font\bmfont\font.cpp" />
@@ -366,6 +370,7 @@
     <ClCompile Include="Code\shape\arc.cpp" />
     <ClCompile Include="Code\shape\rectangle.cpp" />
     <ClCompile Include="Code\sprite\sprite.cpp" />
+    <ClCompile Include="Code\util\WICTextureLoader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

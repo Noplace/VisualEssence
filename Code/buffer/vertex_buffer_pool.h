@@ -1,6 +1,5 @@
-#include "../ve.h"
 
-namespace graphics {
+namespace ve {
 
 template<typename T>
 class VertexBufferPool : public Component {

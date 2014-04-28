@@ -1,5 +1,5 @@
 /*****************************************************************************************************************
-* Copyright (c) 2012 Khalid Ali Al-Kooheji                                                                       *
+* Copyright (c) 2014 Khalid Ali Al-Kooheji                                                                       *
 *                                                                                                                *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and              *
 * associated documentation files (the "Software"), to deal in the Software without restriction, including        *
@@ -20,17 +20,59 @@
 
 namespace ve {
 
-class Context;
+enum ActionStatus {
+  kActionStatusStopped = 0,
+  kActionStatusRunning = 1,
+  kActionStatusFinished = 2,
+};
 
-class Component {
+class Action {
  public:
-  Component() : context_(NULL)  {}
-  virtual ~Component() {}
-  virtual int Initialize(Context* context) { context_ = context; return S_OK; }
-  virtual int Deinitialize() { return S_OK; }
-  Context* context() { return context_; }
+  Action(float duration) : duration_(duration),status_(kActionStatusStopped) {}
+  virtual void Update(float dt) = 0;
+  ActionStatus status() const { return status_; }
+  void Run() {
+    time_ = 0;
+    status_ = kActionStatusRunning;
+  }
+  void Stop() {
+    status_ = kActionStatusStopped;
+  }
+ protected:
+  void* target_;
+  float duration_;
+  float time_;
+  ActionStatus status_;
+};
+
+class CustomAction : Action {
+ public:
+  typedef std::function<void(float)> UpdateFunc;
+  CustomAction(const  UpdateFunc& on_update, float duration) : on_update_(on_update), Action(duration)  {
+  
+  }
+  virtual void Update(float dt) {
+    if (time_ <= duration_) {
+      on_update_(dt);
+      time_ += dt;
+    } else {
+      status_ = kActionStatusFinished;
+    }
+  }
+ protected:
+  std::function<void(float)> on_update_; 
+};
+
+
+class ActionManager {
+ public:
+  ActionManager() : context_(NULL)  {}
+  virtual ~ActionManager() {}
+  void Update(float dt);
 protected:
   Context* context_;
+  std::vector<Action*> actions_list_;
+  
 };
 
 }

@@ -48,8 +48,8 @@ ID3D11Resource* FontLoader::LoadPage(int id, const char *pageFile, const char *f
 	str += pageFile;
 
   ID3D11Resource* texture;
-  ID3D11Device* d = ((graphics::ContextD3D11*)context())->device();
-  ID3D11DeviceContext* dc = ((graphics::ContextD3D11*)context())->device_context();
+  ID3D11Device* d = ((ve::ContextD3D11*)context())->device();
+  ID3D11DeviceContext* dc = ((ve::ContextD3D11*)context())->device_context();
   int hr = D3DX11CreateTextureFromFile(d,str.c_str(),NULL,NULL,&texture,NULL);
   if (hr == S_OK)
     return texture;
@@ -288,8 +288,8 @@ struct pagesBlock {
   tex_desc.MiscFlags = 0;
 
   ID3D11Texture2D* temp_texture;
-  ID3D11Device* d = ((graphics::ContextD3D11*)context())->device();
-  ID3D11DeviceContext* dc = ((graphics::ContextD3D11*)context())->device_context();
+  ID3D11Device* d = ((ve::ContextD3D11*)context())->device();
+  ID3D11DeviceContext* dc = ((ve::ContextD3D11*)context())->device_context();
   d->CreateTexture2D(&tex_desc,NULL,&temp_texture);
 
   ID3D11Resource** page_textures = new ID3D11Resource*[size];

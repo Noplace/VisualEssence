@@ -16,8 +16,7 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_CONTEXTD3D11_H
-#define GRAPHICS_CONTEXTD3D11_H
+#pragma once
 
 /*#include <d2d1.h>
 #include <d2d1helper.h>
@@ -25,7 +24,7 @@
 #include <wincodec.h>*/
 
 
-namespace graphics {
+namespace ve {
 
 class Component;
 class Camera2D;
@@ -41,19 +40,24 @@ class ContextD3D11 : public Context {
   ~ContextD3D11();
   int Initialize();
   int Deinitialize();
-  int CreateDisplay(core::windows::Window* window);
+  int CreateDisplay(HWND window);
+  int CreateDeviceResources();
+  int CreateWindowSizeDependentResources();
+  int UpdateForWindowSizeChange();
   int Resize(uint32_t width, uint32_t height);
   int Render();
+  int HandleDeviceLost();
   int ClearTarget();
   int Begin();
   int End();
   int CreateInputLayout(const InputElement inputs[], InputLayout& input_layout);
+  int CreateInputLayout(const void* elements, size_t count, FileData vs_byte_code, InputLayout& input_layout);
   int DestoryInputLayout(InputLayout&);
   int SetInputLayout(InputLayout&);
-  int CreateBuffer(Buffer& buffer, void* initial_data);
-  int DestroyBuffer(Buffer& buffer);
-  int UpdateSubresource(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size);
-  int CopyToVertexBuffer(const Buffer& buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) {
+  int CreateBuffer(const void* buffer_desc, void* initial_data, void** buffer);
+  int DestroyBuffer(void* buffer);
+  int UpdateSubresource(const void* buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size);
+  int CopyToVertexBuffer(const void* buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) {
     D3D11_BOX box;
     ZeroMemory(&box,sizeof(box));
     box.left = type_size*offset;
@@ -62,7 +66,7 @@ class ContextD3D11 : public Context {
     return UpdateSubresource(buffer,data_pointer,&box,type_size,0);
   }
   int SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array);
-  int SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array, const uint32_t * strides,const uint32_t *offsets);
+  int SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, const void** buffer_array, const uint32_t * strides,const uint32_t *offsets);
   int SetIndexBuffer(const Buffer& buffer, const uint32_t offset);
   int ClearIndexBuffer();
   int LockBuffer(void* buffer, uint32_t index, uint32_t type, BufferSubresource& subresource); 
@@ -75,6 +79,7 @@ class ContextD3D11 : public Context {
   int SetShader(const Shader& shader);
   int ClearShader(ShaderType shader_type);
   int Draw(uint32_t vertex_count, uint32_t vertex_start_index);
+  int DrawIndexed(uint32_t index_count, uint32_t vertex_start_index, int32_t base);
   int SetShaderResources(ShaderType shader_type, uint32_t start_slot, uint32_t count, void** resources_pointer);
   int SetPrimitiveTopology(uint32_t topology);
   int SetDepthState(void* ptr);
@@ -85,12 +90,13 @@ class ContextD3D11 : public Context {
   int DestroyResourceView(ResourceView& resource_view);
   int SetCamera(Camera* camera);
   int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth);
+  int SetDefaultTargets();
   ID3D11Device* device() { return device_; }
   ID3D11DeviceContext* device_context() { return device_context_; }
 private:
-  ID3D11DeviceContext*    device_context_;
-  ID3D11Device*           device_;
-  IDXGISwapChain*         swap_chain_;
+  ID3D11DeviceContext1*    device_context_;
+  ID3D11Device1*           device_;
+  IDXGISwapChain1*         swap_chain_;
   ID3D11RenderTargetView* render_target_view_;
   ID3D11Texture2D*        depth_stencil_;
   ID3D11DepthStencilView* depth_stencil_view_;
@@ -108,4 +114,3 @@ private:
 }
 
 
-#endif

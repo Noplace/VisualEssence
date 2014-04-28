@@ -16,17 +16,68 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_CAMERA_H
-#define GRAPHICS_CAMERA_H
+#pragma once
 
-
-namespace graphics {
+namespace ve {
 
 class Camera : public Component {
  public:
+  virtual ~Camera() {
+    Deinitialize();
+  }
+
+  virtual int Initialize(Context* context) {
+    int hr = S_OK;
+    Component::Initialize(context);
+    return hr;
+  }
+  dx::XMMATRIX& projection() { return projection_;  }
+  dx::XMMATRIX& view() { return view_;  }
+  dx::XMMATRIX viewprojection() { return view_*projection_;  }
+  dx::XMMATRIX projection_transposed() { return dx::XMMatrixTranspose(projection_);  }
+  dx::XMMATRIX view_transposed() { return dx::XMMatrixTranspose(view_);  }
+ protected:
+  dx::XMMATRIX view_;
+  dx::XMMATRIX projection_;
+};
+
+class PrespectiveCamera : public Camera {
+ public:
+  void BuildProjectionMatrix(float fov, float aspect_ratio, float near_z, float far_z) {
+		projection_ = dx::XMMatrixPerspectiveFovRH(fov,aspect_ratio,near_z,far_z);
+  }
+  void BuildViewMatrix(dx::XMVECTOR eye, dx::XMVECTOR at, dx::XMVECTOR up) {
+    view_ = dx::XMMatrixLookAtRH(eye, at, up);
+  }
+/*  void Build() {
+    BuildViewMatrix();
+    BuildProjectionMatrix();
+  }*/
+
+};
+
+class OrthoCamera : public Camera {
+ public:
+  void BuildProjectionMatrix(float aspect_ratio) {
+		projection_ = dx::XMMatrixOrthographicOffCenterRH(0.0f,aspect_ratio,1.0f,0.0f,0.0f,1.0f);
+  }
+
+  void BuildViewMatrix() {
+    view_ = dx::XMMatrixIdentity();
+  }
+/*  void Build() {
+    BuildViewMatrix();
+    BuildProjectionMatrix();
+  }*/
+
+};
+
+/*
+class Camera : public Component {
+ public:
   struct ConstantBuffer {
-    XMMATRIX mView;
-    XMMATRIX mProjection;
+    dx::XMMATRIX mView;
+    dx::XMMATRIX mProjection;
   };
 
   Camera() : Component(),ratio_(0) {
@@ -63,28 +114,28 @@ class Camera : public Component {
   void Ortho2D() {
     //RECT rect;
 	  //GetClientRect(context()->window()->handle(),&rect);
-    //D3DXMatrixOrthoLH(&Ortho2D, (FLOAT)rect.right, (FLOAT)rect.bottom, 0.0f, 1.0f);
-    //D3DXMatrixOrthoOffCenterLH(&Ortho2D, 0.0f,(FLOAT)rect.right,(FLOAT)rect.bottom,0.0f,0.0f,1.0f);
+    //D3Ddx::XMatrixOrthoLH(&Ortho2D, (FLOAT)rect.right, (FLOAT)rect.bottom, 0.0f, 1.0f);
+    //D3Ddx::XMatrixOrthoOffCenterLH(&Ortho2D, 0.0f,(FLOAT)rect.right,(FLOAT)rect.bottom,0.0f,0.0f,1.0f);
     ratio_ = (FLOAT)context()->width()/context()->height();
-    //D3DXMatrixOrthoOffCenterLH(&projection_, 0.0f,ratio,1.0f,0.0f,0.0f,1.0f);
-    projection_ = XMMatrixOrthographicOffCenterLH(0.0f,(FLOAT)context()->width(),(FLOAT)context()->height(),0.0f,-10000.0f,10000.0f);
-	  //D3DXMatrixIdentity(&view_);
-    view_ = XMMatrixIdentity();
+    //D3Ddx::XMatrixOrthoOffCenterLH(&projection_, 0.0f,ratio,1.0f,0.0f,0.0f,1.0f);
+    projection_ = dx::XMMatrixOrthographicOffCenterLH(0.0f,(FLOAT)context()->width(),(FLOAT)context()->height(),0.0f,-10000.0f,10000.0f);
+	  //D3Ddx::XMatrixIdentity(&view_);
+    view_ = dx::XMMatrixIdentity();
   }
 
   void Ortho2D(FLOAT left, FLOAT top, FLOAT right, FLOAT bottom) {
-    projection_ = XMMatrixOrthographicOffCenterLH(left,right,bottom,top,-10000.0f,10000.0f);
-    view_ = XMMatrixIdentity();
+    projection_ = dx::XMMatrixOrthographicOffCenterLH(left,right,bottom,top,-10000.0f,10000.0f);
+    view_ = dx::XMMatrixIdentity();
   }
 
-  inline XMFLOAT2 OrthoPoint(FLOAT rx, FLOAT ox, FLOAT ry, FLOAT oy) {
-    return XMFLOAT2((rx*(FLOAT)context()->width()) + ox,(ry*(FLOAT)context()->height()) + oy);
+  inline dx::XMFLOAT2 OrthoPoint(FLOAT rx, FLOAT ox, FLOAT ry, FLOAT oy) {
+    return dx::XMFLOAT2((rx*(FLOAT)context()->width()) + ox,(ry*(FLOAT)context()->height()) + oy);
   }
 
   void Perspective() {
     ratio_ = (FLOAT)context()->width()/context()->height();
-     projection_ = XMMatrixPerspectiveFovLH( XM_PIDIV4, ratio_, 0.01f, 100.0f );
-     //view_ = XMMatrixIdentity();
+     projection_ = dx::XMMatrixPerspectiveFovLH( dx::XM_PIDIV4, ratio_, 0.01f, 100.0f );
+     //view_ = dx::XMMatrixIdentity();
   }
 
   void UpdateConstantBuffer() {
@@ -100,18 +151,18 @@ class Camera : public Component {
   }
 
   float ratio() { return ratio_; }
-  XMMATRIX& projection() { return projection_;  }
-  XMMATRIX& view() { return view_;  }
-  XMMATRIX viewprojection() { return view_*projection_;  }
-  XMMATRIX projection_transposed() { return XMMatrixTranspose(projection_);  }
-  XMMATRIX view_transposed() { return XMMatrixTranspose(view_);  }
+  dx::XMMATRIX& projection() { return projection_;  }
+  dx::XMMATRIX& view() { return view_;  }
+  dx::XMMATRIX viewprojection() { return view_*projection_;  }
+  dx::XMMATRIX projection_transposed() { return dx::XMMatrixTranspose(projection_);  }
+  dx::XMMATRIX view_transposed() { return dx::XMMatrixTranspose(view_);  }
  private:
   float ratio_;
-  XMMATRIX view_;	
-  XMMATRIX projection_;
-  graphics::Buffer cam_buffer_;
+  dx::XMMATRIX view_;	
+  dx::XMMATRIX projection_;
+  ve::Buffer cam_buffer_;
 };
+*/
 
 }
 
-#endif

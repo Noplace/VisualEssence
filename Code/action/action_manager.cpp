@@ -1,5 +1,5 @@
 /*****************************************************************************************************************
-* Copyright (c) 2012 Khalid Ali Al-Kooheji                                                                       *
+* Copyright (c) 2014 Khalid Ali Al-Kooheji                                                                       *
 *                                                                                                                *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and              *
 * associated documentation files (the "Software"), to deal in the Software without restriction, including        *
@@ -16,22 +16,18 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#pragma once
+#include "../ve.h"
 
 namespace ve {
 
-class Context;
+void ActionManager::Update(float dt) {
 
-class Component {
- public:
-  Component() : context_(NULL)  {}
-  virtual ~Component() {}
-  virtual int Initialize(Context* context) { context_ = context; return S_OK; }
-  virtual int Deinitialize() { return S_OK; }
-  Context* context() { return context_; }
-protected:
-  Context* context_;
-};
+  for(auto i: actions_list_) {
+    if (i->status() == kActionStatusRunning)
+    i->Update(dt);
+  }
 
 }
 
+
+}

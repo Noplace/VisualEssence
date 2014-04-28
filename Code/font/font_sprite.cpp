@@ -19,7 +19,7 @@
 #include "../ve.h"
 
 
-namespace graphics {
+namespace ve {
 namespace font {
 
 
@@ -32,7 +32,8 @@ int FontSprite::Initialize(Context* context) {
 
 int FontSprite::Deinitialize() {
   //context_->DestroyBuffer(misc_buffer_);
-  context_->DestroyBuffer(vertex_buffer_);
+  //context_->DestroyBuffer(vertex_buffer_);
+  throw new std::exception();
   Component::Deinitialize();
   return S_OK;
 }
@@ -41,9 +42,10 @@ int FontSprite::Draw() {
 
   //effect_->Begin();
 
-  UINT stride = sizeof( graphics::shape::Vertex );
+  UINT stride = sizeof( ve::shape::Vertex );
   UINT offset = 0;
-  context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+//  context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+throw new std::exception();
   context_->ClearIndexBuffer();
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
   //camera_.SetConstantBuffer(0);

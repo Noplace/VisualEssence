@@ -18,7 +18,10 @@
 *****************************************************************************************************************/
 #include "../ve.h"
 
-namespace graphics {
+using namespace DirectX; 
+using namespace DirectX::PackedVector;
+
+namespace ve {
 
 int Sprite::Initialize(Context* context) {
   int hr = Component::Initialize(context);
@@ -29,22 +32,24 @@ int Sprite::Initialize(Context* context) {
   pos_.y = 0;
   scale_ = 1;
   angle_ = 0;
-  world_ = XMMatrixIdentity();
+  world_ = dx::XMMatrixIdentity();
   vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
   vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_.description.byte_width = sizeof( graphics::shape::Vertex ) * 4;
+  vertex_buffer_.description.byte_width = sizeof( ve::shape::Vertex ) * 4;
   vertex_buffer_.description.cpu_access_flags = 0;
-  context->CreateBuffer(vertex_buffer_,NULL);
+  throw new std::exception();
+  //context->CreateBuffer(vertex_buffer_,NULL);
   u0 = 0;
   v0 = 0;
   u1 = 1;
   v1 = 1;
-  color_ = XMCOLOR(0xffffffff);
+  color_ = dxp::XMCOLOR(0xffffffff);
   return hr;
 }
 
 int Sprite::Deinitialize() {
-  context_->DestroyBuffer(vertex_buffer_);
+  throw new std::exception();
+  //context_->DestroyBuffer(vertex_buffer_);
   return S_OK;
 }
 
@@ -54,7 +59,7 @@ int Sprite::SetSize(float width,float height) {
   return S_OK;
 }
 
-int Sprite::SetColor(XMCOLOR color) {
+int Sprite::SetColor(dxp::XMCOLOR color) {
   color_ = color;
   return S_OK;
 }
@@ -68,39 +73,40 @@ int Sprite::SetUV(float u0,float v0,float u1,float v1) {
 }
 
 int Sprite::Construct() {
-  graphics::shape::Vertex vertices[] =
+  ve::shape::Vertex vertices[] =
   {
-    graphics::shape::Vertex(XMFLOAT3( 0, 0 ,0.0f), XMFLOAT2( u0, v0  ),XMCOLOR(1,1,1,1),0),  
-    graphics::shape::Vertex(XMFLOAT3( width_, 0,0.0f ), XMFLOAT2( u1, v0 ),XMCOLOR(1,1,1,1),0),
-    graphics::shape::Vertex(XMFLOAT3( 0, height_,0.0f ), XMFLOAT2( u0, v1 ),XMCOLOR(1,1,1,1),0),
-    graphics::shape::Vertex(XMFLOAT3( width_, height_,0.0f ), XMFLOAT2( u1, v1 ),XMCOLOR(1,1,1,1),0)
+    ve::shape::Vertex(dx::XMFLOAT3( 0, 0 ,0.0f), dx::XMFLOAT2( u0, v0  ),dxp::XMCOLOR(1,1,1,1),0),  
+    ve::shape::Vertex(dx::XMFLOAT3( width_, 0,0.0f ), dx::XMFLOAT2( u1, v0 ),dxp::XMCOLOR(1,1,1,1),0),
+    ve::shape::Vertex(dx::XMFLOAT3( 0, height_,0.0f ), dx::XMFLOAT2( u0, v1 ),dxp::XMCOLOR(1,1,1,1),0),
+    ve::shape::Vertex(dx::XMFLOAT3( width_, height_,0.0f ), dx::XMFLOAT2( u1, v1 ),dxp::XMCOLOR(1,1,1,1),0)
   };
-  return context_->CopyToVertexBuffer(vertex_buffer_,vertices,sizeof(graphics::shape::Vertex),0,4);
+  return context_->CopyToVertexBuffer(vertex_buffer_.internal_pointer,vertices,sizeof(ve::shape::Vertex),0,4);
 }
 
 int Sprite::Update() {
   
   if (changed_ == false) return S_FALSE;
   
-  world_ = XMMatrixTransformation2D(XMLoadFloat2(&XMFLOAT2(width_*0.5f,height_*0.5f)),
+  world_ = dx::XMMatrixTransformation2D(dx::XMLoadFloat2(&dx::XMFLOAT2(width_*0.5f,height_*0.5f)),
     0,
-    XMLoadFloat2(&XMFLOAT2(scale_,scale_)),
-    XMLoadFloat2(&XMFLOAT2(width_*0.5f,height_*0.5f)),
+    dx::XMLoadFloat2(&dx::XMFLOAT2(scale_,scale_)),
+    dx::XMLoadFloat2(&dx::XMFLOAT2(width_*0.5f,height_*0.5f)),
     angle_,
-    XMLoadFloat2(&XMFLOAT2(pos_.x,pos_.y)));
+    dx::XMLoadFloat2(&dx::XMFLOAT2(pos_.x,pos_.y)));
   //world_.r[3]._43 = z_;
-  //world_ = XMMatrixRotationZ(angle_);
-  //world_ *= XMMatrixTranslation(pos_.x,pos_.y,0);
-  //world_ = world_ * XMMatrixScaling(scale_,scale_,1);
+  //world_ = dx::XMMatrixRotationZ(angle_);
+  //world_ *= dx::XMMatrixTranslation(pos_.x,pos_.y,0);
+  //world_ = world_ * dx::XMMatrixScaling(scale_,scale_,1);
   changed_ = false;
   return S_OK;
 }
 
 int Sprite::Draw() {
-  UINT stride = sizeof( graphics::shape::Vertex );
+  UINT stride = sizeof( ve::shape::Vertex );
   UINT offset = 0;
   context_->SetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP );
-  context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+  //context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
+  throw new std::exception();
   return context_->Draw(4,0);
 }
 

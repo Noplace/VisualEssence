@@ -16,12 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_SHAPE_ARC_H
-#define GRAPHICS_SHAPE_ARC_H
+#pragma once
 
-#include "shape.h"
-
-namespace graphics {
+namespace ve {
 namespace shape {
 
 
@@ -31,25 +28,24 @@ class Arc : public Shape {
   ~Arc() {}
   int Initialize(Context* context);
   int Deinitialize();
-  void SetColor0(XMCOLOR color0) { color0_ = color0; }
-  void SetColor1(XMCOLOR color1) { color1_ = color1; } 
+  void SetColor0(dxp::XMCOLOR color0) { color0_ = color0; }
+  void SetColor1(dxp::XMCOLOR color1) { color1_ = color1; } 
   void SetParams(float radius,float start_angle,float end_angle,float thickness);
   int Construct();
   int Update();
   int Draw();
-  //XMVECTOR color() { return XMLoadColor(&color_); }
+  //dx::XMVECTOR color() { return dx::XMLoadColor(&color_); }
  private:
   Arc::Vertex* CreateVertices();
   float radius_;
   float start_angle_;
   float end_angle_;
   float thickness_;
-  XMCOLOR color0_;
-  XMCOLOR color1_;
+  dxp::XMCOLOR color0_;
+  dxp::XMCOLOR color1_;
   int vb_id;
 };
 
 }
 }
 
-#endif

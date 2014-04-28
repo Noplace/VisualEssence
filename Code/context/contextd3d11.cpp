@@ -16,19 +16,20 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifdef VE_USE_D3D11_ENGINE
+
 #include "../ve.h"
 
 #pragma comment(lib, "d3d11.lib")
 #ifdef _DEBUG 
-#pragma comment(lib, "d3dx11d.lib")
+//#pragma comment(lib, "d3dx11d.lib")
 #else
 #pragma comment(lib, "d3dx11.lib")
 #endif
 
 //#pragma comment(lib, "dxgi.lib")
+#pragma comment( lib, "dxguid.lib")
 
-namespace graphics {
+namespace ve {
   /*
 const D3DVERTEXELEMENT9 ContextD3D11::ve_xyzc[3] = {
   {0,0,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION ,0},
@@ -98,36 +99,15 @@ int ContextD3D11::Deinitialize() {
     return S_OK;
 }
 
-int ContextD3D11::CreateDisplay(core::windows::Window* window) {
-  window_ = window;
+int ContextD3D11::CreateDisplay(HWND window) {
+  window_handle_ = window;
   int hr = S_OK;
 
-  RECT rc;
-  GetClientRect( window_->handle(), &rc );
-  width_ = rc.right - rc.left;
-  height_ = rc.bottom - rc.top;
+  
+  
 
-  UINT createDeviceFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;//D3D11_CREATE_DEVICE_BGRA_SUPPORT;
-#ifdef _DEBUG
- // createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-#endif
 
-  D3D_DRIVER_TYPE driverTypes[] =
-  {
-      D3D_DRIVER_TYPE_HARDWARE,
-      D3D_DRIVER_TYPE_WARP,
-      D3D_DRIVER_TYPE_REFERENCE,
-  };
-  UINT numDriverTypes = ARRAYSIZE( driverTypes );
-
-  D3D_FEATURE_LEVEL featureLevels[] =
-  {
-      D3D_FEATURE_LEVEL_11_0,
-      D3D_FEATURE_LEVEL_10_1,
-      D3D_FEATURE_LEVEL_10_0,
-  };
-  UINT numFeatureLevels = ARRAYSIZE( featureLevels );
-
+/*
   DXGI_SWAP_CHAIN_DESC sd;
   ZeroMemory( &sd, sizeof( sd ) );
   sd.BufferCount = 2;
@@ -137,13 +117,13 @@ int ContextD3D11::CreateDisplay(core::windows::Window* window) {
   sd.BufferDesc.RefreshRate.Numerator = 60;
   sd.BufferDesc.RefreshRate.Denominator = 1;
   sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-  sd.OutputWindow = window_->handle();
+  sd.OutputWindow = window_handle_;
   sd.SampleDesc.Count = 1;
   sd.SampleDesc.Quality = 0;
   sd.Windowed = TRUE;
 
-  D3D_FEATURE_LEVEL feature_level;
-  hr = D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, NULL, 0,
+  
+  hr = D3D11CreateDeviceAndSwapChain( NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, creationFlags, NULL, 0,
                                           D3D11_SDK_VERSION, &sd, &swap_chain_, &device_, &feature_level, &device_context_ );
   int inta = GetLastError();
   if( FAILED( hr ) )
@@ -167,12 +147,159 @@ int ContextD3D11::CreateDisplay(core::windows::Window* window) {
   hr = d2d_factory_->CreateDxgiSurfaceRenderTarget(pBackBuffer,&props,&d2d_render_target_);
     
   SafeRelease(&pBackBuffer);*/
-  return S_OK;
+  CreateDeviceResources();
+  return CreateWindowSizeDependentResources();
 
 }
 
+
+
+int ContextD3D11::CreateDeviceResources() {
+  UINT creationFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;//D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+#ifdef _DEBUG
+  creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
+
+  D3D_DRIVER_TYPE driverTypes[] =
+  {
+      D3D_DRIVER_TYPE_HARDWARE,
+      D3D_DRIVER_TYPE_WARP,
+      D3D_DRIVER_TYPE_REFERENCE,
+  };
+  UINT numDriverTypes = ARRAYSIZE( driverTypes );
+
+  D3D_FEATURE_LEVEL featureLevels[] =
+  {
+    D3D_FEATURE_LEVEL_11_1,
+    D3D_FEATURE_LEVEL_11_0,
+    D3D_FEATURE_LEVEL_10_1,
+    D3D_FEATURE_LEVEL_10_0,
+    D3D_FEATURE_LEVEL_9_3,
+    D3D_FEATURE_LEVEL_9_2,
+    D3D_FEATURE_LEVEL_9_1
+  };
+  UINT numFeatureLevels = ARRAYSIZE( featureLevels );
+  D3D_FEATURE_LEVEL feature_level;
+  ID3D11Device* device;
+  ID3D11DeviceContext* devicecontext;
+  D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr,	creationFlags, featureLevels, ARRAYSIZE(featureLevels),	D3D11_SDK_VERSION, &device, &feature_level, &devicecontext);
+  device_ = (ID3D11Device1*)device;
+  device_context_ = (ID3D11DeviceContext1*)devicecontext;
+
+  SafeRelease(&default_blend_state);
+  D3D11_BLEND_DESC BlendStateDescription;
+  ZeroMemory(&BlendStateDescription,sizeof(BlendStateDescription));
+  BlendStateDescription.AlphaToCoverageEnable = false;
+  BlendStateDescription.RenderTarget[0].BlendEnable = true;
+
+  BlendStateDescription.RenderTarget[0].SrcBlend                  = D3D11_BLEND_SRC_ALPHA;        //D3D11_BLEND_SRC_COLOR;
+  BlendStateDescription.RenderTarget[0].DestBlend                 = D3D11_BLEND_INV_SRC_ALPHA;//D3D11_BLEND_DEST_COLOR;
+  BlendStateDescription.RenderTarget[0].SrcBlendAlpha             = D3D11_BLEND_ONE;//D3D11_BLEND_SRC_ALPHA;
+  BlendStateDescription.RenderTarget[0].DestBlendAlpha    = D3D11_BLEND_ONE;//D3D11_BLEND_DEST_ALPHA;
+  BlendStateDescription.RenderTarget[0].BlendOp                   = D3D11_BLEND_OP_ADD;
+  BlendStateDescription.RenderTarget[0].BlendOpAlpha              = D3D11_BLEND_OP_ADD;
+  BlendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    
+  device_->CreateBlendState(&BlendStateDescription,&default_blend_state);
+  float blendFactor[] = {1,1, 1, 1};
+  UINT sampleMask   = 0xffffffff;
+  device_context_->OMSetBlendState(default_blend_state,blendFactor,sampleMask);
+
+  return S_OK;
+}
+
+int ContextD3D11::CreateWindowSizeDependentResources() { 
+  RECT rc;
+  GetClientRect( window_handle_, &rc );
+  width_ = rc.right - rc.left;
+  height_ = rc.bottom - rc.top;
+
+
+  if(swap_chain_ != nullptr)
+  {
+      swap_chain_->ResizeBuffers(2,	static_cast<UINT>(width_),static_cast<UINT>(height_),	DXGI_FORMAT_B8G8R8A8_UNORM,	0);
+  }
+  else
+  {
+    // Otherwise, create a new one using the same adapter as the existing Direct3D device.
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {0};
+    swapChainDesc.Width = static_cast<UINT>(width_); // Match the size of the window.
+    swapChainDesc.Height = static_cast<UINT>(height_);
+    swapChainDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM; // This is the most common swap chain format.
+    swapChainDesc.Stereo = false;
+    swapChainDesc.SampleDesc.Count = 1; // Don't use multi-sampling.
+    swapChainDesc.SampleDesc.Quality = 0;
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.BufferCount = 2; // Use double-buffering to minimize latency.
+    swapChainDesc.Scaling = DXGI_SCALING_NONE;
+    
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // All Windows Store apps must use this SwapEffect.
+    swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    
+    IDXGIDevice1* dxgiDevice;
+    device_->QueryInterface(__uuidof(dxgiDevice),(void**)&dxgiDevice);
+    IDXGIAdapter* dxgiAdapter;
+    dxgiDevice->GetAdapter(&dxgiAdapter);
+    IDXGIFactory2* dxgiFactory;
+    dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), 		(void**)&dxgiFactory		);
+
+    DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullscreen_desc;
+    memset(&fullscreen_desc,0,sizeof(fullscreen_desc));
+    fullscreen_desc.Windowed = true;
+    dxgiFactory->CreateSwapChainForHwnd(device_,window_handle_,	&swapChainDesc,	&fullscreen_desc,nullptr, &swap_chain_);
+    dxgiDevice->SetMaximumFrameLatency(1);
+
+    SafeRelease(&dxgiFactory);
+    SafeRelease(&dxgiAdapter);
+    SafeRelease(&dxgiDevice);
+  }
+  
+  ID3D11Texture2D* backBuffer;
+  swap_chain_->GetBuffer(0,__uuidof(ID3D11Texture2D),(void**)&backBuffer);
+  device_->CreateRenderTargetView(backBuffer,nullptr,&render_target_view_);
+
+  // Create a depth stencil view.
+  CD3D11_TEXTURE2D_DESC depthStencilDesc(
+    DXGI_FORMAT_D24_UNORM_S8_UINT, 
+    static_cast<UINT>(width_),
+    static_cast<UINT>(height_),
+    1,
+    1,
+    D3D11_BIND_DEPTH_STENCIL
+    );
+
+  ID3D11Texture2D* depthStencil;
+  device_->CreateTexture2D(&depthStencilDesc,nullptr,&depthStencil);
+  CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
+  device_->CreateDepthStencilView(depthStencil,&depthStencilViewDesc,&depth_stencil_view_);
+
+  // Set the rendering viewport to target the entire window.
+  CD3D11_VIEWPORT viewport(0.0f,0.0f,width_,height_);
+
+  device_context_->RSSetViewports(1, &viewport);
+  device_context_->OMSetRenderTargets( 1, &render_target_view_, depth_stencil_view_ );
+  return S_OK;
+}
+
+// This method is called in the event handler for the SizeChanged event.
+int ContextD3D11::UpdateForWindowSizeChange()
+{
+  /*if (m_window->Bounds.Width  != m_windowBounds.Width ||
+    m_window->Bounds.Height != m_windowBounds.Height ||
+    m_orientation != DisplayProperties::CurrentOrientation)*/
+  {
+    ID3D11RenderTargetView* nullViews[] = {nullptr};
+    device_context_->OMSetRenderTargets(ARRAYSIZE(nullViews), nullViews, nullptr);
+    SafeRelease(&render_target_view_);
+    SafeRelease(&depth_stencil_view_);
+    device_context_->Flush();
+    CreateWindowSizeDependentResources();
+  }
+  return S_OK;
+}
+
 int ContextD3D11::Resize(uint32_t width, uint32_t height) {
-  int hr = S_OK;
+  /*int hr = S_OK;
 
   //Ensure that nobody is holding onto one of the old resources
   SafeRelease(&render_target_view_);
@@ -283,13 +410,14 @@ int ContextD3D11::Resize(uint32_t width, uint32_t height) {
   device_context_->OMSetBlendState(default_blend_state,blendFactor,sampleMask);
     
 
-  return hr;
+  return hr;*/
+  return S_FALSE;
 }
 
 int ContextD3D11::Render() {
   
 
-  HRESULT result = swap_chain_->Present(0,0);
+  //HRESULT result = swap_chain_->Present(0,0);
 
   /*
   HRESULT result = device_->Present(NULL,NULL,NULL,NULL);
@@ -298,6 +426,46 @@ int ContextD3D11::Render() {
     device_->Reset(&d3dpp);
   }*/
 
+// The application may optionally specify "dirty" or "scroll"
+  // rects to improve efficiency in certain scenarios.
+  DXGI_PRESENT_PARAMETERS parameters = {0};
+  parameters.DirtyRectsCount = 0;
+  parameters.pDirtyRects = nullptr;
+  parameters.pScrollRect = nullptr;
+  parameters.pScrollOffset = nullptr;
+  
+  // The first argument instructs DXGI to block until VSync, putting the application
+  // to sleep until the next VSync. This ensures we don't waste any cycles rendering
+  // frames that will never be displayed to the screen.
+  HRESULT hr = swap_chain_->Present1(1, 0, &parameters);
+
+  // Discard the contents of the render target.
+  // This is a valid operation only when the existing contents will be entirely
+  // overwritten. If dirty or scroll rects are used, this call should be removed.
+  device_context_->DiscardView(render_target_view_);
+
+  // Discard the contents of the depth stencil.
+  device_context_->DiscardView(depth_stencil_view_);
+
+  // If the device was removed either by a disconnect or a driver upgrade, we 
+  // must recreate all device resources.
+  if (hr == DXGI_ERROR_DEVICE_REMOVED)
+  {
+    HandleDeviceLost();
+  }
+  else
+  {
+    return S_FALSE;
+  }
+
+  return S_OK;
+}
+
+int ContextD3D11::HandleDeviceLost() {
+  SafeRelease(&swap_chain_);
+
+  CreateDeviceResources();
+  UpdateForWindowSizeChange();
   return S_OK;
 }
 
@@ -322,6 +490,13 @@ int ContextD3D11::CreateInputLayout(const InputElement inputs[], InputLayout& in
   return S_FALSE;
 }
 
+int ContextD3D11::CreateInputLayout(const void* elements, size_t count, FileData vs_byte_code, InputLayout& input_layout) {
+  ID3D11InputLayout* ptr;
+  int hr = device_->CreateInputLayout((const D3D11_INPUT_ELEMENT_DESC*)elements,count,vs_byte_code.data,vs_byte_code.length,&ptr);
+  input_layout.set_pointer(ptr);
+  return hr;
+}
+
 int ContextD3D11::DestoryInputLayout(InputLayout& input_layout) {
   if( input_layout.pointer() ) 
     ((IUnknown*)input_layout.pointer())->Release();
@@ -334,8 +509,9 @@ int ContextD3D11::SetInputLayout(InputLayout& input_layout) {
   return S_OK;
 }
 
-int ContextD3D11::CreateBuffer(Buffer& buffer, void* initial_data) {
-  if (buffer.internal_pointer != NULL)
+  
+int ContextD3D11::CreateBuffer(const void* buffer_desc, void* initial_data, void** buffer) {
+ /* if (buffer.internal_pointer != NULL)
     return S_FALSE;
   D3D11_BUFFER_DESC bd;
   ZeroMemory( &bd, sizeof(bd) );
@@ -347,22 +523,27 @@ int ContextD3D11::CreateBuffer(Buffer& buffer, void* initial_data) {
   ZeroMemory( &InitData, sizeof(InitData) );
   InitData.pSysMem = initial_data;
   HRESULT result = device_->CreateBuffer( &bd, NULL, (ID3D11Buffer**)&buffer.internal_pointer );
+  return result;*/
+
+  HRESULT result = device_->CreateBuffer( (const D3D11_BUFFER_DESC*)buffer_desc, (const D3D11_SUBRESOURCE_DATA*)initial_data, (ID3D11Buffer**)buffer );
   return result;
 }
 
-int ContextD3D11::DestroyBuffer(Buffer& buffer) {
-  ID3D11Buffer* internal_buffer_ = (ID3D11Buffer*)buffer.internal_pointer;
+int ContextD3D11::DestroyBuffer(void* buffer) {
+  SafeRelease((ID3D11Buffer**)buffer);
+  return S_OK;
+ /* ID3D11Buffer* internal_buffer_ = (ID3D11Buffer*)buffer.internal_pointer;
   if (internal_buffer_ != NULL) {
     internal_buffer_->Release();
     internal_buffer_ = NULL;
     buffer.internal_pointer =  NULL;
     return S_OK;
   }
-  return S_FALSE;
+  return S_FALSE;*/
 }
 
-int ContextD3D11::UpdateSubresource(const Buffer& buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size) {
-  device_context_->UpdateSubresource( (ID3D11Resource*)buffer.internal_pointer, 0, (D3D11_BOX*)box, data_pointer, row_size, depth_size );
+int ContextD3D11::UpdateSubresource(const void* buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size) {
+  device_context_->UpdateSubresource( (ID3D11Resource*)buffer, 0, (D3D11_BOX*)box, data_pointer, row_size, depth_size );
   return S_OK;
 }
 
@@ -395,11 +576,8 @@ int ContextD3D11::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot
   }
 }
 
-int ContextD3D11::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array, const uint32_t * strides,const uint32_t *offsets) {
-  register void* buffers_[60];
-  for (uint32_t i=0;i<buffer_count;++i)
-    buffers_[i] = buffer_array[i].internal_pointer;
-  device_context_->IASetVertexBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_,strides,offsets);
+int ContextD3D11::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, const void** buffer_array, const uint32_t * strides,const uint32_t *offsets) {
+  device_context_->IASetVertexBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffer_array,strides,offsets);
   return S_OK;
 }
 
@@ -430,15 +608,15 @@ int ContextD3D11::UnlockBuffer(void* buffer,uint32_t index) {
 
 int ContextD3D11::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob) {
     int hr = S_OK;
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+    /*DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
     #if defined( DEBUG ) || defined( _DEBUG )
       dwShaderFlags |= D3DCOMPILE_DEBUG;
     #endif
 
     ID3DBlob* pErrorBlob,*buffer;
-    hr = D3DX11CompileFromMemory( (LPCSTR)data,len,NULL, NULL, NULL, szEntryPoint, szShaderModel, 
-      dwShaderFlags, 0, NULL, &buffer, &pErrorBlob, NULL );
-    if( FAILED(hr) ) {
+    hr = -1;/*D3DX11CompileFromMemory( (LPCSTR)data,len,NULL, NULL, NULL, szEntryPoint, szShaderModel, 
+      dwShaderFlags, 0, NULL, &buffer, &pErrorBlob, NULL );*/
+    /*if( FAILED(hr) ) {
       #ifdef _DEBUG
       if( pErrorBlob != NULL )
           OutputDebugStringA( (char*)pErrorBlob->GetBufferPointer() );
@@ -451,7 +629,7 @@ int ContextD3D11::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEnt
     blob.internal_ = buffer;
     blob.set_data(buffer->GetBufferPointer());
     blob.set_size(buffer->GetBufferSize());
-
+*/
     return S_OK;
 }
 
@@ -477,9 +655,13 @@ int ContextD3D11::CreateGeometryShader(void* data, size_t length, GeometryShader
 }
 
 int ContextD3D11::DestroyShader(Shader& shader) {
-  if( shader.internal_pointer() ) 
+  if( shader.internal_pointer() ) {
     ((IUnknown*)shader.internal_pointer())->Release();
-  return S_OK;
+    shader.set_internal_pointer(nullptr);
+    return S_OK;
+  } else {
+    return S_FALSE;
+  }
 }
 
 int ContextD3D11::SetShader(const Shader& shader) {
@@ -542,6 +724,11 @@ int ContextD3D11::Draw(uint32_t vertex_count, uint32_t vertex_start_index) {
   return S_OK;
 }
 
+int ContextD3D11::DrawIndexed(uint32_t index_count, uint32_t vertex_start_index, int32_t base) {
+  device_context_->DrawIndexed(index_count,vertex_start_index,base);
+  return S_OK;
+}
+
 int ContextD3D11::SetShaderResources(ShaderType shader_type,uint32_t start_slot,uint32_t count,void** resources_pointer) {
   switch (shader_type) {
     case kShaderTypeVertex:
@@ -582,14 +769,19 @@ int ContextD3D11::SetDepthState(void* ptr) {
 
 int ContextD3D11::CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture) {
   //todo whole thing
-  //return device_->CreateTexture2D(width,height,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,(IDirect3DTexture9**)&texture.data_pointer,0);
-  return S_FALSE;
+  CD3D11_TEXTURE2D_DESC desc((DXGI_FORMAT)format,width,height);
+  ID3D11Texture2D* ptr;
+  int hr = device_->CreateTexture2D(&desc,nullptr,&ptr);
+  texture.data_pointer = ptr;
+  texture.format = format;
+  
+  return hr;
 }
 
 int ContextD3D11::CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture) {
   texture.data_length = data_length;
   
-  int result = D3DX11CreateTextureFromMemory(device_,data_pointer,data_length,NULL,NULL,(ID3D11Resource**)&texture.data_pointer,NULL);
+  int result = -1;//D3DX11CreateTextureFromMemory(device_,data_pointer,data_length,NULL,NULL,(ID3D11Resource**)&texture.data_pointer,NULL);
   return result;
 }
 
@@ -623,6 +815,9 @@ int ContextD3D11::SetViewport(float x,float y,float w,float h,float min_depth,fl
   return S_OK;
 }
 
+int ContextD3D11::SetDefaultTargets() {
+  device_context_->OMSetRenderTargets( 1, &render_target_view_, depth_stencil_view_ );
+  return S_OK;
 }
 
-#endif
+}

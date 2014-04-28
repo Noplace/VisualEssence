@@ -16,8 +16,7 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef VE_H
-#define VE_H
+#pragma once
 
 #pragma warning( push )             //Suppress MSVC warning spam
 #pragma warning( disable : 4275 )
@@ -27,31 +26,36 @@
 #endif
 
 //forwards
-namespace graphics {
+namespace ve {
 class Camera;
+class Context;
+class ActionManager;
 }
 
-#include <WinCore/windows/windows.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <WinCore/types.h>
 #include <WinCore/math/math.h>
+#include <eh.h>
+#include <ppltasks.h>
+#include <future>
+#include <string>
+#include <iostream>
 #include <vector>
-//#include <string>
 #include <map>
-#ifdef VE_USE_D3D11_ENGINE
-#include <d3d11.h>
-#include <d3dx11.h>
-#include <d3dcompiler.h>
-#endif
-#ifdef VE_USE_D3D9_ENGINE
-#include <d3d9.h>
-#endif
-#ifdef VE_USE_OPENGL_ENGINE
-#endif
+#include <d3d11_1.h>
 #include <DirectXMath.h>
 #include <DirectXPackedVector.h>
-using namespace DirectX; 
-using namespace DirectX::PackedVector;
+namespace dx = DirectX; 
+namespace dxp = DirectX::PackedVector;
+#include "util/timer.h"
+#include "util/asyncdataread.h"
+#include "util/easing.h"
 #include "component.h"
+#include "render_object.h"
 #include "drawable.h"
+#include "action/action_manager.h"
 #include "input_layout.h"
 #include "texture.h"
 #include "resource_view.h"
@@ -60,13 +64,14 @@ using namespace DirectX::PackedVector;
 #include "shape/shape.h"
 #include "context/context.h"
 #include "context/contextd3d11.h"
-#include "context/contextd3d9.h"
+#include "buffer/vertex_buffer.h"
 #include "camera/camera.h"
 #include "camera/camera2d.h"
 #include "shape/rectangle.h"
 #include "shape/arc.h"
 #include "sprite/sprite.h"
 #include "effect/effect.h"
+#include "shader/shader_manager.h"
 #include "shader/shader2d_helper.h"
 #include "scene/scene.h"
 #include "font/font_sprite.h"
@@ -76,4 +81,3 @@ using namespace DirectX::PackedVector;
 
 #pragma warning( pop )
 
-#endif

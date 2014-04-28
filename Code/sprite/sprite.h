@@ -16,34 +16,29 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_SPRITE_H
-#define GRAPHICS_SPRITE_H
+#pragma once
 
-#include "../context/context.h"
+namespace ve {
 
-namespace graphics {
-
-class Sprite : public graphics::shape::Shape {
+class Sprite : public ve::shape::Shape {
  public:
   Sprite() {}
   ~Sprite() {}
   int Initialize(Context* context);
   int Deinitialize();
   int SetSize(float width,float height);
-  int SetColor(XMCOLOR color);
+  int SetColor(dxp::XMCOLOR color);
   int SetUV(float u0,float v0,float u1,float v1);
   int Construct();
   int Update();
   int Draw();
-  XMVECTOR color() { return XMLoadColor(&color_); }
+  dx::XMVECTOR color() { return dxp::XMLoadColor(&color_); }
  private:
-  graphics::Buffer vertex_buffer_;
+  ve::Buffer vertex_buffer_;
   float scale_,angle_;
   float width_,height_;
   float u0,v0,u1,v1;
-  XMCOLOR color_;
+  dxp::XMCOLOR color_;
 };
 
 }
-
-#endif

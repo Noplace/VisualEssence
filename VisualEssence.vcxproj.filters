@@ -96,7 +96,25 @@
     <ClInclude Include="Code\resource_view.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Code\context\contextd3d9.h">
+    <ClInclude Include="Code\util\timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\util\asyncdataread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\util\WICTextureLoader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\shader\shader_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\render_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\util\easing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Code\action\action_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -134,10 +152,10 @@
     <ClCompile Include="Code\shape\rectangle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Code\context\contextd3d9.cpp">
+    <ClCompile Include="Code\util\WICTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Code\buffer\vertex_buffer_pool.h">
+    <ClCompile Include="Code\action\action_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

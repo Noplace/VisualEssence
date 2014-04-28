@@ -16,33 +16,31 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_FONT_WRITER_H
-#define GRAPHICS_FONT_WRITER_H
+#pragma once
 
-
-namespace graphics {
+namespace ve {
 namespace font {
 
 /*
 struct Vertex2 {
-    XMFLOAT4 rect;
-    XMFLOAT2 tex;
-    XMFLOAT4 col;
+    dx::XMFLOAT4 rect;
+    dx::XMFLOAT2 tex;
+    dx::XMFLOAT4 col;
     UINT     ch;
     UINT     page;
  };*/
 
 
 /*struct Vertex {
-    XMFLOAT2 pos;
-    XMFLOAT2 tex;
-    XMFLOAT4 col;
+    dx::XMFLOAT2 pos;
+    dx::XMFLOAT2 tex;
+    dx::XMFLOAT4 col;
     uint32_t     ch;
     uint32_t     page;
     public: 
-     Vertex() : pos(XMFLOAT2(0,0)),tex(XMFLOAT2(0,0)),col(XMFLOAT4(0,0,0,0)),ch(0),page(0) {
+     Vertex() : pos(dx::XMFLOAT2(0,0)),tex(dx::XMFLOAT2(0,0)),col(dx::XMFLOAT4(0,0,0,0)),ch(0),page(0) {
      }
-     Vertex(XMFLOAT2 pos,XMFLOAT2 tex,XMFLOAT4 col,UINT ch,UINT page) {
+     Vertex(dx::XMFLOAT2 pos,dx::XMFLOAT2 tex,dx::XMFLOAT4 col,UINT ch,UINT page) {
       this->pos = pos;
       this->tex = tex;
       this->col = col;
@@ -51,12 +49,12 @@ struct Vertex2 {
     }
 };*/
 
-class Writer : public graphics::shape::Shape {
+class Writer : public ve::shape::Shape {
  public:
   /*struct ShaderMiscBuffer {
-    XMMATRIX transform;
+    dx::XMMATRIX transform;
     float global_alpha;
-    XMFLOAT4 Color;
+    dx::XMFLOAT4 Color;
   };*/
   Writer();
   ~Writer();
@@ -66,30 +64,29 @@ class Writer : public graphics::shape::Shape {
   int Write(const char *text, int count, unsigned int mode);
   int WriteML(const char *text, int count, unsigned int mode);
   int WriteBox(const char *text, int count, unsigned int mode, float width);
-  int GetOutput(graphics::shape::Vertex* vertex_array,int* vertex_count,int* char_count);
+  int GetOutput(ve::shape::Vertex* vertex_array,int* vertex_count,int* char_count);
   int UpdateConstantBuffer();
   int Construct(); 
   int Update();
   int Draw();
   acGraphics::Font* font() { return font_; }
   void set_font(acGraphics::Font* font) { font_ = font; }
-  //void set_effect(graphics::Effect* effect) { effect_ = effect; }
+  //void set_effect(ve::Effect* effect) { effect_ = effect; }
   void set_global_alpha(float global_alpha) { /*misc_buffer_shader_.global_alpha = global_alpha;*/ }
-  graphics::shader::ConstantBuffer2Type misc_buffer_shader_;
+  ve::shader::ConstantBuffer2Type misc_buffer_shader_;
  protected:
   int InternalWrite(float x, float y, float z, const char *text, int count, float spacing);
   acGraphics::Font* font_;
-  graphics::Buffer vertex_buffer_;
-  graphics::shape::Vertex* vertex_array_;
-  //graphics::Effect* effect_;
-  //graphics::Camera camera_;
+  ve::Buffer vertex_buffer_;
+  ve::shape::Vertex* vertex_array_;
+  //ve::Effect* effect_;
+  //ve::Camera camera_;
   int vcount;
   int char_count;
-  //graphics::Buffer misc_buffer_;
+  //ve::Buffer misc_buffer_;
 
 };
 
 }
 }
 
-#endif

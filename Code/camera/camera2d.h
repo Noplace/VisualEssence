@@ -16,10 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_CAMERA2D_H
-#define GRAPHICS_CAMERA2D_H
+#pragma once
 
-namespace graphics {
+namespace ve {
 
 class Camera2D : public Component {
  public:
@@ -32,14 +31,14 @@ class Camera2D : public Component {
 
   void SetupDisplay() {
     RECT rect;
-	  GetClientRect(context()->window()->handle(),&rect);
-    //D3DXMatrixOrthoLH(&Ortho2D, (FLOAT)rect.right, (FLOAT)rect.bottom, 0.0f, 1.0f);
-    //D3DXMatrixOrthoOffCenterLH(&Ortho2D, 0.0f,(FLOAT)rect.right,(FLOAT)rect.bottom,0.0f,0.0f,1.0f);
+	  GetClientRect(context()->window_handle(),&rect);
+    //D3Ddx::XMatrixOrthoLH(&Ortho2D, (FLOAT)rect.right, (FLOAT)rect.bottom, 0.0f, 1.0f);
+    //D3Ddx::XMatrixOrthoOffCenterLH(&Ortho2D, 0.0f,(FLOAT)rect.right,(FLOAT)rect.bottom,0.0f,0.0f,1.0f);
     FLOAT ratio = (FLOAT)640/480;
-    //D3DXMatrixOrthoOffCenterLH(&projection_, 0.0f,ratio,1.0f,0.0f,0.0f,1.0f);
-    projection_ = XMMatrixOrthographicOffCenterLH( 0.0f,ratio,1.0f,0.0f,0.0f,1.0f);
-	  //D3DXMatrixIdentity(&view_);
-    view_ = XMMatrixIdentity();
+    //D3Ddx::XMatrixOrthoOffCenterLH(&projection_, 0.0f,ratio,1.0f,0.0f,0.0f,1.0f);
+    projection_ = dx::XMMatrixOrthographicOffCenterLH( 0.0f,ratio,1.0f,0.0f,0.0f,1.0f);
+	  //D3Ddx::XMatrixIdentity(&view_);
+    view_ = dx::XMMatrixIdentity();
   }
 
   void Use() {
@@ -51,10 +50,9 @@ class Camera2D : public Component {
 	  c->device()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&view_);*/
   }
  private:
-  XMMATRIX view_;	
-  XMMATRIX projection_;
+  dx::XMMATRIX view_;	
+  dx::XMMATRIX projection_;
 };
 
 }
 
-#endif

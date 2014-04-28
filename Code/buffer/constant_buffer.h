@@ -16,10 +16,9 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef GRAPHICS_CONSTANT_BUFFER_H
-#define GRAPHICS_CONSTANT_BUFFER_H
+#pragma once
 
-namespace graphics {
+namespace ve {
 
 class Context;
 
@@ -79,4 +78,3 @@ private:
 
 }
 
-#endif

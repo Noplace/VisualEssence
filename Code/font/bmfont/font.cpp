@@ -448,16 +448,16 @@ void Font::PreparePixelPerfectOutput()
 	//dev->GetViewport(&vp);
 
 	//// Clear world matrix
-	//D3DXMATRIX mtx;
-	//D3DXMatrixIdentity(&mtx);
+	//D3Ddx::XMATRIX mtx;
+	//D3Ddx::XMatrixIdentity(&mtx);
 	//gfx->SetMatrix(D3DTS_WORLD, &mtx);
 
 	//// Setup orthogonal view
 	//// Origin is in lower-left corner
-	//D3DXMatrixOrthoOffCenterLH(&mtx, 0, (float)vp.Width, 0, (float)vp.Height, vp.MinZ, vp.MaxZ);
+	//D3Ddx::XMatrixOrthoOffCenterLH(&mtx, 0, (float)vp.Width, 0, (float)vp.Height, vp.MinZ, vp.MaxZ);
 	//gfx->SetMatrix(D3DTS_VIEW, &mtx);
 
-	//D3DXMatrixIdentity(&mtx);
+	//D3Ddx::XMatrixIdentity(&mtx);
 	//gfx->SetMatrix(D3DTS_PROJECTION, &mtx);
 
 	//// Adjust the scale of the font so that the 

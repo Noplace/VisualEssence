@@ -28,7 +28,7 @@
 #ifndef FONT_H
 #define FONT_H
 
-namespace graphics {
+namespace ve {
 namespace font {
 class Writer;
 }
@@ -86,7 +86,7 @@ public:
   ID3D11ShaderResourceView* pages;
 protected:
 	friend class FontLoader;
-  friend class graphics::font::Writer;
+  friend class ve::font::Writer;
 
 	void InternalWrite(float x, float y, float z, const char *text, int count, float spacing = 0);
 

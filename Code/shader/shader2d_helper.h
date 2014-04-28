@@ -16,23 +16,22 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifndef SHADER2D_HELPER_H
-#define SHADER2D_HELPER_H
+#pragma once
 
 #include "../component.h"
 #include "../camera/camera.h"
 #include "../effect/effect.h"
 
-namespace graphics {
+namespace ve {
 namespace shader {
 
 struct ConstantBuffer2Type {
-    XMMATRIX world;
+    dx::XMMATRIX world;
     bool enable_texture;
-    XMVECTOR ps_color;
+    dx::XMVECTOR ps_color;
 };
 
-class Shader2DHelper : public graphics::Component {
+class Shader2DHelper : public ve::Component {
  public:
   Shader2DHelper();
   ~Shader2DHelper();
@@ -45,12 +44,11 @@ class Shader2DHelper : public graphics::Component {
   int SetTextureShader();
   int SetTexturePagesShader();
  private:
-  graphics::Camera camera_;
-  graphics::Effect effect_;
-  graphics::Buffer cef_buffer;
+  ve::Camera camera_;
+  ve::Effect effect_;
+  ve::Buffer cef_buffer;
 };
 
 }
 }
 
-#endif

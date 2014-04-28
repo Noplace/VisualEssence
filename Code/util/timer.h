@@ -18,20 +18,70 @@
 *****************************************************************************************************************/
 #pragma once
 
+
 namespace ve {
 
-class Context;
+class Timer 
+{
+public:
+	// Initializes internal timer values.
+	Timer()
+	{
+		if (!QueryPerformanceFrequency(&frequency_))
+		{
+		  return;
+		}
+		Reset();
+	}
+	
+	// Reset the timer to initial values.
+	void Reset()
+	{
+		Update();
+		startTime_ = currentTime_;
+		total_ = 0.0f;
+		delta_ = 1.0f / 60.0f;
+	}
+	
+	// Update the timer's internal values.
+	void Update()
+	{
+		if (!QueryPerformanceCounter(&currentTime_))
+		{
+			return;
+		}
+		
+		total_ = static_cast<float>(
+			static_cast<double>(currentTime_.QuadPart - startTime_.QuadPart) /
+			static_cast<double>(frequency_.QuadPart)
+			);
+		
+		if (lastTime_.QuadPart == startTime_.QuadPart)
+		{
+			// If the timer was just reset, report a time delta equivalent to 60Hz frame time.
+			delta_ = 1.0f / 60.0f;
+		}
+		else
+		{
+			delta_ = static_cast<float>(
+				static_cast<double>(currentTime_.QuadPart - lastTime_.QuadPart) /
+				static_cast<double>(frequency_.QuadPart)
+				);
+		}
+		
+		lastTime_ = currentTime_;
+	}
+	
+  float total() { return total_; }
+  float delta() { return delta_; }
 
-class Component {
- public:
-  Component() : context_(NULL)  {}
-  virtual ~Component() {}
-  virtual int Initialize(Context* context) { context_ = context; return S_OK; }
-  virtual int Deinitialize() { return S_OK; }
-  Context* context() { return context_; }
-protected:
-  Context* context_;
+private:
+	LARGE_INTEGER frequency_;
+	LARGE_INTEGER currentTime_;
+	LARGE_INTEGER startTime_;
+	LARGE_INTEGER lastTime_;
+	float total_;
+	float delta_;
 };
 
 }
-

@@ -111,7 +111,7 @@ inline UINT CalculateShaderElementSize(const D3D11_SIGNATURE_PARAMETER_DESC& inp
   return 0;
 }
 
-namespace graphics {
+namespace ve {
 
 Effect::Effect() {
 
@@ -201,7 +201,7 @@ int Effect::CreateInputLayoutFromShader(ShaderBlob& vs_blob) {
 
 int Effect::CreateFromMemory(void* data,uint32_t size) {
 
-  graphics::ShaderBlob vs_blob;
+  ve::ShaderBlob vs_blob;
   HRESULT hr = context_->CompileShaderFromMemory(data,size,"VS", "vs_5_0", vs_blob);
   if( FAILED( hr ) )
   {
@@ -217,7 +217,7 @@ int Effect::CreateFromMemory(void* data,uint32_t size) {
   }
 
   // Compile the pixel shader
-  graphics::ShaderBlob ps_blob;
+  ve::ShaderBlob ps_blob;
   //hr = CompileShaderFromFile( L"Content\\Shaders\\main.fx", "PS", "ps_4_0", &pPSBlob );
   hr = context_->CompileShaderFromMemory(data,size,"PS", "ps_5_0",ps_blob);
   if( FAILED( hr ) ) {
@@ -233,7 +233,7 @@ int Effect::CreateFromMemory(void* data,uint32_t size) {
     
 
   // Compile the geometry shader
-  graphics::ShaderBlob gs_blob;
+  ve::ShaderBlob gs_blob;
   hr = context_->CompileShaderFromMemory(data,size,"GS", "gs_4_0",gs_blob);
   if( !FAILED( hr ) ) {
       // Create the pixel shader
@@ -266,7 +266,7 @@ int Effect::CreateFromMemory2(Effect::Entry* entry_list, void* data, size_t size
 
   int vs_index = 0,ps_index = 0,gs_index = 0;
   for (Entry* e = entry_list; e->name != NULL; ++e) {
-    graphics::ShaderBlob blob;
+    ve::ShaderBlob blob;
     hr = context_->CompileShaderFromMemory(data,size,e->name, e->version,blob);
     if( FAILED( hr ) ) {
        return hr;
