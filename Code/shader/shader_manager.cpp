@@ -16,71 +16,62 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#pragma once
+#include "../ve.h"
 
-#pragma warning( push )             //Suppress MSVC warning spam
-#pragma warning( disable : 4275 )
-
-#ifdef _DEBUG
-#define D3D_DEBUG_INFO
-#endif
-
-//forwards
 namespace ve {
-class Camera;
-class Context;
-class ActionManager;
-class Scene;
-class RenderObject;
+
+
+RequestVertexShaderResult ShaderManager::RequestVertexShader(std::string filename, const void* elements, int count) {
+  auto vs = vs_map[filename];
+  if (vs.internal_pointer() == nullptr) {
+      
+    auto fd = ve::ReadDataAsync((resource_path_+filename).c_str()).get();
+      
+    if (fd.data != nullptr) {
+      context_->CreateVertexShader(fd.data,fd.length,vs);
+
+      auto il = il_map[filename];
+      if (il.pointer() == nullptr) {
+        context_->CreateInputLayout(elements,count,fd,il);
+        il_map[filename] = il;
+      }
+
+      SafeDeleteArray(&fd.data);
+      vs_map[filename] = vs;
+      return RequestVertexShaderResult { S_OK,vs,il };
+    } else {
+      return RequestVertexShaderResult { S_FALSE };
+    }
+      
+   
+  } else {
+      auto il = il_map[filename];
+      return RequestVertexShaderResult { S_OK,vs,il };
+  }
 }
 
+RequestPixelShaderResult ShaderManager::RequestPixelShader(std::string filename) {
+  auto ps = ps_map[filename];
+  if (ps.internal_pointer() == nullptr) {
+      
+    auto fd = ve::ReadDataAsync((resource_path_+filename).c_str()).get();
+      
+    if (fd.data != nullptr) {
+      context_->CreatePixelShader(fd.data,fd.length,ps);
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <WinCore/types.h>
-#include <WinCore/math/math.h>
-#include <eh.h>
-#include <ppltasks.h>
-#include <future>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <map>
-#include <d3d11_1.h>
-#include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-namespace dx = DirectX; 
-namespace dxp = DirectX::PackedVector;
-#include "util/timer.h"
-#include "util/asyncdataread.h"
-#include "util/easing.h"
-#include "component.h"
-#include "render_object.h"
-#include "drawable.h"
-#include "action/action_manager.h"
-#include "input_layout.h"
-#include "texture.h"
-#include "resource_view.h"
-#include "buffer/buffer.h"
-#include "shader/shader.h"
-#include "shader/shader_manager.h"
-#include "shape/shape.h"
-#include "context/context.h"
-#include "context/contextd3d11.h"
-#include "buffer/vertex_buffer.h"
-#include "camera/camera.h"
-#include "camera/camera2d.h"
-#include "shape/rectangle.h"
-#include "shape/arc.h"
-#include "sprite/sprite.h"
-#include "effect/effect.h"
-#include "shader/shader_manager.h"
-#include "shader/shader2d_helper.h"
-#include "scene/scene.h"
-#include "font/font_sprite.h"
-#include "font/bmfont/font.h"
-#include "font/bmfont/font_loader.h"
-#include "font/writer.h"
+      
+      SafeDeleteArray(&fd.data);
+      ps_map[filename] = ps;
+      return RequestPixelShaderResult { S_OK,ps };
+    } else {
+      return RequestPixelShaderResult { S_FALSE };
+    }
+      
+   
+  } else {
+      return RequestPixelShaderResult { S_OK,ps };
+  }
+}
+ 
 
-#pragma warning( pop )
-
+}

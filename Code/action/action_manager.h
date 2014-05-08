@@ -28,51 +28,124 @@ enum ActionStatus {
 
 class Action {
  public:
-  Action(float duration) : duration_(duration),status_(kActionStatusStopped) {}
+  Action() : status_(kActionStatusStopped) {}
+  virtual ~Action() {}
   virtual void Update(float dt) = 0;
   ActionStatus status() const { return status_; }
-  void Run() {
-    time_ = 0;
-    status_ = kActionStatusRunning;
-  }
-  void Stop() {
-    status_ = kActionStatusStopped;
-  }
+  void set_status(ActionStatus status) { status_ = status; }
+  float delay() const { return delay_; }
+  void set_delay(float delay) { delay_ = delay; }
  protected:
   void* target_;
-  float duration_;
-  float time_;
   ActionStatus status_;
+  float delay_;
 };
 
-class CustomAction : Action {
+class SequenceAction : public Action {
  public:
-  typedef std::function<void(float)> UpdateFunc;
-  CustomAction(const  UpdateFunc& on_update, float duration) : on_update_(on_update), Action(duration)  {
-  
+  SequenceAction(std::initializer_list<Action*> actions) : Action() {
+    for (auto i: actions)
+      actions_.push_back(i);
+    
   }
-  virtual void Update(float dt) {
+  
+  void Update(float dt) {
+    auto cur = actions_.back();
+    cur->Update(dt);
+    if (cur->status() == kActionStatusFinished) {
+      actions_.pop_back();
+      if (actions_.size() == 0)
+        status_ = kActionStatusFinished;
+    }
+  }
+ protected:
+  std::vector<Action*> actions_;
+};
+
+class ParallelAction : public Action {
+ public:
+  ParallelAction(std::initializer_list<Action*> actions) : Action() {
+    for (auto i: actions)
+      actions_.push_back(i);
+    
+  }
+  
+  void Update(float dt) {
+    bool done = true;
+    for (auto i: actions_) {
+      i->Update(dt);
+      if (i->status() != kActionStatusFinished)
+        done = false;
+    }
+    if (done == true)
+      status_ = kActionStatusFinished;
+
+
+  }
+ protected:
+  std::vector<Action*> actions_;
+};
+
+
+class TimeBoundAction : public Action {
+ public:
+  TimeBoundAction(float duration) : duration_(duration),Action() {}
+  virtual ~TimeBoundAction() {}
+  void Update(float dt) {
     if (time_ <= duration_) {
-      on_update_(dt);
+      OnUpdate(dt);
       time_ += dt;
     } else {
       status_ = kActionStatusFinished;
     }
   }
+  virtual void OnUpdate(float dt) = 0;
  protected:
-  std::function<void(float)> on_update_; 
+  float duration_;
+  float time_;
+};
+
+class DelayAction : public TimeBoundAction {
+ public:
+  typedef std::function<void(float)> UpdateFunc;
+  DelayAction(float duration) : TimeBoundAction(duration)  {
+  
+  }
+  virtual void OnUpdate(float dt) {
+
+  }
+ protected:
+
 };
 
 
-class ActionManager {
+class CustomTimeBoundAction : public TimeBoundAction {
+ public:
+  typedef std::function<void(float)> UpdateFunc;
+  CustomTimeBoundAction(const  UpdateFunc& on_update, float duration) : on_update_(on_update), TimeBoundAction(duration)  {
+  
+  }
+  virtual void OnUpdate(float dt) {
+    on_update_(dt);
+  }
+ protected:
+  UpdateFunc on_update_; 
+};
+
+
+class ActionManager : public Component {
  public:
   ActionManager() : context_(NULL)  {}
   virtual ~ActionManager() {}
+  void Run(Action* action);
+  void RunAfter(Action* action, float delay);
   void Update(float dt);
-protected:
-  Context* context_;
-  std::vector<Action*> actions_list_;
   
+ protected:
+  Context* context_;
+  std::vector<Action*> pending_actions_list_;
+  std::vector<Action*> running_actions_list_;
+  float time_;
 };
 
 }

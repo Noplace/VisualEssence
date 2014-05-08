@@ -18,69 +18,36 @@
 *****************************************************************************************************************/
 #pragma once
 
-#pragma warning( push )             //Suppress MSVC warning spam
-#pragma warning( disable : 4275 )
-
-#ifdef _DEBUG
-#define D3D_DEBUG_INFO
-#endif
-
-//forwards
 namespace ve {
-class Camera;
-class Context;
-class ActionManager;
-class Scene;
-class RenderObject;
+
+class FirstPersonCamera : public ve::PrespectiveCamera {
+ public:
+  dx::XMVECTOR DefaultCamTarget = dx::XMVectorSet(0.0f,0.0f,-1.0f, 0.0f);
+  dx::XMVECTOR DefaultForward = dx::XMVectorSet(0.0f,0.0f,-1.0f, 0.0f);
+  dx::XMVECTOR DefaultRight = dx::XMVectorSet(1.0f,0.0f,0.0f, 0.0f);
+  dx::XMVECTOR DefaultUp = dx::XMVectorSet(0.0f,1.0f,0.0f, 0.0f);
+  dx::XMVECTOR camForward;
+  dx::XMVECTOR camRight = dx::XMVectorSet(1.0f,0.0f,0.0f, 0.0f);
+  dx::XMVECTOR camUp,camTarget,camPosition ;
+  dx::XMMATRIX camRotationMatrix;
+  dx::XMMATRIX groundWorld;
+
+  float moveLeftRight = 0.0f;
+  float moveBackForward = 0.0f;
+  float moveBottomTop = 0.0f;
+  float camYaw = 0.0f;
+  float camPitch = 0.0f;
+
+  FirstPersonCamera() : ve::PrespectiveCamera() {
+    camUp =  dx::XMVectorSet(0.0f,1.0f,0.0f, 0.0f);
+   
+    view_ = dx::XMMatrixIdentity();
+  }
+
+
+  void Update(float timeDelta);
+
+};
+
 }
-
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <WinCore/types.h>
-#include <WinCore/math/math.h>
-#include <eh.h>
-#include <ppltasks.h>
-#include <future>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <map>
-#include <d3d11_1.h>
-#include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-namespace dx = DirectX; 
-namespace dxp = DirectX::PackedVector;
-#include "util/timer.h"
-#include "util/asyncdataread.h"
-#include "util/easing.h"
-#include "component.h"
-#include "render_object.h"
-#include "drawable.h"
-#include "action/action_manager.h"
-#include "input_layout.h"
-#include "texture.h"
-#include "resource_view.h"
-#include "buffer/buffer.h"
-#include "shader/shader.h"
-#include "shader/shader_manager.h"
-#include "shape/shape.h"
-#include "context/context.h"
-#include "context/contextd3d11.h"
-#include "buffer/vertex_buffer.h"
-#include "camera/camera.h"
-#include "camera/camera2d.h"
-#include "shape/rectangle.h"
-#include "shape/arc.h"
-#include "sprite/sprite.h"
-#include "effect/effect.h"
-#include "shader/shader_manager.h"
-#include "shader/shader2d_helper.h"
-#include "scene/scene.h"
-#include "font/font_sprite.h"
-#include "font/bmfont/font.h"
-#include "font/bmfont/font_loader.h"
-#include "font/writer.h"
-
-#pragma warning( pop )
 

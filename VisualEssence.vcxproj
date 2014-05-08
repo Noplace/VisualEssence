@@ -327,10 +327,13 @@
     <ClInclude Include="Code\buffer\constant_buffer.h" />
     <ClInclude Include="Code\camera\camera.h" />
     <ClInclude Include="Code\camera\camera2d.h" />
+    <ClInclude Include="Code\camera\first_person_camera.h" />
     <ClInclude Include="Code\component.h" />
     <ClInclude Include="Code\context\context.h" />
     <ClInclude Include="Code\context\contextd3d11.h" />
     <ClInclude Include="Code\drawable.h" />
+    <ClInclude Include="Code\util\dds.h" />
+    <ClInclude Include="Code\util\DDSTextureLoader.h" />
     <ClInclude Include="Code\util\easing.h" />
     <ClInclude Include="Code\effect\effect.h" />
     <ClInclude Include="Code\font\bmfont\acutil_unicode.h" />
@@ -356,9 +359,20 @@
     <ClInclude Include="Code\util\timer.h" />
     <ClInclude Include="Code\util\WICTextureLoader.h" />
     <ClInclude Include="Code\ve.h" />
+    <ClInclude Include="libs\rapidjson\document.h" />
+    <ClInclude Include="libs\rapidjson\filestream.h" />
+    <ClInclude Include="libs\rapidjson\internal\pow10.h" />
+    <ClInclude Include="libs\rapidjson\internal\stack.h" />
+    <ClInclude Include="libs\rapidjson\internal\strfunc.h" />
+    <ClInclude Include="libs\rapidjson\prettywriter.h" />
+    <ClInclude Include="libs\rapidjson\rapidjson.h" />
+    <ClInclude Include="libs\rapidjson\reader.h" />
+    <ClInclude Include="libs\rapidjson\stringbuffer.h" />
+    <ClInclude Include="libs\rapidjson\writer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Code\action\action_manager.cpp" />
+    <ClCompile Include="Code\camera\first_person_camera.cpp" />
     <ClCompile Include="Code\context\contextd3d11.cpp" />
     <ClCompile Include="Code\effect\effect.cpp" />
     <ClCompile Include="Code\font\bmfont\acutil_unicode.cpp" />
@@ -367,9 +381,11 @@
     <ClCompile Include="Code\font\font_sprite.cpp" />
     <ClCompile Include="Code\font\writer.cpp" />
     <ClCompile Include="Code\shader\shader2d_helper.cpp" />
+    <ClCompile Include="Code\shader\shader_manager.cpp" />
     <ClCompile Include="Code\shape\arc.cpp" />
     <ClCompile Include="Code\shape\rectangle.cpp" />
-    <ClCompile Include="Code\sprite\sprite.cpp" />
+    <ClCompile Include="Code\state\state_manager.cpp" />
+    <ClCompile Include="Code\util\DDSTextureLoader.cpp" />
     <ClCompile Include="Code\util\WICTextureLoader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

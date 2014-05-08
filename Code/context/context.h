@@ -69,6 +69,7 @@ class Context {
   virtual int DrawIndexed(uint32_t index_count, uint32_t vertex_start_index, int32_t base) = 0;
   virtual int SetShaderResources(ShaderType, uint32_t, uint32_t, void**) = 0;
   virtual int SetPrimitiveTopology(uint32_t) = 0;
+  virtual int SetDepthState(void* ptr) = 0;
   //virtual int GetRenderTarget(ResourceView& resource_view) = 0;
   //virtual int SetRenderTarget(ResourceView& resource_view) = 0;
   virtual int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture) = 0;
@@ -79,17 +80,44 @@ class Context {
   virtual int DestroyResourceView(ResourceView& resource_view) = 0;
   virtual int SetCamera(Camera* camera) = 0;
   virtual int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth) = 0;
+
+  virtual int PushDepthState(void* ptr) = 0;
+  virtual int PopDepthState() = 0;
+  virtual int PushRasterizerState(void* ptr) = 0;
+  virtual int PopRasterizerState() = 0;
+
+  virtual int PushVertexShader(VertexShader* ptr) = 0;
+  virtual int PopVertexShader() = 0;
+  virtual int PushPixelShader(PixelShader* ptr) = 0;
+  virtual int PopPixelShader() = 0;
+  
+
   //virtual int CreateEffectInterface(uint8_t* data_pointer, size_t data_length, void** interface_) = 0;
   //virtual int DestroyEffectInterface(void** interface_) = 0;
   HWND window_handle() { return window_handle_; }
   uint32_t width() { return width_; }
   uint32_t height() { return height_; }
-
+  ShaderManager& shader_manager() { return shader_manager_; }
+  ActionManager& action_manager() { return action_manager_; }
  protected:
   Camera* camera_;
   HWND window_handle_;
   uint32_t width_;
   uint32_t height_;
+  ShaderManager shader_manager_;
+  ActionManager action_manager_;
+  struct {
+    std::vector<void*> rs_list;
+    std::vector<void*> ds_list;
+    void* ds;
+    void* rs;
+  } states_;
+  struct {
+    std::vector<VertexShader*> vs_list;
+    std::vector<PixelShader*> ps_list;
+    VertexShader* vs;
+    PixelShader* ps;
+  }shaders_;
 };
 
 }

@@ -20,14 +20,53 @@
 
 namespace ve {
 
+void ActionManager::Run(Action* action) {
+  if (action->status() == kActionStatusRunning) return;
+  action->set_status(kActionStatusRunning);
+  running_actions_list_.push_back(action);
+}
+
+void ActionManager::RunAfter(Action* action, float delay) {
+  if (action->status() == kActionStatusRunning) return;
+  action->set_delay(time_+delay);
+  pending_actions_list_.push_back(action);
+}
+
 void ActionManager::Update(float dt) {
 
-  for(auto i: actions_list_) {
-    if (i->status() == kActionStatusRunning)
+  pending_actions_list_.erase(
+      std::remove_if(
+        pending_actions_list_.begin(), 
+        pending_actions_list_.end(), 
+        [this](Action* action) { 
+          if (time_ >= action->delay()) {
+            Run(action);
+            return true;
+          } else {
+            return false;
+          }
+        }),
+      pending_actions_list_.end());
+
+
+  for(auto i: running_actions_list_) {
     i->Update(dt);
   }
 
+  time_ += dt;
+
+  //remove actions that have finished
+  running_actions_list_.erase(
+      std::remove_if(
+        running_actions_list_.begin(), 
+        running_actions_list_.end(), 
+        [](const Action* action) { 
+          return  action->status() == kActionStatusFinished;
+      }),
+      running_actions_list_.end());
+
 }
+
 
 
 }

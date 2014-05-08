@@ -72,6 +72,8 @@ class OrthoCamera : public Camera {
 
 };
 
+
+
 /*
 class Camera : public Component {
  public:
@@ -166,3 +168,5 @@ class Camera : public Component {
 
 }
 
+
+#include "first_person_camera.h"

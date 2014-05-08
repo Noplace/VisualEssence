@@ -29,44 +29,21 @@ struct RequestVertexShaderResult {
   ve::InputLayout il;
 };
 
+struct RequestPixelShaderResult {
+  int hr;
+  ve::PixelShader ps;
+};
+
 class ShaderManager : public Component {
  public:
-  concurrency::task<RequestVertexShaderResult> RequestVertexShaderAsync(std::string filename, const void* elements, int count) {
-    auto vs = vs_map[filename];
-    if (vs.internal_pointer() == nullptr) {
-      
-      auto loadVSTask = ve::ReadDataAsync(filename.c_str());
-      auto createVSTask = loadVSTask.then([this,&vs,elements,count,filename](ve::FileData fd){
-        if (fd.data != nullptr) {
-          context_->CreateVertexShader(fd.data,fd.length,vs);
-
-          auto il = il_map[filename];
-          if (il.pointer() == nullptr) {
-            context_->CreateInputLayout(elements,count,fd,il);
-            il_map[filename] = il;
-          }
-
-          SafeDeleteArray(&fd.data);
-          vs_map[filename] = vs;
-          return RequestVertexShaderResult { S_OK,vs,il };
-        } else {
-          return RequestVertexShaderResult { S_FALSE };
-        }
-      });
-      return createVSTask;
-    } else {
-      return concurrency::create_task([this,vs,elements,filename](){
-        auto il = il_map[filename];
-        return RequestVertexShaderResult { S_OK,vs,il };
-      });
-    }
-  }
+  RequestVertexShaderResult RequestVertexShader(std::string filename, const void* elements, int count);
+  RequestPixelShaderResult RequestPixelShader(std::string filename);
+  void set_resource_path(const std::string& resource_path) { resource_path_ = resource_path; }
  private:
+  std::unordered_map<std::string,ve::PixelShader> ps_map;
   std::unordered_map<std::string,ve::VertexShader> vs_map;
   std::unordered_map<std::string,ve::InputLayout> il_map;
-
-
-
+  std::string resource_path_;
 };
 
 }

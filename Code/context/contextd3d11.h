@@ -91,6 +91,17 @@ class ContextD3D11 : public Context {
   int SetCamera(Camera* camera);
   int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth);
   int SetDefaultTargets();
+
+  int PushDepthState(void* ptr);
+  int PopDepthState();
+  int PushRasterizerState(void* ptr);
+  int PopRasterizerState();
+
+  int PushVertexShader(VertexShader* ptr);
+  int PopVertexShader();
+  int PushPixelShader(PixelShader* ptr);
+  int PopPixelShader();
+
   ID3D11Device* device() { return device_; }
   ID3D11DeviceContext* device_context() { return device_context_; }
 private:

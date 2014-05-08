@@ -42,20 +42,26 @@ class Scene : public Component {
     return UnloadAsync().get();
   }
   virtual int Set() = 0;
+  virtual int Unset() = 0;
   virtual int Update(float,float) = 0;
   virtual int Render() = 0;
   virtual int AddRenderObject(RenderObject* obj) {
+    obj->set_scene(this);
     render_list_.push_back(obj);
     return S_OK;
   }
   virtual int RemoveRenderObject(RenderObject* obj) {
-    auto iter = std::find(render_list_.begin(),render_list_.end(),obj);
-    render_list_.erase(iter);
+    obj->set_scene(nullptr);
+    auto iter = std::remove(render_list_.begin(),render_list_.end(),obj);
+    render_list_.erase(iter,render_list_.end());
     return S_OK;
   }
   virtual int RemoveRenderObject(int index) {
     auto obj = render_list_.at(index);
     return RemoveRenderObject(obj);
+  }
+  virtual int UpdateWorldMatrix(const dx::XMMATRIX& world) {
+    return S_FALSE;
   }
  protected:
   VertexShader vs_;
