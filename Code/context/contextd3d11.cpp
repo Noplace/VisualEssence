@@ -896,7 +896,7 @@ int ContextD3D11::PushVertexShader(VertexShader* ptr) {
 int ContextD3D11::PopVertexShader() {
   auto ptr = shaders_.vs_list.back();
   shaders_.vs_list.pop_back();
-  SetShader(*ptr);
+if (ptr)  SetShader(*ptr);
   return S_OK;
 }
 
