@@ -20,7 +20,7 @@
 
 namespace ve {
 
-class Scene : public Component {
+class Scene : public RenderObject {
  public:
   Scene() { }
   virtual ~Scene() { }
@@ -43,15 +43,19 @@ class Scene : public Component {
   }
   virtual int Set() = 0;
   virtual int Unset() = 0;
-  virtual int Update(float,float) = 0;
-  virtual int Render() = 0;
+  //virtual int Update(float,float) = 0;
+  //virtual int Render() = 0;
+  virtual int UpdateVerticies() { return S_OK; };
+  virtual int UpdateTransform() { return S_OK; };
   virtual int AddRenderObject(RenderObject* obj) {
     obj->set_scene(this);
+    obj->set_parent(this);
     render_list_.push_back(obj);
     return S_OK;
   }
   virtual int RemoveRenderObject(RenderObject* obj) {
     obj->set_scene(nullptr);
+    obj->set_parent(nullptr);
     auto iter = std::remove(render_list_.begin(),render_list_.end(),obj);
     render_list_.erase(iter,render_list_.end());
     return S_OK;
@@ -63,6 +67,7 @@ class Scene : public Component {
   virtual int UpdateWorldMatrix(const dx::XMMATRIX& world) {
     return S_FALSE;
   }
+  virtual Camera* camera() = 0;
  protected:
   VertexShader vs_;
   PixelShader ps_;

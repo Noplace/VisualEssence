@@ -28,6 +28,7 @@ class Component {
   virtual ~Component() {}
   virtual int Initialize(Context* context) { context_ = context; return S_OK; }
   virtual int Deinitialize() { return S_OK; }
+  virtual int OnWindowSizeChange() { return S_OK; }
   Context* context() { return context_; }
 protected:
   Context* context_;

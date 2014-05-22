@@ -46,7 +46,8 @@ const D3DVERTEXELEMENT9 ContextD3D11::ve_xyzcuv[4] = {
 */
 ContextD3D11::ContextD3D11(): Context(),device_(NULL),device_context_(NULL),
 depth_stencil_(NULL),render_target_view_(NULL),swap_chain_(NULL),depth_stencil_view_(NULL),default_depth_state(NULL),default_blend_state(NULL){
-
+  memset(&states_.ds,0,sizeof(states_.ds));
+  memset(&states_.rs,0,sizeof(states_.rs));
 }
 
 ContextD3D11::~ContextD3D11() {
@@ -148,8 +149,8 @@ int ContextD3D11::CreateDisplay(HWND window) {
   hr = d2d_factory_->CreateDxgiSurfaceRenderTarget(pBackBuffer,&props,&d2d_render_target_);
     
   SafeRelease(&pBackBuffer);*/
-  CreateDeviceResources();
-  return CreateWindowSizeDependentResources();
+  return CreateDeviceResources();
+  //return CreateWindowSizeDependentResources();
 
 }
 
@@ -175,9 +176,6 @@ int ContextD3D11::CreateDeviceResources() {
     D3D_FEATURE_LEVEL_11_0,
     D3D_FEATURE_LEVEL_10_1,
     D3D_FEATURE_LEVEL_10_0,
-    D3D_FEATURE_LEVEL_9_3,
-    D3D_FEATURE_LEVEL_9_2,
-    D3D_FEATURE_LEVEL_9_1
   };
   UINT numFeatureLevels = ARRAYSIZE( featureLevels );
   D3D_FEATURE_LEVEL feature_level;
@@ -190,12 +188,11 @@ int ContextD3D11::CreateDeviceResources() {
   SafeRelease(&default_blend_state);
   D3D11_BLEND_DESC BlendStateDescription;
   ZeroMemory(&BlendStateDescription,sizeof(BlendStateDescription));
-  BlendStateDescription.AlphaToCoverageEnable = false;
   BlendStateDescription.RenderTarget[0].BlendEnable           = true;
   BlendStateDescription.RenderTarget[0].SrcBlend              = D3D11_BLEND_SRC_ALPHA;        //D3D11_BLEND_SRC_COLOR;
   BlendStateDescription.RenderTarget[0].DestBlend             = D3D11_BLEND_INV_SRC_ALPHA;//D3D11_BLEND_DEST_COLOR;
   BlendStateDescription.RenderTarget[0].SrcBlendAlpha         = D3D11_BLEND_SRC_ALPHA;//D3D11_BLEND_SRC_ALPHA;
-  BlendStateDescription.RenderTarget[0].DestBlendAlpha        = D3D11_BLEND_INV_SRC_ALPHA;//D3D11_BLEND_DEST_ALPHA;
+  BlendStateDescription.RenderTarget[0].DestBlendAlpha        = D3D11_BLEND_ZERO;//D3D11_BLEND_DEST_ALPHA;
   BlendStateDescription.RenderTarget[0].BlendOp               = D3D11_BLEND_OP_ADD;
   BlendStateDescription.RenderTarget[0].BlendOpAlpha          = D3D11_BLEND_OP_ADD;
   BlendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
@@ -204,6 +201,9 @@ int ContextD3D11::CreateDeviceResources() {
   float blendFactor[] = {1,1, 1, 1};
   UINT sampleMask   = 0xffffffff;
   device_context_->OMSetBlendState(default_blend_state,blendFactor,sampleMask);
+
+
+  
 
   return S_OK;
 }
@@ -299,7 +299,7 @@ int ContextD3D11::CreateWindowSizeDependentResources() {
 	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
   device_->CreateDepthStencilState(&depthStencilDesc, &default_depth_state);
-  SetDepthState(null);
+  SetDepthState(null,0);
 
   // Set the rendering viewport to target the entire window.
   CD3D11_VIEWPORT viewport(0.0f,0.0f,width_,height_);
@@ -310,7 +310,7 @@ int ContextD3D11::CreateWindowSizeDependentResources() {
 }
 
 // This method is called in the event handler for the SizeChanged event.
-int ContextD3D11::UpdateForWindowSizeChange()
+int ContextD3D11::OnWindowSizeChange()
 {
   /*if (m_window->Bounds.Width  != m_windowBounds.Width ||
     m_window->Bounds.Height != m_windowBounds.Height ||
@@ -326,7 +326,29 @@ int ContextD3D11::UpdateForWindowSizeChange()
   return S_OK;
 }
 
-int ContextD3D11::Resize(uint32_t width, uint32_t height) {
+
+int ContextD3D11::Resize(uint32_t width, uint32_t height, bool fullscreen) {
+  width_ = width;
+  height_ = height;
+  if (fullscreen == true) {
+    DXGI_MODE_DESC desc;
+    desc.Width = width;
+    desc.Height = height;
+    desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+    desc.RefreshRate.Numerator = 60;
+    desc.RefreshRate.Denominator = 1;
+    swap_chain_->ResizeTarget(&desc);
+    swap_chain_->SetFullscreenState(true,nullptr);
+  } else {
+    DXGI_MODE_DESC desc;
+    desc.Width = width;
+    desc.Height = height;
+    desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+    desc.RefreshRate.Numerator = 60;
+    desc.RefreshRate.Denominator = 1;
+    swap_chain_->SetFullscreenState(false,nullptr);
+    swap_chain_->ResizeTarget(&desc);
+  }
   /*int hr = S_OK;
 
   //Ensure that nobody is holding onto one of the old resources
@@ -465,7 +487,7 @@ int ContextD3D11::Render() {
   // The first argument instructs DXGI to block until VSync, putting the application
   // to sleep until the next VSync. This ensures we don't waste any cycles rendering
   // frames that will never be displayed to the screen.
-  HRESULT hr = swap_chain_->Present1(1, 0, &parameters);
+  HRESULT hr = swap_chain_->Present1(1, 0, &parameters);//swap_chain_->Present1(0, DXGI_PRESENT_DO_NOT_WAIT, &parameters);
 
   // Discard the contents of the render target.
   // This is a valid operation only when the existing contents will be entirely
@@ -493,7 +515,7 @@ int ContextD3D11::HandleDeviceLost() {
   SafeRelease(&swap_chain_);
 
   CreateDeviceResources();
-  UpdateForWindowSizeChange();
+  OnWindowSizeChange();
   return S_OK;
 }
 
@@ -553,11 +575,12 @@ int ContextD3D11::CreateBuffer(const void* buffer_desc, void* initial_data, void
   HRESULT result = device_->CreateBuffer( &bd, NULL, (ID3D11Buffer**)&buffer.internal_pointer );
   return result;*/
 
+
   HRESULT result = device_->CreateBuffer( (const D3D11_BUFFER_DESC*)buffer_desc, (const D3D11_SUBRESOURCE_DATA*)initial_data, (ID3D11Buffer**)buffer );
   return result;
 }
 
-int ContextD3D11::DestroyBuffer(void* buffer) {
+int ContextD3D11::DestroyBuffer(void** buffer) {
   SafeRelease((ID3D11Buffer**)buffer);
   return S_OK;
  /* ID3D11Buffer* internal_buffer_ = (ID3D11Buffer*)buffer.internal_pointer;
@@ -575,29 +598,29 @@ int ContextD3D11::UpdateSubresource(const void* buffer, void* data_pointer, void
   return S_OK;
 }
 
-int ContextD3D11::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array) {
-  register void* buffers_[60];
-  for (uint32_t i=0;i<buffer_count;++i)
-    buffers_[i] = buffer_array[i].internal_pointer;
+int ContextD3D11::SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, const void** buffer_array) {
+  //register void* buffers_[60];
+  //for (uint32_t i=0;i<buffer_count;++i)
+  //  buffers_[i] = buffer_array[i].internal_pointer;
 
   switch (shader_type) {
     case kShaderTypeVertex:
-      device_context_->VSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      device_context_->VSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffer_array);
       return S_OK;
     case kShaderTypePixel:
-      device_context_->PSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      device_context_->PSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffer_array);
       return S_OK;
     case kShaderTypeGeometry:
-      device_context_->GSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      device_context_->GSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffer_array);
       return S_OK;
     case kShaderTypeHull:
-      device_context_->HSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      device_context_->HSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffer_array);
       return S_OK;
     case kShaderTypeDomain:
-      device_context_->DSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      device_context_->DSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffer_array);
       return S_OK;
     case kShaderTypeCompute:
-      device_context_->CSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffers_);
+      device_context_->CSSetConstantBuffers(start_slot,buffer_count,(ID3D11Buffer**)buffer_array);
       return S_OK;
     default:
       return S_FALSE;
@@ -612,6 +635,12 @@ int ContextD3D11::SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, c
 int ContextD3D11::SetIndexBuffer(const Buffer& buffer, const uint32_t offset) {
   DXGI_FORMAT format = DXGI_FORMAT_R16_UINT;
   device_context_->IASetIndexBuffer((ID3D11Buffer*)buffer.internal_pointer,format,offset);
+  return S_OK;
+}
+
+int ContextD3D11::SetIndexBuffer(const void* buffer, int format, const uint32_t offset) {
+
+  device_context_->IASetIndexBuffer((ID3D11Buffer*)buffer,(DXGI_FORMAT)format,offset);
   return S_OK;
 }
 
@@ -632,6 +661,17 @@ int ContextD3D11::LockBuffer(void* buffer,uint32_t index,uint32_t type,BufferSub
 int ContextD3D11::UnlockBuffer(void* buffer,uint32_t index) {
   device_context_->Unmap((ID3D11Resource*)buffer,index);
   return S_OK;
+}
+
+int ContextD3D11::CopyBufferFast(void* buffer, void* data, size_t length, size_t offset) {
+  D3D11_MAPPED_SUBRESOURCE map;
+  HRESULT hr;
+  hr = device_context_->Map((ID3D11Resource*)buffer,0,D3D11_MAP_WRITE_DISCARD,0,&map);
+  if (hr == S_OK) {
+    memcpy((char*)map.pData+offset,data,length);
+    device_context_->Unmap((ID3D11Resource*)buffer,0);
+  }
+  return hr;
 }
 
 int ContextD3D11::CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob) {
@@ -794,14 +834,15 @@ int ContextD3D11::SetPrimitiveTopology(uint32_t topology) {
   return S_OK;
 }
 
-int ContextD3D11::SetDepthState(void* ptr) {
+int ContextD3D11::SetDepthState(void* ptr, UINT stencil) {
 
   if (ptr == nullptr)  {
-    states_.ds = default_depth_state;
+    states_.ds.ptr = default_depth_state;
   } else {
-    states_.ds = ptr;
+    states_.ds.ptr = ptr;
   }
-  device_context_->OMSetDepthStencilState((ID3D11DepthStencilState*)states_.ds, 0);
+  states_.ds.stencil = stencil;
+  device_context_->OMSetDepthStencilState((ID3D11DepthStencilState*)states_.ds.ptr, stencil);
   return S_OK;
 }
 
@@ -860,56 +901,74 @@ int ContextD3D11::SetDefaultTargets() {
 }
 
 int ContextD3D11::PushDepthState(void* ptr) {
-  states_.ds_list.push_back(states_.ds);
-  states_.ds = ptr;
-  device_context_->OMSetDepthStencilState((ID3D11DepthStencilState*)states_.ds,0);
+  if (states_.ds.ptr != nullptr) {
+    states_.ds_list.push_back(states_.ds);
+  }
+  states_.ds.ptr = ptr;
+  device_context_->OMSetDepthStencilState((ID3D11DepthStencilState*)states_.ds.ptr,states_.ds.stencil);
   return S_OK;
 }
 
 int ContextD3D11::PopDepthState() {
-  states_.ds = states_.ds_list.back();
-  states_.ds_list.pop_back();
-  device_context_->OMSetDepthStencilState((ID3D11DepthStencilState*)states_.ds,0);
+  if (states_.ds_list.size() != 0) {
+    states_.ds = states_.ds_list.back();
+    states_.ds_list.pop_back();
+  }
+  device_context_->OMSetDepthStencilState((ID3D11DepthStencilState*)states_.ds.ptr,states_.ds.stencil);
   return S_OK;
 }
 
 int ContextD3D11::PushRasterizerState(void* ptr) {
-  states_.rs_list.push_back(states_.rs);
+  if (states_.rs != nullptr) {
+    states_.rs_list.push_back(states_.rs);
+  }
   states_.rs = ptr;
   device_context_->RSSetState((ID3D11RasterizerState*)states_.rs);
   return S_OK;
 }
 
 int ContextD3D11::PopRasterizerState() {
-  states_.rs = states_.rs_list.back();
-  states_.rs_list.pop_back();
-  device_context_->RSSetState((ID3D11RasterizerState*)states_.rs);
+  if (states_.rs_list.size() != 0) {
+    states_.rs = states_.rs_list.back();
+    states_.rs_list.pop_back();
+    device_context_->RSSetState((ID3D11RasterizerState*)states_.rs);
+  }
   return S_OK;
 }
 
 int ContextD3D11::PushVertexShader(VertexShader* ptr) {
-  shaders_.vs_list.push_back(shaders_.vs);
+  if (shaders_.vs != nullptr)
+    shaders_.vs_list.push_back(shaders_.vs);
   SetShader(*ptr);
   return S_OK;
 }
 
 int ContextD3D11::PopVertexShader() {
-  auto ptr = shaders_.vs_list.back();
-  shaders_.vs_list.pop_back();
-if (ptr)  SetShader(*ptr);
+  if (shaders_.vs_list.size() != 0) {
+    auto ptr = shaders_.vs_list.back();
+    shaders_.vs_list.pop_back();
+    SetShader(*ptr);
+  } else {
+    //SetShader(ve::VertexShader());
+  }
   return S_OK;
 }
 
 int ContextD3D11::PushPixelShader(PixelShader* ptr) {
-  shaders_.ps_list.push_back(shaders_.ps);
+  if (shaders_.ps != nullptr)
+    shaders_.ps_list.push_back(shaders_.ps);
   SetShader(*ptr);
   return S_OK;
 }
 
 int ContextD3D11::PopPixelShader() {
-  auto ptr = shaders_.ps_list.back();
-  shaders_.ps_list.pop_back();
-  SetShader(*ptr);
+ if (shaders_.ps_list.size() != 0) {
+    auto ptr = shaders_.ps_list.back();
+    shaders_.ps_list.pop_back();
+    SetShader(*ptr);
+  } else {
+    //SetShader(ve::PixelShader());
+  }
   return S_OK;
 }
 

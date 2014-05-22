@@ -38,6 +38,7 @@ class Context {
   virtual int Initialize() = 0;
   virtual int Deinitialize() = 0;
   virtual int CreateDisplay(HWND window) = 0;
+  virtual int OnWindowSizeChange() = 0;
   virtual int Render() = 0;
   //virtual int Clear(int target, int zbuffer) = 0;
   virtual int ClearTarget() = 0;
@@ -49,15 +50,17 @@ class Context {
   virtual int SetInputLayout(InputLayout&) = 0;
   //virtual int CreateBuffer(Buffer& buffer, void* initial_data) = 0;
   virtual int CreateBuffer(const void* buffer_desc, void* initial_data, void** buffer) = 0;
-  virtual int DestroyBuffer(void* buffer) = 0;
+  virtual int DestroyBuffer(void** buffer) = 0;
   virtual int UpdateSubresource(const void*, void*, void*, uint32_t , uint32_t) = 0;
   virtual int CopyToVertexBuffer(const void* buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) = 0;
-  virtual int SetConstantBuffers(ShaderType, uint32_t, uint32_t, Buffer*) = 0;
+  virtual int SetConstantBuffers(ShaderType, uint32_t, uint32_t, const void**) = 0;
   virtual int SetVertexBuffers(uint32_t , uint32_t , const void** , const uint32_t * , const uint32_t *) = 0;
   virtual int SetIndexBuffer(const Buffer& , const uint32_t ) = 0;
+  virtual int SetIndexBuffer(const void* buffer, int format, const uint32_t offset) = 0;
   virtual int ClearIndexBuffer() = 0;
   virtual int LockBuffer(void*, uint32_t,uint32_t, BufferSubresource&) = 0;
   virtual int UnlockBuffer(void*, uint32_t) = 0;
+  virtual int CopyBufferFast(void* buffer, void* data, size_t length, size_t offset) = 0;
   virtual int CompileShaderFromMemory(void*, uint32_t, LPCSTR, LPCSTR, ShaderBlob&) = 0;
   virtual int CreateVertexShader(void*, size_t, VertexShader&) = 0;
   virtual int CreatePixelShader(void*, size_t, PixelShader&) = 0;
@@ -69,7 +72,7 @@ class Context {
   virtual int DrawIndexed(uint32_t index_count, uint32_t vertex_start_index, int32_t base) = 0;
   virtual int SetShaderResources(ShaderType, uint32_t, uint32_t, void**) = 0;
   virtual int SetPrimitiveTopology(uint32_t) = 0;
-  virtual int SetDepthState(void* ptr) = 0;
+  virtual int SetDepthState(void* ptr, UINT stencil) = 0;
   //virtual int GetRenderTarget(ResourceView& resource_view) = 0;
   //virtual int SetRenderTarget(ResourceView& resource_view) = 0;
   virtual int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture) = 0;
@@ -106,10 +109,14 @@ class Context {
   uint32_t height_;
   ShaderManager shader_manager_;
   ActionManager action_manager_;
+  struct  DSState{
+    void* ptr;
+    UINT stencil;
+  } ;
   struct {
     std::vector<void*> rs_list;
-    std::vector<void*> ds_list;
-    void* ds;
+    std::vector<DSState> ds_list;
+    DSState ds;
     void* rs;
   } states_;
   struct {

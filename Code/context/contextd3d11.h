@@ -43,8 +43,9 @@ class ContextD3D11 : public Context {
   int CreateDisplay(HWND window);
   int CreateDeviceResources();
   int CreateWindowSizeDependentResources();
-  int UpdateForWindowSizeChange();
-  int Resize(uint32_t width, uint32_t height);
+  int OnWindowSizeChange();
+  
+  int Resize(uint32_t width, uint32_t height, bool fullscreen);
   int Render();
   int HandleDeviceLost();
   int ClearTarget();
@@ -55,7 +56,7 @@ class ContextD3D11 : public Context {
   int DestoryInputLayout(InputLayout&);
   int SetInputLayout(InputLayout&);
   int CreateBuffer(const void* buffer_desc, void* initial_data, void** buffer);
-  int DestroyBuffer(void* buffer);
+  int DestroyBuffer(void** buffer);
   int UpdateSubresource(const void* buffer, void* data_pointer, void* box, uint32_t row_size, uint32_t depth_size);
   int CopyToVertexBuffer(const void* buffer, void* data_pointer, uint32_t type_size, uint32_t offset , uint32_t count) {
     D3D11_BOX box;
@@ -65,12 +66,14 @@ class ContextD3D11 : public Context {
     box.bottom = box.back = 1;
     return UpdateSubresource(buffer,data_pointer,&box,type_size,0);
   }
-  int SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, Buffer* buffer_array);
+  int SetConstantBuffers(ShaderType shader_type, uint32_t start_slot, uint32_t buffer_count, const void** buffer_array);
   int SetVertexBuffers(uint32_t start_slot, uint32_t buffer_count, const void** buffer_array, const uint32_t * strides,const uint32_t *offsets);
   int SetIndexBuffer(const Buffer& buffer, const uint32_t offset);
+  int SetIndexBuffer(const void* buffer, int format, const uint32_t offset);
   int ClearIndexBuffer();
   int LockBuffer(void* buffer, uint32_t index, uint32_t type, BufferSubresource& subresource); 
   int UnlockBuffer(void* buffer, uint32_t index);
+  int CopyBufferFast(void* buffer, void* data, size_t length, size_t offset = 0);
   int CompileShaderFromMemory(void* data, uint32_t len, LPCSTR szEntryPoint, LPCSTR szShaderModel, ShaderBlob& blob);
   int CreateVertexShader(void* data, size_t length, VertexShader& vs);
   int CreatePixelShader(void* data, size_t length, PixelShader& ps);
@@ -82,7 +85,7 @@ class ContextD3D11 : public Context {
   int DrawIndexed(uint32_t index_count, uint32_t vertex_start_index, int32_t base);
   int SetShaderResources(ShaderType shader_type, uint32_t start_slot, uint32_t count, void** resources_pointer);
   int SetPrimitiveTopology(uint32_t topology);
-  int SetDepthState(void* ptr);
+  int SetDepthState(void* ptr, UINT stencil);
   int CreateTexture(uint32_t width, uint32_t height, uint32_t format, uint32_t type, Texture& texture);
   int CreateTextureFromMemory(void* data_pointer, size_t data_length, Texture& texture);
   int DestroyTexture(Texture& texture);
@@ -102,8 +105,8 @@ class ContextD3D11 : public Context {
   int PushPixelShader(PixelShader* ptr);
   int PopPixelShader();
 
-  ID3D11Device* device() { return device_; }
-  ID3D11DeviceContext* device_context() { return device_context_; }
+  ID3D11Device1* device() { return device_; }
+  ID3D11DeviceContext1* device_context() { return device_context_; }
 private:
   ID3D11DeviceContext1*    device_context_;
   ID3D11Device1*           device_;

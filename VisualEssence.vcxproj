@@ -177,6 +177,8 @@
     <ClInclude Include="Code\context\context.h" />
     <ClInclude Include="Code\context\contextd3d11.h" />
     <ClInclude Include="Code\drawable.h" />
+    <ClInclude Include="Code\object\skybox.h" />
+    <ClInclude Include="Code\sprite\sprite_batch.h" />
     <ClInclude Include="Code\util\dds.h" />
     <ClInclude Include="Code\util\DDSTextureLoader.h" />
     <ClInclude Include="Code\util\easing.h" />
@@ -225,10 +227,12 @@
     <ClCompile Include="Code\font\bmfont\font_loader.cpp" />
     <ClCompile Include="Code\font\font_sprite.cpp" />
     <ClCompile Include="Code\font\writer.cpp" />
+    <ClCompile Include="Code\object\skybox.cpp" />
     <ClCompile Include="Code\shader\shader2d_helper.cpp" />
     <ClCompile Include="Code\shader\shader_manager.cpp" />
     <ClCompile Include="Code\shape\arc.cpp" />
     <ClCompile Include="Code\shape\rectangle.cpp" />
+    <ClCompile Include="Code\sprite\sprite_batch.cpp" />
     <ClCompile Include="Code\state\state_manager.cpp" />
     <ClCompile Include="Code\util\DDSTextureLoader.cpp" />
     <ClCompile Include="Code\util\WICTextureLoader.cpp" />

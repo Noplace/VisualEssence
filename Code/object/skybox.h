@@ -18,70 +18,53 @@
 *****************************************************************************************************************/
 #pragma once
 
-#pragma warning( push )             //Suppress MSVC warning spam
-#pragma warning( disable : 4275 )
-
-#ifdef _DEBUG
-#define D3D_DEBUG_INFO
-#endif
-
-//forwards
 namespace ve {
-class Camera;
-class Context;
-class ActionManager;
-class Scene;
-class RenderObject;
+
+struct SkyBoxVertex {
+    dx::XMFLOAT4 pos;
+};
+
+const D3D11_INPUT_ELEMENT_DESC SkyBoxVertexElementDesc[] = {
+    { "POSITION",  0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+};
+
+
+class SkyBox : public RenderObject {
+ public:
+  void *operator new( size_t stAllocateBlock) {
+    return _aligned_malloc(sizeof(SkyBox),16);
+  }
+
+  void   operator delete (void* p)  {
+    return _aligned_free(p);
+  }
+  SkyBox() : RenderObject() {}
+  virtual ~SkyBox() {}
+  int Initialize(Context* context);
+  int Deinitialize();
+  int OnWindowSizeChange();
+  int UpdateVerticies();
+  int UpdateTransform();
+  int Update(float,float);
+  int Render();
+  dx::XMMATRIX pmWorldViewProj;
+ protected:
+  struct CB_VS_PER_OBJECT
+    {
+        dx::XMMATRIX m_WorldViewProj;
+    };    
+  ID3D11SamplerState* sampler_state;
+	ID3D11DepthStencilState* sky_depth_state_;
+  ID3D11RasterizerState* sky_rasterizer_state_;
+  InputLayout il_;
+  ID3D11Buffer* sky_vb_;
+  ID3D11Buffer* m_pcbVSPerObject;
+  PixelShader sky_ps_;
+  VertexShader sky_vs_;
+  ID3D11ShaderResourceView* m_pEnvironmentRV11;
+  ve::Texture sky_tex_;
+  ve::ResourceView sky_trv_;
+};
+
 }
-
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <WinCore/types.h>
-#include <WinCore/math/math.h>
-#include <eh.h>
-#include <ppltasks.h>
-#include <future>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <map>
-#include <d3d11_1.h>
-#include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-namespace dx = DirectX; 
-namespace dxp = DirectX::PackedVector;
-#include "util/timer.h"
-#include "util/asyncdataread.h"
-#include "util/easing.h"
-#include "component.h"
-#include "render_object.h"
-#include "drawable.h"
-#include "action/action_manager.h"
-#include "input_layout.h"
-#include "texture.h"
-#include "resource_view.h"
-#include "buffer/buffer.h"
-#include "shader/shader.h"
-#include "shader/shader_manager.h"
-#include "shape/shape.h"
-#include "context/context.h"
-#include "context/contextd3d11.h"
-#include "buffer/vertex_buffer.h"
-#include "camera/camera.h"
-#include "camera/camera2d.h"
-#include "shape/rectangle.h"
-#include "shape/arc.h"
-#include "sprite/sprite.h"
-#include "sprite/sprite_batch.h"
-#include "effect/effect.h"
-#include "shader/shader_manager.h"
-#include "shader/shader2d_helper.h"
-#include "scene/scene.h"
-#include "font/font_sprite.h"
-#include "font/bmfont/font.h"
-#include "font/bmfont/font_loader.h"
-#include "font/writer.h"
-#include "object/skybox.h"
-#pragma warning( pop )
 

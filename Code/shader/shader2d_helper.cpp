@@ -74,8 +74,9 @@ int Shader2DHelper::PrepareDraw() {
   context_->ClearShader(ve::kShaderTypeGeometry);
   //camera_.SetConstantBuffer(0);
 
-  context_->SetConstantBuffers(ve::kShaderTypeVertex,2,1,&cef_buffer);
-  context_->SetConstantBuffers(ve::kShaderTypePixel,2,1,&cef_buffer);
+  //bug
+  //context_->SetConstantBuffers(ve::kShaderTypeVertex,2,1,&cef_buffer);
+  //context_->SetConstantBuffers(ve::kShaderTypePixel,2,1,&cef_buffer);
   return S_OK;
 }
 

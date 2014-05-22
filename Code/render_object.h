@@ -77,7 +77,11 @@ class RenderObject : public Component {
   void set_opacity(float opacity) { opacity_ = opacity; }
   Scene* scene() { return scene_; }
   void set_scene(Scene* scene) { scene_ = scene; }
+  void set_dirty_flag(int flag) { dirty_ |= flag; }
+  RenderObject* parent() { return parent_; };
+  void set_parent(RenderObject* parent) { parent_ = parent; };
  protected:
+  RenderObject* parent_;
   dx::XMMATRIX world_;
   float opacity_;
   int dirty_;

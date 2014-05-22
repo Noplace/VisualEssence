@@ -62,6 +62,12 @@ class OrthoCamera : public Camera {
 		projection_ = dx::XMMatrixOrthographicOffCenterRH(0.0f,aspect_ratio,1.0f,0.0f,0.0f,1.0f);
   }
 
+  void BuildProjectionMatrix(float width, float height) {
+		projection_ = dx::XMMatrixOrthographicOffCenterRH(0.0f,width,height,0.0f,0.0f,1.0f);
+  }
+
+
+
   void BuildViewMatrix() {
     view_ = dx::XMMatrixIdentity();
   }
