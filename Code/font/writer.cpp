@@ -23,7 +23,7 @@ namespace font {
 
 
 
-Writer::Writer() : Shape(), vertex_array_(NULL) {
+Writer::Writer() : RenderObject(), vertex_array_(NULL) {
   memset(&vertex_buffer_,0,sizeof(vertex_buffer_));
 }
 
@@ -52,37 +52,45 @@ int Writer::Initialize(Context* context) {
   if ( hr != S_OK )
     return S_FALSE;*/
 
+  auto vs_result = context_->shader_manager().RequestVertexShader("font_vs.cso",WriterVertexElementDesc,ARRAYSIZE(WriterVertexElementDesc));
+  vs_ = vs_result.vs;
+  il_ = vs_result.il;
+  auto ps_result = context_->shader_manager().RequestPixelShader("font_ps.cso");
+  ps_ = ps_result.ps;
+
+  world_ = dx::XMMatrixIdentity();
+
+  auto gfx = (ve::ContextD3D11*)context_;
+  D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+  ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
+  depthDisabledStencilDesc.DepthEnable = false;
+  depthDisabledStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+  depthDisabledStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+  depthDisabledStencilDesc.StencilEnable = false;
+  auto hr = gfx->device()->CreateDepthStencilState(&depthDisabledStencilDesc, &depth_state_);
+    
+
   return S_OK;
 }
 
 int Writer::Deinitialize() {
-  //context_->DestroyBuffer(misc_buffer_);
-  if (context_!=nullptr) {
-    //context_->DestroyBuffer(vertex_buffer_);
-    throw new std::exception();
-  }
-  if (vertex_array_)
-    delete [] vertex_array_;
-  //camera_.Deinitialize();
-  //effect_->Deinitialize();
+  context_->DestoryInputLayout(il_);
+  context_->DestroyShader(vs_);
+  context_->DestroyShader(ps_);
+  SafeDeleteArray(&vertex_array_);
+  SafeRelease(&depth_state_);
   Component::Deinitialize();
   return S_OK;
 }
 
 int Writer::PrepareWrite(int count) {
-  //context_->DestroyBuffer(vertex_buffer_);
-  throw new std::exception();
-  vertex_buffer_.description.bind_flags = D3D11_BIND_VERTEX_BUFFER;
-  vertex_buffer_.description.usage = D3D11_USAGE_DEFAULT;
-  vertex_buffer_.description.byte_width = sizeof( ve::shape::Vertex ) * count * 6;
-  vertex_buffer_.description.cpu_access_flags = 0;
-  //context_->CreateBuffer(vertex_buffer_,NULL);
-  throw new std::exception();
-  if (vertex_array_ != NULL)
-    delete [] vertex_array_;
-  vertex_array_ = NULL;
-  vertex_array_ = new ve::shape::Vertex[count * 6];
-  ZeroMemory(vertex_array_,sizeof(ve::shape::Vertex)*count*6);
+  context_->DestroyBuffer((void**)&vertex_buffer_);
+	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof( WriterVertex ) * count * 6, D3D11_BIND_VERTEX_BUFFER);
+  context_->CreateBuffer(&vertexBufferDesc,nullptr,(void**)&vertex_buffer_);
+
+  SafeDeleteArray(&vertex_array_);
+  vertex_array_ = new WriterVertex[count * 6];
+  ZeroMemory(vertex_array_,sizeof(WriterVertex)*count*6);
   vcount = 0;
   return S_OK;
 }
@@ -273,7 +281,7 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
   
 	//y -= font_->scale * float(font_->base);
   //y += font_->scale * float(font_->fontHeight);
-  dxp::XMCOLOR color = dxp::XMCOLOR(1.0f,1.0f,1.0f,1.0f);
+  auto color = dx::XMFLOAT4(1.0f,1.0f,1.0f,1.0f);
   char_count += count;
 	for( int n = 0; n < count; ) {
 		int charId = font_->GetTextChar(text, n, &n);
@@ -297,13 +305,13 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 		float oy = -font_->scale * float(ch->yOff);
 
     float dy = -oy;
-    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+ox, y-oy,z),dx::XMFLOAT2(u,v),color,ch->page);
-    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+w+ox, y-oy,z),dx::XMFLOAT2(u2,v),color,ch->page);
-    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+ox, y-oy-h,z),dx::XMFLOAT2(u,v2),color,ch->page);
+    vertex_array_[vcount++] = WriterVertex(dx::XMFLOAT3(x+ox, y-oy,z),dx::XMFLOAT2(u,v),color,ch->page);
+    vertex_array_[vcount++] = WriterVertex(dx::XMFLOAT3(x+w+ox, y-oy,z),dx::XMFLOAT2(u2,v),color,ch->page);
+    vertex_array_[vcount++] = WriterVertex(dx::XMFLOAT3(x+ox, y-oy-h,z),dx::XMFLOAT2(u,v2),color,ch->page);
 
-    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+ox, y-oy-h,z),dx::XMFLOAT2(u,v2),color,ch->page);
-    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+w+ox, y-oy,z),dx::XMFLOAT2(u2,v),color,ch->page);
-    vertex_array_[vcount++] = ve::shape::Vertex(dx::XMFLOAT3(x+w+ox, y-oy-h,z),dx::XMFLOAT2(u2,v2),color,ch->page);
+    vertex_array_[vcount++] = WriterVertex(dx::XMFLOAT3(x+ox, y-oy-h,z),dx::XMFLOAT2(u,v2),color,ch->page);
+    vertex_array_[vcount++] = WriterVertex(dx::XMFLOAT3(x+w+ox, y-oy,z),dx::XMFLOAT2(u2,v),color,ch->page);
+    vertex_array_[vcount++] = WriterVertex(dx::XMFLOAT3(x+w+ox, y-oy-h,z),dx::XMFLOAT2(u2,v2),color,ch->page);
 
 		x += a;
 		if( charId == ' ' )
@@ -312,12 +320,12 @@ int Writer::InternalWrite(float x, float y, float z, const char *text, int count
 		if( n < count )
 			x += font_->AdjustForKerningPairs(charId, font_->GetTextChar(text,n));
 	}
-  context_->CopyToVertexBuffer(vertex_buffer_.internal_pointer,vertex_array_,sizeof(ve::shape::Vertex),0,vcount);
+  context_->CopyToVertexBuffer(vertex_buffer_,vertex_array_,sizeof(WriterVertex),0,vcount);
 
   return S_OK;
 }
 
-int Writer::GetOutput(ve::shape::Vertex* vertex_array,int* vertex_count,int* char_count) {
+int Writer::GetOutput(WriterVertex* vertex_array,int* vertex_count,int* char_count) {
   *vertex_count = vcount;
   *char_count = this->char_count;
   vertex_array = this->vertex_array_;
@@ -334,30 +342,27 @@ int Writer::Construct() {
   return S_OK;
 }
 
-int Writer::Update() {
-  ve::shape::Shape::Update();
+
+int Writer::Update(float time,float dt) {
   misc_buffer_shader_.world = dx::XMMatrixTranspose( world_ );
   return S_OK;
 }
 
-int Writer::Draw() {
-
-  //effect_->Begin();
-
-  UINT stride = sizeof( ve::shape::Vertex );
+int Writer::Render() {
+  context_->PushDepthState(depth_state_);
+  context_->SetInputLayout(il_);
+  context_->PushVertexShader(&vs_);
+  context_->PushPixelShader(&ps_);
+  UINT stride = sizeof( WriterVertex );
   UINT offset = 0;
-  //context_->SetVertexBuffers(0,1,&vertex_buffer_,&stride,&offset);
-throw new std::exception();
+  context_->SetVertexBuffers(0,1,(const void**)&vertex_buffer_,&stride,&offset);
   context_->ClearIndexBuffer();
   context_->SetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-  //camera_.SetConstantBuffer(0);
-
-  //set contant buffer;
-  //context_->SetConstantBuffers(kShaderTypeVertex,2,1,&misc_buffer_);
-  //context_->SetConstantBuffers(kShaderTypePixel,2,1,&misc_buffer_);
-  context_->SetShaderResources(kShaderTypePixel,1,1,(void**)&font_->pages);
-
+  context_->SetShaderResources(kShaderTypePixel,0,1,(void**)&font_->pages);
   context_->Draw(char_count*6,0);
+  context_->PopPixelShader();
+  context_->PopVertexShader();
+  context_->PopDepthState();
   return S_OK;
 }
 

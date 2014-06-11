@@ -35,11 +35,11 @@ namespace acGraphics {
 
 class FontLoader : public ve::Component {
  public:
-	FontLoader(const char *fontFile);
+	FontLoader(const wchar_t *fontFile);
 	virtual int Load() = 0; // Must be implemented by derived class
   void LoadFont(Font* font) { font_ = font; Load();  }
  protected:
-	ID3D11Resource* LoadPage(int id, const char *pageFile, const char *fontFile);
+	ID3D11Resource* LoadPage(int id, const wchar_t *pageFile, const wchar_t *fontFile);
 	void SetFontInfo(int outlineThickness);
 	void SetCommonInfo(int fontHeight, int base, int scaleW, int scaleH, int pages, bool isPacked);
 	void AddChar(int id, int x, int y, int w, int h, int xoffset, int yoffset, int xadvance, int page, int chnl);
@@ -47,14 +47,14 @@ class FontLoader : public ve::Component {
 
 	FILE *f;
 	Font *font_;
-	const char *fontFile;
+	const wchar_t *fontFile;
 
 	int outlineThickness;
 };
 
 class FontLoaderBinaryFormat : public FontLoader {
 public:
-	FontLoaderBinaryFormat(const char *fontFile);
+	FontLoaderBinaryFormat(const wchar_t *fontFile);
 
 	int Load();
 

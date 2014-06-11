@@ -81,6 +81,14 @@ int SpriteBatch::Deinitialize() {
   context_->DestroyBuffer((void**)&ib_);
   context_->DestroyBuffer((void**)&vb_);
   context_->DestoryInputLayout(input_layout_);
+
+  if (auto_garbage_cleanup_ == true) {
+    for(auto i : render_list_) {
+      i->Deinitialize();
+      delete i;
+    }
+  }
+
   return S_OK;
 }
 
@@ -112,6 +120,11 @@ int SpriteBatch::AddSprite(SpriteBatchSprite* sprite) {
   
 int SpriteBatch::Compile() {
   auto ptr = vertices_data;
+
+  std::sort(render_list_.begin(), render_list_.end(), [](SpriteBatchSprite* a, SpriteBatchSprite* b) {
+      return a->zorder() < b->zorder();   
+  });
+
   for(auto i : render_list_) {
     i->GenerateVertices(ptr);
     ptr += 4;
@@ -124,22 +137,28 @@ int SpriteBatch::Compile() {
 
 int SpriteBatch::UpdateVerticies() {
   if (dirty_&ve::kRenderObjectDirtySize) {
+    int result = Compile();
     dirty_ &= ~ve::kRenderObjectDirtySize;
-    return Compile();
+    return result;
   } else return S_FALSE;
 }
 
 int SpriteBatch::UpdateTransform() {
 	if (dirty_&ve::kRenderObjectDirtyTransform) {
-      dirty_ &= ~ve::kRenderObjectDirtyTransform;
+      
       //world_ = dx::XMMatrixAffineTransformation2D(dx::XMVectorSet(scale_,scale_,1,0),
       //        dx::XMVectorSet(w_/2.0f,h_/2.0f,0,0),angle_,dx::XMVectorSet(x_,y_,0,0));
+
+
+    //int index =0;
     for(auto i : render_list_) {
       i->GenerateTransform(&vs_cb_data_->sprite_info[i->index]);
     }
     
     //context_->UpdateSubresource(vs_cb_,vs_cb_data_,nullptr,0,0);
     context_->CopyBufferFast(vs_cb_,vs_cb_data_,sizeof(SpriteBatchVSConstantBuffer),0);
+    
+    dirty_ &= ~ve::kRenderObjectDirtyTransform;
     return S_OK;
   } else return S_FALSE;
 }

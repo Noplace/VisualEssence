@@ -20,6 +20,15 @@
 
 namespace ve {
 
+__declspec(align(16))
+struct ModelViewProjectionConstantBuffer {
+	dx::XMFLOAT4X4 model;
+	dx::XMFLOAT4X4 view;
+  dx::XMFLOAT4X4 viewInv;
+	dx::XMFLOAT4X4 projection;
+};
+
+
 class Camera : public Component {
  public:
   virtual ~Camera() {
@@ -31,6 +40,7 @@ class Camera : public Component {
     Component::Initialize(context);
     return hr;
   }
+  virtual int Update(float dt) { return S_OK; }
   dx::XMMATRIX& projection() { return projection_;  }
   dx::XMMATRIX& view() { return view_;  }
   dx::XMMATRIX viewprojection() { return view_*projection_;  }
@@ -39,6 +49,49 @@ class Camera : public Component {
  protected:
   dx::XMMATRIX view_;
   dx::XMMATRIX projection_;
+};
+
+class CameraNode : public RenderObject {
+ public:
+  CameraNode() : RenderObject(),cb_index(0) {
+  }       
+
+  int Initialize(Context* context) {
+    int hr = S_OK;
+    RenderObject::Initialize(context);
+    CD3D11_BUFFER_DESC desc(sizeof(ve::ModelViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+    context_->CreateBuffer(&desc,nullptr, (void**)&cb_);
+    return hr;
+  }
+  int Deinitialize() {
+    context_->DestroyBuffer((void**)&cb_);
+    return S_OK;
+  }
+  int UpdateVerticies() { return S_OK; }
+  int UpdateTransform() { return S_OK; }
+  int Update(float time,float dt) {
+    camera_->Update(dt);
+	  dx::XMStoreFloat4x4(&cb_data_.view, camera_->view_transposed());
+    dx::XMStoreFloat4x4(&cb_data_.projection, camera_->projection_transposed());
+    return S_OK;
+  }
+  int Render() {
+    context_->SetConstantBuffers(kShaderTypeVertex,cb_index,1,(const void**)&cb_);
+    return S_OK;
+  }
+  
+  int SetWorldMatrix(const dx::XMMATRIX& world) {
+    dx::XMStoreFloat4x4(&cb_data_.model, dx::XMMatrixTranspose(world));
+    context_->UpdateSubresource((const void*)cb_,&cb_data_,nullptr,0,0);
+    return S_OK;
+  }
+
+  void set_camera(Camera* camera) { camera_ = camera; }
+ protected:
+  Camera* camera_;
+  ID3D11Buffer* cb_;
+  uint32_t cb_index;
+  ModelViewProjectionConstantBuffer cb_data_;
 };
 
 class PrespectiveCamera : public Camera {
@@ -70,12 +123,34 @@ class OrthoCamera : public Camera {
 
   void BuildViewMatrix() {
     view_ = dx::XMMatrixIdentity();
+    cam_left = cam_top = 0;
+  }
+
+  int Update(float timeDelta) {
+  //testing code
+    {
+    float speed = 100.0f * timeDelta;
+
+      /*if (GetAsyncKeyState(VK_UP))
+        cam_top += speed;
+      if (GetAsyncKeyState(VK_DOWN))
+        cam_top -= speed;
+
+      if (GetAsyncKeyState(VK_LEFT))
+        cam_left += speed;
+      if (GetAsyncKeyState(VK_RIGHT))
+        cam_left -= speed;*/
+    }
+
+    view_ = dx::XMMatrixTranslation(cam_left,cam_top,0);
+    return S_OK;
   }
 /*  void Build() {
     BuildViewMatrix();
     BuildProjectionMatrix();
   }*/
-
+ protected:
+    float cam_left,cam_top; 
 };
 
 

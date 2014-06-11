@@ -32,6 +32,8 @@ class Context;
 class ActionManager;
 class Scene;
 class RenderObject;
+class ShaderManager;
+class ResourceManager;
 }
 
 
@@ -65,6 +67,8 @@ namespace dxp = DirectX::PackedVector;
 #include "shader/shader.h"
 #include "shader/shader_manager.h"
 #include "shape/shape.h"
+#include "resource/resource.h"
+#include "resource/resource_manager.h"
 #include "context/context.h"
 #include "context/contextd3d11.h"
 #include "buffer/vertex_buffer.h"
@@ -73,7 +77,7 @@ namespace dxp = DirectX::PackedVector;
 #include "shape/rectangle.h"
 #include "shape/arc.h"
 #include "sprite/sprite.h"
-#include "sprite/sprite_batch.h"
+#include "sprite/sprite_batch.h"  
 #include "effect/effect.h"
 #include "shader/shader_manager.h"
 #include "shader/shader2d_helper.h"
@@ -83,5 +87,8 @@ namespace dxp = DirectX::PackedVector;
 #include "font/bmfont/font_loader.h"
 #include "font/writer.h"
 #include "object/skybox.h"
+
+#include "resource/font_resource.h"
+#include "resource/texture_resource.h"
 #pragma warning( pop )
 

@@ -26,24 +26,31 @@
 #pragma comment(lib, "d3dx11.lib")
 #endif
 
-//#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "dxgi.lib")
 #pragma comment( lib, "dxguid.lib")
 
 namespace ve {
-  /*
-const D3DVERTEXELEMENT9 ContextD3D11::ve_xyzc[3] = {
-  {0,0,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION ,0},
-  {0,12,D3DDECLTYPE_D3DCOLOR,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_COLOR ,0},
-  D3DDECL_END()
-};
 
-const D3DVERTEXELEMENT9 ContextD3D11::ve_xyzcuv[4] = {
-  {0,0,D3DDECLTYPE_FLOAT3,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_POSITION ,0},
-  {0,12,D3DDECLTYPE_D3DCOLOR,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_COLOR ,0},
-  {0,16,D3DDECLTYPE_FLOAT2,D3DDECLMETHOD_DEFAULT,D3DDECLUSAGE_TEXCOORD ,0},
-  D3DDECL_END()
-};
-*/
+std::vector<IDXGIAdapter*> EnumerateDXGIAdapters() {
+  IDXGIAdapter * adaptor; 
+  std::vector <IDXGIAdapter*> adaptors; 
+  IDXGIFactory2* factory = NULL; 
+
+  // Create a DXGIFactory object.
+  if(FAILED(CreateDXGIFactory1(__uuidof(IDXGIFactory2) ,(void**)&factory))) {
+    return adaptors;
+  }
+
+  for (auto i = 0; factory->EnumAdapters(i, &adaptor) != DXGI_ERROR_NOT_FOUND; ++i)  {
+    adaptors.push_back(adaptor); 
+  } 
+
+  SafeRelease(&factory);
+
+  return adaptors;
+}
+
+
 ContextD3D11::ContextD3D11(): Context(),device_(NULL),device_context_(NULL),
 depth_stencil_(NULL),render_target_view_(NULL),swap_chain_(NULL),depth_stencil_view_(NULL),default_depth_state(NULL),default_blend_state(NULL){
   memset(&states_.ds,0,sizeof(states_.ds));
@@ -51,7 +58,7 @@ depth_stencil_(NULL),render_target_view_(NULL),swap_chain_(NULL),depth_stencil_v
 }
 
 ContextD3D11::~ContextD3D11() {
-  Deinitialize();
+  
 }
 
 int ContextD3D11::Initialize() {
@@ -76,30 +83,49 @@ int ContextD3D11::Initialize() {
           reinterpret_cast<IUnknown **>(&dwrite_factory_)
           );
   }*/
+  adaptors_ = EnumerateDXGIAdapters();
+  adaptor_ = adaptors_[0];
+
+  {
+    wchar_t str[255];
+    DXGI_ADAPTER_DESC desc;
+    adaptor_->GetDesc(&desc);
+    swprintf_s(str,L"ContextD3D11::Initialize : Using adaptor %s",desc.Description);
+    OutputDebugStringW(str);
+  }
+
   shader_manager_.Initialize(this);
+  action_manager_.Initialize(this);
+  resource_manager_.Initialize(this);
   return hr;
 }
 
 int ContextD3D11::Deinitialize() {
-    if( device_context_ )  device_context_->ClearState();
-    
-    shader_manager_.Deinitialize();
-    SafeRelease(&depth_stencil_);
-    //SafeRelease(&d2d_render_target_);
-    SafeRelease(&depth_stencil_view_);
-    SafeRelease(&render_target_view_);
-    SafeRelease(&swap_chain_);
-    SafeRelease(&device_context_);
-    SafeRelease(&device_);
-    SafeRelease(&default_depth_state);
-    SafeRelease(&default_blend_state);
-    /*SafeRelease(&dwrite_factory_);
-    SafeRelease(&wic_factory_);
-    SafeRelease(&d2d_factory_);
-    */
+  if( device_context_ ) 
+    device_context_->ClearState();
 
-    return S_OK;
+  SafeRelease(&depth_stencil_);
+  //SafeRelease(&d2d_render_target_);
+  SafeRelease(&depth_stencil_view_);
+  SafeRelease(&render_target_view_);
+  SafeRelease(&swap_chain_);
+  SafeRelease(&device_context_);
+  SafeRelease(&device_);
+  SafeRelease(&default_depth_state);
+  SafeRelease(&default_blend_state);
+  /*SafeRelease(&dwrite_factory_);
+  SafeRelease(&wic_factory_);
+  SafeRelease(&d2d_factory_);
+  */
+  resource_manager_.Deinitialize();
+  action_manager_.Deinitialize();
+  shader_manager_.Deinitialize();
+
+  for (auto i : adaptors_)
+    SafeRelease(&i);
+  return S_OK;
 }
+
 
 int ContextD3D11::CreateDisplay(HWND window) {
   window_handle_ = window;
@@ -181,7 +207,12 @@ int ContextD3D11::CreateDeviceResources() {
   D3D_FEATURE_LEVEL feature_level;
   ID3D11Device* device;
   ID3D11DeviceContext* devicecontext;
-  D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr,	creationFlags, featureLevels, ARRAYSIZE(featureLevels),	D3D11_SDK_VERSION, &device, &feature_level, &devicecontext);
+
+  auto hr = D3D11CreateDevice(adaptor_, D3D_DRIVER_TYPE_UNKNOWN, nullptr,	creationFlags, featureLevels, ARRAYSIZE(featureLevels),	D3D11_SDK_VERSION, &device, &feature_level, &devicecontext);
+  if (FAILED(hr)) {
+    OutputDebugString("ContextD3D11::CreateDeviceResources : D3D11CreateDevice Failed");
+    return hr;
+  }
   device_ = (ID3D11Device1*)device;
   device_context_ = (ID3D11DeviceContext1*)devicecontext;
 
@@ -208,11 +239,11 @@ int ContextD3D11::CreateDeviceResources() {
   return S_OK;
 }
 
-int ContextD3D11::CreateWindowSizeDependentResources() { 
-  RECT rc;
-  GetClientRect( window_handle_, &rc );
-  width_ = rc.right - rc.left;
-  height_ = rc.bottom - rc.top;
+int ContextD3D11::CreateWindowSizeDependentResources(uint32_t width, uint32_t height) { 
+  //RECT rc;
+  //GetClientRect( window_handle_, &rc );
+  width_ = width;//rc.right - rc.left;
+  height_ = height;//rc.bottom - rc.top;
 
 
   if(swap_chain_ != nullptr)
@@ -238,10 +269,10 @@ int ContextD3D11::CreateWindowSizeDependentResources() {
     
     IDXGIDevice1* dxgiDevice;
     device_->QueryInterface(__uuidof(dxgiDevice),(void**)&dxgiDevice);
-    IDXGIAdapter* dxgiAdapter;
-    dxgiDevice->GetAdapter(&dxgiAdapter);
+    //IDXGIAdapter* dxgiAdapter;
+    //dxgiDevice->GetAdapter(&dxgiAdapter);
     IDXGIFactory2* dxgiFactory;
-    dxgiAdapter->GetParent(__uuidof(IDXGIFactory2), 		(void**)&dxgiFactory		);
+    adaptor_->GetParent(__uuidof(IDXGIFactory2), 		(void**)&dxgiFactory		);
 
     DXGI_SWAP_CHAIN_FULLSCREEN_DESC fullscreen_desc;
     memset(&fullscreen_desc,0,sizeof(fullscreen_desc));
@@ -250,7 +281,7 @@ int ContextD3D11::CreateWindowSizeDependentResources() {
     dxgiDevice->SetMaximumFrameLatency(1);
 
     SafeRelease(&dxgiFactory);
-    SafeRelease(&dxgiAdapter);
+    //SafeRelease(&dxgiAdapter);
     SafeRelease(&dxgiDevice);
   }
   
@@ -310,7 +341,7 @@ int ContextD3D11::CreateWindowSizeDependentResources() {
 }
 
 // This method is called in the event handler for the SizeChanged event.
-int ContextD3D11::OnWindowSizeChange()
+int ContextD3D11::OnWindowSizeChange(uint32_t width, uint32_t height)
 {
   /*if (m_window->Bounds.Width  != m_windowBounds.Width ||
     m_window->Bounds.Height != m_windowBounds.Height ||
@@ -321,7 +352,7 @@ int ContextD3D11::OnWindowSizeChange()
     SafeRelease(&render_target_view_);
     SafeRelease(&depth_stencil_view_);
     device_context_->Flush();
-    CreateWindowSizeDependentResources();
+    CreateWindowSizeDependentResources(width,height);
   }
   return S_OK;
 }
@@ -515,7 +546,7 @@ int ContextD3D11::HandleDeviceLost() {
   SafeRelease(&swap_chain_);
 
   CreateDeviceResources();
-  OnWindowSizeChange();
+  OnWindowSizeChange(width_,height_);
   return S_OK;
 }
 
@@ -896,7 +927,12 @@ int ContextD3D11::SetViewport(float x,float y,float w,float h,float min_depth,fl
 }
 
 int ContextD3D11::SetDefaultTargets() {
-  device_context_->OMSetRenderTargets( 1, &render_target_view_, depth_stencil_view_ );
+  device_context_->OMSetRenderTargets(1,&render_target_view_,depth_stencil_view_);
+  return S_OK;
+}
+
+int ContextD3D11::SetRenderTargets(void* target) {
+  device_context_->OMSetRenderTargets(1,(ID3D11RenderTargetView*const*)&target,depth_stencil_view_);
   return S_OK;
 }
 
@@ -972,6 +1008,66 @@ int ContextD3D11::PopPixelShader() {
   return S_OK;
 }
 
+int ContextD3D11::CreateRenderTarget(int width, int height,void** render_target, Texture* texture, ResourceView* resource_view) {
+
+	D3D11_TEXTURE2D_DESC textureDesc;
+	HRESULT result;
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+
+
+	// Initialize the render target texture description.
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+
+	// Setup the render target texture description.
+	textureDesc.Width = width;
+	textureDesc.Height = height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	// Create the render target texture.
+	result = device_->CreateTexture2D(&textureDesc, NULL,(ID3D11Texture2D**)&texture->data_pointer);
+	if(FAILED(result))
+	{
+		return false;
+	}
+
+	// Setup the description of the render target view.
+	renderTargetViewDesc.Format = textureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+
+	// Create the render target view.
+	result = device_->CreateRenderTargetView((ID3D11Texture2D*)texture->data_pointer, &renderTargetViewDesc,(ID3D11RenderTargetView**)render_target);
+	if(FAILED(result))
+	{
+		return false;
+	}
+
+  if (resource_view != nullptr) {
+
+	  // Setup the description of the shader resource view.
+	  shaderResourceViewDesc.Format = textureDesc.Format;
+	  shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	  shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	  shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+	  // Create the shader resource view.
+	  result = device_->CreateShaderResourceView((ID3D11Texture2D*)texture->data_pointer, &shaderResourceViewDesc, (ID3D11ShaderResourceView**)&resource_view->data_pointer);
+	  if(FAILED(result))
+	  {
+		  return false;
+	  }
+  }
+
+	return true;
+}
 
 
 }

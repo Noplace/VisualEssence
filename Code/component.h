@@ -24,14 +24,17 @@ class Context;
 
 class Component {
  public:
-  Component() : context_(NULL)  {}
+  Component() : context_(NULL),auto_garbage_cleanup_(false)  {}
   virtual ~Component() {}
   virtual int Initialize(Context* context) { context_ = context; return S_OK; }
   virtual int Deinitialize() { return S_OK; }
   virtual int OnWindowSizeChange() { return S_OK; }
   Context* context() { return context_; }
-protected:
+  bool auto_garbage_cleanup() { return auto_garbage_cleanup_; }
+  void set_auto_garbage_cleanup(bool auto_garbage_cleanup) { auto_garbage_cleanup_ = auto_garbage_cleanup; }
+ protected:
   Context* context_;
+  bool auto_garbage_cleanup_;
 };
 
 }

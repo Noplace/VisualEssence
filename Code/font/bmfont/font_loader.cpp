@@ -16,41 +16,44 @@
 * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE            *
 * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                                                         *
 *****************************************************************************************************************/
-#ifdef VE_USE_D3D11_ENGINE
+
 #include "../../ve.h"
+#include "../../util/WICTextureLoader.h"
 
 using namespace std;
 
 namespace acGraphics {
 
-FontLoader::FontLoader(const char *fontFile) {
+FontLoader::FontLoader(const wchar_t *fontFile) {
 	this->f = NULL;
 	this->fontFile = fontFile;
   font_ = NULL;
 	outlineThickness = 0;
 }
 
-ID3D11Resource* FontLoader::LoadPage(int id, const char *pageFile, const char *fontFile) {
-	string str;
+ID3D11Resource* FontLoader::LoadPage(int id, const wchar_t *pageFile, const wchar_t *fontFile) {
+	wstring str;
 
 	// Load the texture from the same directory as the font descriptor file
 
 	// Find the directory
 	str = fontFile;
-	for( size_t n = 0; (n = str.find('/', n)) != string::npos; ) str.replace(n, 1, "\\");
+	for( size_t n = 0; (n = str.find('/', n)) != string::npos; ) str.replace(n, 1, L"\\");
 	size_t i = str.rfind('\\');
 	if( i != string::npos )
 		str = str.substr(0, i+1);
 	else
-		str = "";
+		str = L"";
 
 	// Load the font textures
 	str += pageFile;
 
+
+
   ID3D11Resource* texture;
   ID3D11Device* d = ((ve::ContextD3D11*)context())->device();
   ID3D11DeviceContext* dc = ((ve::ContextD3D11*)context())->device_context();
-  int hr = D3DX11CreateTextureFromFile(d,str.c_str(),NULL,NULL,&texture,NULL);
+  int hr = DirectX::CreateWICTextureFromFile(d,str.c_str(),&texture,NULL);
   if (hr == S_OK)
     return texture;
 
@@ -134,7 +137,7 @@ void FontLoader::AddKerningPair(int first, int second, int amount) {
 
 
 
-FontLoaderBinaryFormat::FontLoaderBinaryFormat(const char *fontFile) : FontLoader(fontFile) {
+FontLoaderBinaryFormat::FontLoaderBinaryFormat(const wchar_t *fontFile) : FontLoader(fontFile) {
 }
 
 int FontLoaderBinaryFormat::Load() {
@@ -142,7 +145,7 @@ int FontLoaderBinaryFormat::Load() {
   if (font_ == NULL)
     return S_FALSE;
 
-  fopen_s(&f,fontFile, "rb");
+  _wfopen_s(&f,fontFile, L"rb");
 
 	// Read and validate the tag. It should be 66, 77, 70, 2, 
 	// or 'BMF' and 2 where the number is the file version.
@@ -279,7 +282,7 @@ struct pagesBlock {
   tex_desc.Height = 256;
   tex_desc.MipLevels = 1;
   tex_desc.ArraySize = texture_count;
-  tex_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  tex_desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
   tex_desc.SampleDesc.Count = 1;
   tex_desc.SampleDesc.Quality = 0;
   tex_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -292,9 +295,12 @@ struct pagesBlock {
   ID3D11DeviceContext* dc = ((ve::ContextD3D11*)context())->device_context();
   d->CreateTexture2D(&tex_desc,NULL,&temp_texture);
 
+
   ID3D11Resource** page_textures = new ID3D11Resource*[size];
 	for( int id = 0, pos = 0; pos < size; id++ ) {
-		page_textures[id] = LoadPage(id, &blk->pageNames[pos], fontFile);
+    std::string pagename_str(&blk->pageNames[pos]);
+    std::wstring pagename_wstr(pagename_str.begin(), pagename_str.end());
+		page_textures[id] = LoadPage(id, pagename_wstr.c_str(), fontFile);
     dc->CopySubresourceRegion(temp_texture,id,0,0,0,page_textures[id],0,NULL);
 		pos += 1 + (int)strlen(&blk->pageNames[pos]);
 	}
@@ -302,7 +308,7 @@ struct pagesBlock {
 	delete[] buffer;
 
   D3D11_SHADER_RESOURCE_VIEW_DESC view_desc;
-  view_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  view_desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
   view_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DARRAY;
   view_desc.Texture2DArray.MostDetailedMip = 0;
   view_desc.Texture2DArray.MipLevels = tex_desc.MipLevels;
@@ -386,4 +392,3 @@ struct kerningPairsBlock {
 
 
 
-#endif

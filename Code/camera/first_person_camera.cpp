@@ -20,11 +20,11 @@
 
 namespace ve {
 
-void FirstPersonCamera::Update(float timeDelta) {
+int FirstPersonCamera::Update(float dt) {
      
   //testing code
   {
-    float speed = 2.0f * timeDelta;
+    float speed = 2.0f * dt;
       if (GetAsyncKeyState('W'))
         moveBackForward += speed;
       if (GetAsyncKeyState('S'))
@@ -87,6 +87,7 @@ void FirstPersonCamera::Update(float timeDelta) {
 
 	  
   BuildViewMatrix(camPosition,camTarget,camUp);
+  return S_OK;
 }
 
 

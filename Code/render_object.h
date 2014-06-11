@@ -20,6 +20,28 @@
 
 namespace ve {
 
+struct VertexPosition
+{
+	dx::XMFLOAT3 pos;
+};
+
+const D3D11_INPUT_ELEMENT_DESC VertexPositionElementDesc[] = 
+{
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+};
+
+
+struct VertexPositionTexture
+{
+	dx::XMFLOAT3 pos;
+  dx::XMFLOAT2 uv;
+};
+
+const D3D11_INPUT_ELEMENT_DESC VertexPositionTextureElementDesc[] = 
+{
+	{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0 },
+  { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+};
 
 struct VertexPositionColor
 {
@@ -77,6 +99,7 @@ class RenderObject : public Component {
   void set_opacity(float opacity) { opacity_ = opacity; }
   Scene* scene() { return scene_; }
   void set_scene(Scene* scene) { scene_ = scene; }
+  int dirty_flag() { return dirty_; }
   void set_dirty_flag(int flag) { dirty_ |= flag; }
   RenderObject* parent() { return parent_; };
   void set_parent(RenderObject* parent) { parent_ = parent; };

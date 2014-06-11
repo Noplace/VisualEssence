@@ -70,7 +70,7 @@ class SpriteBatchSprite : public ve::RenderObject {
     return _aligned_free(p);
   }
 
-  SpriteBatchSprite() : ve::RenderObject(),x_(0),y_(0),w_(1),h_(1),u0_(0),v0_(0),u1_(1.0f),v1_(1.0f),scale_(1.0f),color_(dx::XMFLOAT3(1, 1, 1)),angle_(0) {
+  SpriteBatchSprite() : ve::RenderObject(),x_(0),y_(0),zorder_(0),w_(1),h_(1),u0_(0),v0_(0),u1_(1.0f),v1_(1.0f),scale_(1.0f),color_(dx::XMFLOAT3(1, 1, 1)),angle_(0) {
     
   }
 
@@ -113,7 +113,7 @@ class SpriteBatchSprite : public ve::RenderObject {
   }
 
   int GenerateVertices(SpriteBatchVertex* v) {
-    if (dirty_&ve::kRenderObjectDirtySize) {
+    if ( (dirty_&ve::kRenderObjectDirtySize) || (parent_->dirty_flag()&ve::kRenderObjectDirtySize) ) {
       dirty_ &= ~ve::kRenderObjectDirtySize;
       v[0].pos = dx::XMFLOAT3(0.0f,0.0f,0.0f);
       v[1].pos = dx::XMFLOAT3(w_,0.0f,0.0f);
@@ -131,7 +131,7 @@ class SpriteBatchSprite : public ve::RenderObject {
   }
 
   int GenerateTransform(SpriteBatchVSConstantBuffer::SpriteInfo* t) {
-	  if (dirty_&ve::kRenderObjectDirtyTransform) {
+	  if ( (dirty_&ve::kRenderObjectDirtyTransform) || (parent_->dirty_flag()&ve::kRenderObjectDirtyTransform) ) {
       dirty_ &= ~ve::kRenderObjectDirtyTransform;
       t->x = x_;
       t->y = y_;
@@ -145,6 +145,11 @@ class SpriteBatchSprite : public ve::RenderObject {
       return S_FALSE;
   }
 
+  dx::XMFLOAT2 center() {
+    return dx::XMFLOAT2(x_+w_*0.5f,y_+h_*0.5f) ;
+  }
+
+  dx::XMFLOAT2 size() const { return dx::XMFLOAT2(w_,h_); }
   void set_size(float w,float h) { w_ = w; h_ = h; dirty_ |= ve::kRenderObjectDirtySize; parent_->set_dirty_flag(ve::kRenderObjectDirtySize); }
   void set_scale(float scale) {scale_ = scale; dirty_ |= ve::kRenderObjectDirtyTransform; parent_->set_dirty_flag(ve::kRenderObjectDirtyTransform);  }
   void set_angle(float angle) { angle_ = angle; dirty_ |= ve::kRenderObjectDirtyTransform; parent_->set_dirty_flag(ve::kRenderObjectDirtyTransform); }
@@ -152,9 +157,12 @@ class SpriteBatchSprite : public ve::RenderObject {
   void set_position(float x, float y) { x_ = x; y_ = y; dirty_ |= ve::kRenderObjectDirtyTransform; parent_->set_dirty_flag(ve::kRenderObjectDirtyTransform); }
   void set_opacity(float opacity) { opacity_ = opacity;  dirty_ |= ve::kRenderObjectDirtyTransform; parent_->set_dirty_flag(ve::kRenderObjectDirtyTransform);  }
   void set_color(dx::XMFLOAT3 color) { color_ = color; dirty_ |= ve::kRenderObjectDirtySize; parent_->set_dirty_flag(ve::kRenderObjectDirtySize); }
-
+  int zorder() const { return zorder_; }
+  void set_zorder(int zorder) { zorder_ = zorder; set_dirty_flag(ve::kRenderObjectDirtySize); parent_->set_dirty_flag(ve::kRenderObjectDirtySize); }
+  void set_uv(float u0, float v0, float u1, float v1) { u0_ = u0; v0_ = v0; u1_ = u1; v1_ = v1; set_dirty_flag(ve::kRenderObjectDirtySize); parent_->set_dirty_flag(ve::kRenderObjectDirtySize); }
   int index;
  private:
+  int zorder_;
   float x_,y_,w_,h_,angle_,scale_;
   float u0_,v0_,u1_,v1_;
   dx::XMFLOAT3 color_;

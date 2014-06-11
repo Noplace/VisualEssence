@@ -67,6 +67,9 @@ class Scene : public RenderObject {
   virtual int UpdateWorldMatrix(const dx::XMMATRIX& world) {
     return S_FALSE;
   }
+  virtual int OnInput(int msg, int data1) {
+    return S_OK;
+  }
   virtual Camera* camera() = 0;
  protected:
   VertexShader vs_;

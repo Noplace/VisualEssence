@@ -42,14 +42,10 @@ class Camera2D : public Component {
   }
 
   void Use() {
-    /*ContextD3D9* c = (ContextD3D9*)context();
-    c->device()->SetRenderState( D3DRS_CULLMODE, D3DCULL_NONE );
-    c->device()->SetRenderState( D3DRS_LIGHTING, FALSE );
-    c->device()->SetTransform(D3DTS_PROJECTION, (D3DMATRIX*)&projection_);
-    c->device()->SetTransform(D3DTS_WORLD, (D3DMATRIX*)&view_);
-	  c->device()->SetTransform(D3DTS_VIEW, (D3DMATRIX*)&view_);*/
+  
   }
  private:
+
   dx::XMMATRIX view_;	
   dx::XMMATRIX projection_;
 };

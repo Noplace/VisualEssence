@@ -38,7 +38,7 @@ class Context {
   virtual int Initialize() = 0;
   virtual int Deinitialize() = 0;
   virtual int CreateDisplay(HWND window) = 0;
-  virtual int OnWindowSizeChange() = 0;
+  virtual int OnWindowSizeChange(uint32_t width, uint32_t height) = 0;
   virtual int Render() = 0;
   //virtual int Clear(int target, int zbuffer) = 0;
   virtual int ClearTarget() = 0;
@@ -102,6 +102,7 @@ class Context {
   uint32_t height() { return height_; }
   ShaderManager& shader_manager() { return shader_manager_; }
   ActionManager& action_manager() { return action_manager_; }
+  ResourceManager& resource_manager() { return resource_manager_; }
  protected:
   Camera* camera_;
   HWND window_handle_;
@@ -109,6 +110,7 @@ class Context {
   uint32_t height_;
   ShaderManager shader_manager_;
   ActionManager action_manager_;
+  ResourceManager resource_manager_;
   struct  DSState{
     void* ptr;
     UINT stencil;

@@ -1,5 +1,5 @@
 /*****************************************************************************************************************
-* Copyright (c) 2012 Khalid Ali Al-Kooheji                                                                       *
+* Copyright (c) 2014 Khalid Ali Al-Kooheji                                                                       *
 *                                                                                                                *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and              *
 * associated documentation files (the "Software"), to deal in the Software without restriction, including        *
@@ -42,8 +42,8 @@ class ContextD3D11 : public Context {
   int Deinitialize();
   int CreateDisplay(HWND window);
   int CreateDeviceResources();
-  int CreateWindowSizeDependentResources();
-  int OnWindowSizeChange();
+  int CreateWindowSizeDependentResources(uint32_t width, uint32_t height);
+  int OnWindowSizeChange(uint32_t width, uint32_t height);
   
   int Resize(uint32_t width, uint32_t height, bool fullscreen);
   int Render();
@@ -94,6 +94,7 @@ class ContextD3D11 : public Context {
   int SetCamera(Camera* camera);
   int SetViewport(float x,float y,float w,float h,float min_depth,float max_depth);
   int SetDefaultTargets();
+  int SetRenderTargets(void* target);
 
   int PushDepthState(void* ptr);
   int PopDepthState();
@@ -105,9 +106,13 @@ class ContextD3D11 : public Context {
   int PushPixelShader(PixelShader* ptr);
   int PopPixelShader();
 
+  int CreateRenderTarget(int width, int height,void** render_target, Texture* texture, ResourceView* resource_view);
+
   ID3D11Device1* device() { return device_; }
   ID3D11DeviceContext1* device_context() { return device_context_; }
 private:
+  std::vector <IDXGIAdapter*> adaptors_;
+  IDXGIAdapter* adaptor_;
   ID3D11DeviceContext1*    device_context_;
   ID3D11Device1*           device_;
   IDXGISwapChain1*         swap_chain_;

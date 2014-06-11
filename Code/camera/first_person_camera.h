@@ -45,7 +45,7 @@ class FirstPersonCamera : public ve::PrespectiveCamera {
   }
 
 
-  void Update(float timeDelta);
+  int Update(float dt);
 
 };
 
