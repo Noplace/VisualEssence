@@ -20,11 +20,11 @@
 #include "../ve.h"
 
 #pragma comment(lib, "d3d11.lib")
-#ifdef _DEBUG 
-//#pragma comment(lib, "d3dx11d.lib")
+/*#ifdef _DEBUG 
+#pragma comment(lib, "d3dx11.lib")
 #else
 #pragma comment(lib, "d3dx11.lib")
-#endif
+#endif*/
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment( lib, "dxguid.lib")
@@ -135,8 +135,8 @@ int ContextD3D11::CreateDisplay(HWND window) {
   
 
 
-/*
-  DXGI_SWAP_CHAIN_DESC sd;
+
+ /* DXGI_SWAP_CHAIN_DESC sd;
   ZeroMemory( &sd, sizeof( sd ) );
   sd.BufferCount = 2;
   sd.BufferDesc.Width = width_;
@@ -185,7 +185,7 @@ int ContextD3D11::CreateDisplay(HWND window) {
 int ContextD3D11::CreateDeviceResources() {
   UINT creationFlags = D3D11_CREATE_DEVICE_SINGLETHREADED;//D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 #ifdef _DEBUG
-  creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+ // creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
   D3D_DRIVER_TYPE driverTypes[] =
@@ -198,10 +198,15 @@ int ContextD3D11::CreateDeviceResources() {
 
   D3D_FEATURE_LEVEL featureLevels[] =
   {
+    D3D_FEATURE_LEVEL_12_1,
+    D3D_FEATURE_LEVEL_12_0,
     D3D_FEATURE_LEVEL_11_1,
     D3D_FEATURE_LEVEL_11_0,
     D3D_FEATURE_LEVEL_10_1,
     D3D_FEATURE_LEVEL_10_0,
+    D3D_FEATURE_LEVEL_9_3,
+    D3D_FEATURE_LEVEL_9_2,
+    D3D_FEATURE_LEVEL_9_1,
   };
   UINT numFeatureLevels = ARRAYSIZE( featureLevels );
   D3D_FEATURE_LEVEL feature_level;
