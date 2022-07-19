@@ -74,8 +74,8 @@ int Arc::Construct() {
   vertex_buffer_.description.cpu_access_flags = 0;
   //context_->DestroyBuffer(vertex_buffer_);
   //context_->CreateBuffer(vertex_buffer_,NULL);
-  throw new std::exception();
-  int hr = context_->CopyToVertexBuffer(vertex_buffer_.internal_pointer,vertices,sizeof(Vertex),0,vertex_count_);
+  //throw new std::exception();
+  int hr = 0;// context_->CopyToVertexBuffer(vertex_buffer_.internal_pointer, vertices, sizeof(Vertex), 0, vertex_count_);
   //pool.CopyData(vb_id,vertices,vertex_count_);
   delete [] vertices;
   return hr;
